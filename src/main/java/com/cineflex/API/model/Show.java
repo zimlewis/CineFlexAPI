@@ -3,6 +3,10 @@ package com.cineflex.API.model;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import lombok.Data;
+
+
+@Data
 public class Show {
     Long id;
     String title;

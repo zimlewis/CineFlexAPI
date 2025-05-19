@@ -3,6 +3,9 @@ package com.cineflex.API.model;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import lombok.Data;
+
+@Data
 public class Episode {
     Long id;
     String title;
