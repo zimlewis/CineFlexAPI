@@ -1,13 +1,14 @@
 package com.cineflex.API.model;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import lombok.Data;
 
 @Data
 public class Rating {
-    Long account;
-    Long show;
+    UUID account;
+    UUID show;
     Integer value;
     LocalDateTime createdDate;
     

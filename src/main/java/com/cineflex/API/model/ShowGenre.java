@@ -1,9 +1,11 @@
 package com.cineflex.API.model;
 
+import java.util.UUID;
+
 import lombok.Data;
 
 @Data
 public class ShowGenre {
-    Long show;
-    Long genre;
+    UUID show;
+    UUID genre;
 }

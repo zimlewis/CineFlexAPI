@@ -1,11 +1,13 @@
 package com.cineflex.API.model;
 
+import java.util.UUID;
+
 import lombok.Data;
 
 @Data
 public class Comment {
-    Long id;
+    UUID id;
     String content;
-    Long account;
-    Long episode;
+    UUID account;
+    UUID episode;
 }

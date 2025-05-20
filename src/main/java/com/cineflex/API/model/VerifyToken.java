@@ -1,10 +1,12 @@
 package com.cineflex.API.model;
 
+import java.util.UUID;
+
 import lombok.Data;
 
 @Data
 public class VerifyToken {
-    Long id;
-    Long account;
+    UUID id;
+    UUID account;
     String token;
 }

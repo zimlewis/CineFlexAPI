@@ -16,9 +16,13 @@ public class AccountRepository {
     }
 
     public void create(Account account) {
-        String sql = "INSERT INTO [dbo].[Account] ";
+        String sql = "INSERT INTO [dbo].[Account]";
 
-        jdbcTemplate.update(sql);
+        int row = jdbcTemplate.update(sql);
+
+        if (row == 0) {
+            throw new RuntimeException("Cannot add account to database");
+        }
     }
 
 }

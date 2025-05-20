@@ -1,14 +1,15 @@
 package com.cineflex.API.model;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 import lombok.Data;
 
 @Data
 public class Season {
-    Long id;
+    UUID id;
     String title;
     LocalDate releaseDate;
     String description;
-    Long show;
+    UUID show;
 }

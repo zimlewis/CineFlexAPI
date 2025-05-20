@@ -1,13 +1,14 @@
 package com.cineflex.API.model;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import lombok.Data;
 
 @Data
 public class Subscription {
-    Long id;
+    UUID id;
     LocalDateTime startTime;
     LocalDateTime endTime;
-    Long account;
+    UUID account;
 }

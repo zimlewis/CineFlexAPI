@@ -1,12 +1,13 @@
 package com.cineflex.API.model;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import lombok.Data;
 
 @Data
 public class Favorite {
-    Long account;
-    Long show;
+    UUID account;
+    UUID show;
     LocalDateTime createdDate;
 }
