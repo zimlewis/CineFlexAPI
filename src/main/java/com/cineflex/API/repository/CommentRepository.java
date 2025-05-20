@@ -20,7 +20,7 @@ public class CommentRepository implements RepositoryInterface<Comment>{
 
     @Override
     public void create(Comment comment) {
-        String sql = "INSERT INTO [dbo].[Comment]([Id], [Content], [CommentedTime], [Account], [Episode]) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO [dbo].[Comment] ([Id], [Content], [CommentedTime], [Account], [Episode]) VALUES (?, ?, ?, ?, ?)";
 
         int row = jdbcClient.sql(sql).params(
             comment.getId(),
@@ -68,7 +68,8 @@ public class CommentRepository implements RepositoryInterface<Comment>{
             t.getContent(),
             t.getCommentedTime(),
             t.getAccount(),
-            t.getEpisode()
+            t.getEpisode(),
+            id
         ).update();
 
         if (row == 0) {

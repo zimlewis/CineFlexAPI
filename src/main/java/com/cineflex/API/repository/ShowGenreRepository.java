@@ -3,41 +3,58 @@ package com.cineflex.API.repository;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
 
 import com.cineflex.API.model.ShowGenre;
 
 @Repository
 public class ShowGenreRepository implements RepositoryInterface<ShowGenre> {
+    private final JdbcClient jdbcClient;
+
+    public ShowGenreRepository (
+        JdbcClient jdbcClient
+    ) {
+        this.jdbcClient = jdbcClient;
+    }
+
 
     @Override
     public void create(ShowGenre t) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'create'");
+        String sql = "INSERT INTO [dbo].[ShowGenre] ([Show], [Genre]) VALUES (?, ?)";
+
+        int row = jdbcClient
+            .sql(sql)
+            .params(t.getShow(), t.getGenre())
+            .update();
+        
+        if (row == 0) {
+            throw new RuntimeException("Cannot add this genre to show");
+        } 
     }
 
     @Override
     public ShowGenre read(UUID id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'read'");
+        return null;
     }
 
     @Override
     public List<ShowGenre> readAll() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'readAll'");
+        String sql = "SELECT * FROM [dbo].[ShowGenre]";
+
+        List<ShowGenre> showGenres = jdbcClient.sql(sql)
+            .query(ShowGenre.class)
+            .list();
+        
+        return showGenres;
     }
 
     @Override
     public void update(UUID id, ShowGenre t) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'update'");
     }
 
     @Override
     public void delete(UUID id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'delete'");
     }
     
 }

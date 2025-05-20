@@ -20,7 +20,7 @@ public class EpisodeRepository implements RepositoryInterface<Episode>{
 
     @Override
     public void create(Episode t) {
-        String sql = "INSERT INTO [dbo].[Episode]([Id], [Title], [Number], [Description], [Url], [ReleaseDate], [UploadedTime], [Duration]) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO [dbo].[Episode] ([Id], [Title], [Number], [Description], [Url], [ReleaseDate], [UploadedTime], [Duration]) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
         int row = jdbcClient.sql(sql).params(
             t.getId(),
@@ -78,7 +78,7 @@ public class EpisodeRepository implements RepositoryInterface<Episode>{
             t.getReleaseDate(),
             t.getUploadedTime(),
             t.getDuration(),
-            t.getId()
+            id
         ).update();
 
         if (row == 0) {

@@ -21,7 +21,7 @@ public class GenreRepository implements RepositoryInterface<Genre>{
 
     @Override
     public void create(Genre t) {
-        String sql = "INSERT INTO [dbo].[Genre]([Id], [Name]) VALUES (?, ?)";
+        String sql = "INSERT INTO [dbo].[Genre] ([Id], [Name]) VALUES (?, ?)";
 
         int row = jdbcClient.sql(sql).params(
             t.getId(),
@@ -35,14 +35,25 @@ public class GenreRepository implements RepositoryInterface<Genre>{
 
     @Override
     public Genre read(UUID id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'read'");
+        String sql = "SELECT * FROM [dbo].[Genre] WHERE [Id] = ?";
+
+        Genre genre = jdbcClient
+            .sql(sql)
+            .params(id)
+            .query(Genre.class)
+            .optional()
+            .orElse(null);
+
+        return genre;
     }
 
     @Override
     public List<Genre> readAll() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'readAll'");
+        String sql = "SELECT * FROM [dbo].[Genre]";
+
+        List<Genre> genres = jdbcClient.sql(sql).query(Genre.class).list();
+
+        return genres;
     }
 
     @Override
@@ -51,7 +62,7 @@ public class GenreRepository implements RepositoryInterface<Genre>{
 
         int row = jdbcClient.sql(sql).params(
             t.getName(),
-            t.getId()
+            id
         ).update();
 
         if (row == 0) {

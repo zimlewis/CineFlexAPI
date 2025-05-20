@@ -2,41 +2,94 @@ package com.cineflex.API.repository;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.Flow.Subscription;
 
+import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
+
+import com.cineflex.API.model.Subscription;
 
 @Repository
 public class SubscriptionRepository implements RepositoryInterface<Subscription> {
 
+    private final JdbcClient jdbcClient;
+
+    public SubscriptionRepository (
+        JdbcClient jdbcClient
+    ) {
+        this.jdbcClient = jdbcClient;
+    }
+
     @Override
     public void create(Subscription t) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'create'");
+        String sql = "INSERT INTO [dbo].[Subscription] ([Id], [StartTime], [EndTime], [Account]) VALUES (?, ?, ?, ?)";
+
+        int row = jdbcClient.sql(sql)
+            .params(
+                t.getId(),
+                t.getStartTime(),
+                t.getEndTime(),
+                t.getAccount()
+            ).update();
+        
+        if (row == 0) {
+            throw new RuntimeException("Cannot add this subscription to database");
+        }
     }
 
     @Override
     public Subscription read(UUID id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'read'");
+        String sql = "SELECT * FROM [dbo].[Subscription] WHERE [Id] = ?";
+
+        Subscription subscription = jdbcClient
+            .sql(sql)
+            .params(id)
+            .query(Subscription.class)
+            .optional()
+            .orElse(null);
+        
+        return subscription;
     }
 
     @Override
     public List<Subscription> readAll() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'readAll'");
+        String sql = "SELECT * FROM [dbo].[Subscription]";
+
+        List<Subscription> subscriptions = jdbcClient
+            .sql(sql)
+            .query(Subscription.class)
+            .list();
+        
+        return subscriptions;
     }
 
     @Override
     public void update(UUID id, Subscription t) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'update'");
+        String sql = "UPDATE [dbo].[Subscription] SET [StartTime], [EndTime], [Account] WHERE [Id] = ?";
+
+        int row = jdbcClient.sql(sql)
+            .params(
+                t.getStartTime(),
+                t.getEndTime(),
+                t.getAccount(),
+                id
+            ).update();
+        
+        if (row == 0) {
+            throw new RuntimeException("Cannot update this subscription to database");
+        }
     }
 
     @Override
     public void delete(UUID id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'delete'");
+        String sql = "DELETE FROM [dbo].[Subscription] WHERE [Id] = ?";
+
+        int row = jdbcClient.sql(sql)
+            .params(id)
+            .update();
+        
+        if (row == 0) {
+            throw new RuntimeException("Cannot delete this subscription from database");
+        }
     }
     
 

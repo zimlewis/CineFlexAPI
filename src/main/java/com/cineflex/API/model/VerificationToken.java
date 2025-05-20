@@ -5,7 +5,7 @@ import java.util.UUID;
 import lombok.Data;
 
 @Data
-public class VerifyToken {
+public class VerificationToken {
     UUID id;
     UUID account;
     String token;

@@ -3,41 +3,61 @@ package com.cineflex.API.repository;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
 
 import com.cineflex.API.model.Rating;
 
 @Repository
 public class RatingRepository implements RepositoryInterface<Rating>{
+    private final JdbcClient jdbcClient;
+
+    public RatingRepository (
+        JdbcClient jdbcClient
+    ) {
+        this.jdbcClient = jdbcClient;
+    }
+
 
     @Override
     public void create(Rating t) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'create'");
+        String sql = "INSERT INTO [dbo].[Rating] ([Account], [Show], [Value], [CreatedTime]) VALUES (?, ?, ?, ?)";
+        
+        int row = jdbcClient.sql(sql).params(
+            t.getAccount(),
+            t.getShow(),
+            t.getValue(),
+            t.getCreatedTime()
+        ).update();
+
+        if (row == 0) {
+            throw new RuntimeException("Cannot rate this at the moment");
+        }
     }
 
     @Override
     public Rating read(UUID id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'read'");
+        return null;
     }
 
     @Override
     public List<Rating> readAll() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'readAll'");
+        String sql = "SELECT * FROM [dbo].[Rating]";
+
+        List<Rating> ratings = jdbcClient
+            .sql(sql)
+            .query(Rating.class)
+            .list();
+        
+        return ratings;
     }
 
     @Override
     public void update(UUID id, Rating t) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'update'");
     }
 
     @Override
     public void delete(UUID id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'delete'");
     }
     
 }

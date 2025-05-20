@@ -10,6 +10,6 @@ public class Rating {
     UUID account;
     UUID show;
     Integer value;
-    LocalDateTime createdDate;
+    LocalDateTime createdTime;
     
 }

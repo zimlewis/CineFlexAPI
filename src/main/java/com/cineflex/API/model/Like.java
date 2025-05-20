@@ -9,5 +9,5 @@ import lombok.Data;
 public class Like {
     UUID account;
     UUID episode;
-    LocalDateTime createdDate;
+    LocalDateTime createdTime;
 }
