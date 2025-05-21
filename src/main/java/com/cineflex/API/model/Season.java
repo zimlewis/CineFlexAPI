@@ -4,8 +4,10 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 import lombok.Data;
+import lombok.Builder;
 
 @Data
+@Builder
 public class Season {
     UUID id;
     String title;
