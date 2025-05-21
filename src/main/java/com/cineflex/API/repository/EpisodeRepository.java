@@ -20,7 +20,7 @@ public class EpisodeRepository implements RepositoryInterface<Episode>{
 
     @Override
     public void create(Episode t) {
-        String sql = "INSERT INTO [dbo].[Episode] ([Id], [Title], [Number], [Description], [Url], [ReleaseDate], [UploadedTime], [Duration]) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO [dbo].[Episode] ([Id], [Title], [Number], [Description], [Url], [ReleaseDate], [UploadedTime], [Duration], [OpeningStart], [OpeningEnd], [Season]) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         int row = jdbcClient.sql(sql).params(
             t.getId(),
@@ -30,7 +30,10 @@ public class EpisodeRepository implements RepositoryInterface<Episode>{
             t.getUrl(),
             t.getReleaseDate(),
             t.getUploadedTime(),
-            t.getDuration()
+            t.getDuration(),
+            t.getOpeningStart(),
+            t.getOpeningEnd(),
+            t.getSeason()
         ).update();
 
         if (row == 0) {
@@ -68,7 +71,7 @@ public class EpisodeRepository implements RepositoryInterface<Episode>{
 
     @Override
     public void update(UUID id, Episode t) {
-        String sql = "UPDATE [dbo].[Episode] SET [Title] = ?, [Number] = ?, [Description] = ?, [Url] = ?, [ReleaseDate] = ?, [UploadedTime] = ?, [Duration] = ? WHERE [Id] = ?";
+        String sql = "UPDATE [dbo].[Episode] SET [Title] = ?, [Number] = ?, [Description] = ?, [Url] = ?, [ReleaseDate] = ?, [UploadedTime] = ?, [Duration] = ?, [OpeningStart] = ?, [OpeningEnd] = ?, [Season] = ? WHERE [Id] = ?";
 
         int row = jdbcClient.sql(sql).params(
             t.getTitle(),
@@ -78,6 +81,9 @@ public class EpisodeRepository implements RepositoryInterface<Episode>{
             t.getReleaseDate(),
             t.getUploadedTime(),
             t.getDuration(),
+            t.getOpeningStart(),
+            t.getOpeningEnd(),
+            t.getSeason(),
             id
         ).update();
 

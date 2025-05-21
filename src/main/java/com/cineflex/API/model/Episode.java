@@ -18,5 +18,8 @@ public class Episode {
     LocalDate releaseDate;
     LocalDateTime uploadedTime;
     Integer duration;
+    Integer openingStart;
+    Integer openingEnd;
+    UUID season;
     
 }

@@ -12,9 +12,8 @@ import com.cineflex.API.model.Show;
 public class ShowRepository implements RepositoryInterface<Show> {
     private final JdbcClient jdbcClient;
 
-    public ShowRepository (
-        JdbcClient jdbcClient
-    ) {
+    public ShowRepository(
+            JdbcClient jdbcClient) {
         this.jdbcClient = jdbcClient;
     }
 
@@ -23,15 +22,14 @@ public class ShowRepository implements RepositoryInterface<Show> {
         String sql = "INSERT INTO [dbo].[Show] ([Id], [Title], [Description], [ReleaseDate], [Thumbnail], [CreatedTime], [OnGoing], [IsSeries]) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
         int row = jdbcClient.sql(sql).params(
-            t.getId(),
-            t.getTitle(),
-            t.getDescription(),
-            t.getReleaseDate(),
-            t.getThumbnail(),
-            t.getCreatedTime(),
-            t.getOnGoing(),
-            t.getIsSeries()
-        ).update();
+                t.getId(),
+                t.getTitle(),
+                t.getDescription(),
+                t.getReleaseDate(),
+                t.getThumbnail(),
+                t.getCreatedTime(),
+                t.getOnGoing(),
+                t.getIsSeries()).update();
 
         if (row == 0) {
             throw new RuntimeException("Cannot add show to database");
@@ -40,14 +38,28 @@ public class ShowRepository implements RepositoryInterface<Show> {
 
     @Override
     public Show read(UUID id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'read'");
+        String sql = "SELECT * FROM [dbo].[Show] WHERE [Id] = ?";
+
+        Show show = jdbcClient
+            .sql(sql)
+            .params(id)
+            .query(Show.class)
+            .optional()
+            .orElse(null);
+
+        return show;
     }
 
     @Override
     public List<Show> readAll() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'readAll'");
+        String sql = "SELECT * FROM [dbo].[Show]";
+
+        List<Show> shows = jdbcClient
+            .sql(sql)
+            .query(Show.class)
+            .list();
+
+        return shows;
     }
 
     @Override
@@ -55,15 +67,14 @@ public class ShowRepository implements RepositoryInterface<Show> {
         String sql = "UPDATE [dbo].[Show] SET [Title] = ?, [Description] = ?, [ReleaseDate] = ?, [Thumbnail] = ?, [CreatedTime] = ?, [OnGoing] = ?, [IsSeries] = ? WHERE [Id] = ?";
 
         int row = jdbcClient.sql(sql).params(
-            t.getTitle(),
-            t.getDescription(),
-            t.getReleaseDate(),
-            t.getThumbnail(),
-            t.getCreatedTime(),
-            t.getOnGoing(),
-            t.getIsSeries(),
-            id
-        ).update();
+                t.getTitle(),
+                t.getDescription(),
+                t.getReleaseDate(),
+                t.getThumbnail(),
+                t.getCreatedTime(),
+                t.getOnGoing(),
+                t.getIsSeries(),
+                id).update();
 
         if (row == 0) {
             throw new RuntimeException("Cannot update show to database");
@@ -75,11 +86,11 @@ public class ShowRepository implements RepositoryInterface<Show> {
         String sql = "DELETE FROM [dbo].[ShowRepository] WHERE [Id] = ?";
 
         int row = jdbcClient.sql(sql).params(
-            id
-        ).update();
+                id).update();
 
         if (row == 0) {
             throw new RuntimeException("Cannot delete show from database");
-        }    }
-    
+        }
+    }
+
 }
