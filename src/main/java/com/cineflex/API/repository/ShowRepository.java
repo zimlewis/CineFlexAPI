@@ -83,7 +83,7 @@ public class ShowRepository implements RepositoryInterface<Show> {
 
     @Override
     public void delete(UUID id) {
-        String sql = "DELETE FROM [dbo].[ShowRepository] WHERE [Id] = ?";
+        String sql = "DELETE FROM [dbo].[Show] WHERE [Id] = ?";
 
         int row = jdbcClient.sql(sql).params(
                 id).update();

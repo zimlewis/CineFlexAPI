@@ -1,4 +1,5 @@
 package com.cineflex.API.controller;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -6,8 +7,31 @@ import java.util.UUID;
 import org.springframework.web.bind.annotation.*;
 
 import com.cineflex.API.model.Account;
+import com.cineflex.API.model.Comment;
+import com.cineflex.API.model.Episode;
+import com.cineflex.API.model.Favorite;
+import com.cineflex.API.model.Genre;
+import com.cineflex.API.model.Like;
+import com.cineflex.API.model.Rating;
+import com.cineflex.API.model.ReportComment;
+import com.cineflex.API.model.Season;
+import com.cineflex.API.model.Show;
+import com.cineflex.API.model.ShowGenre;
+import com.cineflex.API.model.Subscription;
+import com.cineflex.API.model.VerificationToken;
 import com.cineflex.API.repository.AccountRepository;
-import org.springframework.web.bind.annotation.GetMapping;
+import com.cineflex.API.repository.CommentRepository;
+import com.cineflex.API.repository.EpisodeRepository;
+import com.cineflex.API.repository.FavoriteRepository;
+import com.cineflex.API.repository.GenreRepository;
+import com.cineflex.API.repository.LikeRepository;
+import com.cineflex.API.repository.RatingRepository;
+import com.cineflex.API.repository.ReportCommentRepository;
+import com.cineflex.API.repository.SeasonRepository;
+import com.cineflex.API.repository.ShowGenreRepository;
+import com.cineflex.API.repository.ShowRepository;
+import com.cineflex.API.repository.SubscriptionRepository;
+import com.cineflex.API.repository.VerificationTokenRepository;
 
 
 
@@ -15,62 +39,91 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 @RestController
 public class TestAPI {
-    private final AccountRepository a;
+    private final AccountRepository accountRepository;
+    private final CommentRepository commentRepository;
+    private final EpisodeRepository episodeRepository;
+    private final FavoriteRepository favoriteRepository;
+    private final GenreRepository genreRepository;
+    private final LikeRepository likeRepository;
+    private final RatingRepository ratingRepository;
+    private final ReportCommentRepository reportCommentRepository;
+    private final SeasonRepository seasonRepository;
+    private final ShowGenreRepository showGenreRepository;
+    private final ShowRepository showRepository;
+    private final SubscriptionRepository subscriptionRepository;
+    private final VerificationTokenRepository verificationTokenRepository;
 
-    public TestAPI(AccountRepository a) {
-        this.a = a;
+    public TestAPI (
+        AccountRepository accountRepository, // done
+        CommentRepository commentRepository, // done
+        EpisodeRepository episodeRepository, // done
+        FavoriteRepository favoriteRepository, // done
+        GenreRepository genreRepository, // aaa
+        LikeRepository likeRepository, // done
+        RatingRepository ratingRepository,
+        ReportCommentRepository reportCommentRepository, // done
+        SeasonRepository seasonRepository, // done
+        ShowGenreRepository showGenreRepository, //aaa
+        ShowRepository showRepository, //aaa
+        SubscriptionRepository subscriptionRepository, // done
+        VerificationTokenRepository verificationTokenRepository // done
+    ) {
+        this.accountRepository = accountRepository;
+        this.commentRepository = commentRepository;
+        this.episodeRepository = episodeRepository;
+        this.favoriteRepository = favoriteRepository;
+        this.genreRepository = genreRepository;
+        this.likeRepository = likeRepository;
+        this.ratingRepository = ratingRepository;
+        this.reportCommentRepository = reportCommentRepository;
+        this.seasonRepository = seasonRepository;
+        this.showGenreRepository = showGenreRepository;
+        this.showRepository = showRepository;
+        this.subscriptionRepository = subscriptionRepository;
+        this.verificationTokenRepository = verificationTokenRepository;
+        
     }
 
     @GetMapping("/add")
     public int addTeString() {
-        a.create(Account.builder()
-            .id(UUID.randomUUID())
-            .username("mmb")
-            .email("mmmb@gmail.com")
-            .password("aaa")
+        Rating rating = Rating.builder()
+            .account(UUID.fromString("464007fa-f3b4-47aa-9bd6-3c0d9b3bdd33"))
+            .show(UUID.fromString("bd61bc55-3491-4d58-a8cf-5c061d74e527"))
+            .value(5)
             .createdTime(LocalDateTime.now())
-            .updatedTime(LocalDateTime.now())
-            .verify(true)
-            .role(1)
-            .build()
-        );
+            .build();
+        
+        ratingRepository.create(rating);
         return 0;
     }
     
 
     @GetMapping("/list")
-    public List<Account> test() {
+    public List<Rating> test() {
 
-        return a.readAll();
+        return ratingRepository.readAll();
     }
 
     @GetMapping("/single")
-    public Account getSingle() {
-        return a.read(UUID.fromString("a2d03d36-1e26-459c-8c89-09d8fc8f5389"));
+    public VerificationToken getSingle() {
+        return verificationTokenRepository.read(UUID.fromString("0641d0fd-4741-41ab-9f87-dffee91193f3"));
     }
 
     @GetMapping("/update")
     public String update() {
-        a.update(
-            UUID.fromString("a2d03d36-1e26-459c-8c89-09d8fc8f5389"), 
-            Account.builder()
-                .id(UUID.randomUUID())
-                .username("mmb2")
-                .email("mmmb2@gmail.com")
-                .password("aaa2")
-                .createdTime(LocalDateTime.now())
-                .updatedTime(LocalDateTime.now())
-                .verify(false)
-                .role(2)
-                .build()
-        );
+        VerificationToken verificationToken = VerificationToken.builder()
+            .account(UUID.fromString("464007fa-f3b4-47aa-9bd6-3c0d9b3bdd33"))
+            .token("adasdasdasdasd qe12312312")
+            .build();
+        
+        verificationTokenRepository.update(UUID.fromString("0641d0fd-4741-41ab-9f87-dffee91193f3") ,verificationToken);
         return new String();
     }
     
     
     @GetMapping("/delete")
     public String deleteString() {
-        a.delete(UUID.fromString("a2d03d36-1e26-459c-8c89-09d8fc8f5389"));
+        verificationTokenRepository.delete(UUID.fromString("0641d0fd-4741-41ab-9f87-dffee91193f3"));
         return new String();
     }
     

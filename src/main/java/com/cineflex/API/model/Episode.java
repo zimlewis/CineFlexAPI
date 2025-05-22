@@ -12,7 +12,7 @@ import lombok.Builder;
 public class Episode {
     UUID id;
     String title;
-    Integer number;
+    String number;
     String description;
     String url;
     LocalDate releaseDate;

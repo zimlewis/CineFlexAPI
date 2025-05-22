@@ -21,12 +21,12 @@ public class FavoriteRepository implements RepositoryInterface<Favorite>{
 
     @Override
     public void create(Favorite t) {
-        String sql = "INSERT INTO [dbo].[Favorite] ([Account], [Show]) VALUES (?, ?)";
+        String sql = "INSERT INTO [dbo].[Favorite] ([Account], [Show], [CreatedTime]) VALUES (?, ?, ?)";
         
         int row = jdbcClient.sql(sql).params(
             t.getAccount(), 
             t.getShow(), 
-            t.getCreatedDate()
+            t.getCreatedTime()
         ).update();
 
         if (row == 0) {

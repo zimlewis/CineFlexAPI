@@ -21,7 +21,7 @@ public class VerificationTokenRepository implements RepositoryInterface<Verifica
 
     @Override
     public void create(VerificationToken t) {
-        String sql = "INSERT INTO [dbo].[VerifyToken] ([Id], [Account], [Token]) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO [dbo].[VerificationToken] ([Id], [Account], [Token]) VALUES (?, ?, ?)";
 
         int row = jdbcClient.sql(sql)
             .params(
@@ -62,7 +62,7 @@ public class VerificationTokenRepository implements RepositoryInterface<Verifica
 
     @Override
     public void update(UUID id, VerificationToken t) {
-        String sql = "UPDATE [dbo].[VerifyToken] SET [Account] = ?, [Token] = ? WHERE [Id] = ?";
+        String sql = "UPDATE [dbo].[VerificationToken] SET [Account] = ?, [Token] = ? WHERE [Id] = ?";
 
         int row = jdbcClient.sql(sql)
             .params(

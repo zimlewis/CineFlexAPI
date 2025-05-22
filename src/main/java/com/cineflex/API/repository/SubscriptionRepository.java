@@ -64,7 +64,7 @@ public class SubscriptionRepository implements RepositoryInterface<Subscription>
 
     @Override
     public void update(UUID id, Subscription t) {
-        String sql = "UPDATE [dbo].[Subscription] SET [StartTime], [EndTime], [Account] WHERE [Id] = ?";
+        String sql = "UPDATE [dbo].[Subscription] SET [StartTime] = ?, [EndTime] = ?, [Account] = ? WHERE [Id] = ?";
 
         int row = jdbcClient.sql(sql)
             .params(

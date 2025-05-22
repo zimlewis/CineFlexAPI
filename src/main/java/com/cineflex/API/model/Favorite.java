@@ -11,5 +11,5 @@ import lombok.Builder;
 public class Favorite {
     UUID account;
     UUID show;
-    LocalDateTime createdDate;
+    LocalDateTime createdTime;
 }
