@@ -19,6 +19,7 @@ import com.cineflex.API.model.Show;
 import com.cineflex.API.model.ShowGenre;
 import com.cineflex.API.model.Subscription;
 import com.cineflex.API.model.VerificationToken;
+import com.cineflex.API.model.ViewHistory;
 import com.cineflex.API.repository.AccountRepository;
 import com.cineflex.API.repository.CommentRepository;
 import com.cineflex.API.repository.EpisodeRepository;
@@ -32,6 +33,7 @@ import com.cineflex.API.repository.ShowGenreRepository;
 import com.cineflex.API.repository.ShowRepository;
 import com.cineflex.API.repository.SubscriptionRepository;
 import com.cineflex.API.repository.VerificationTokenRepository;
+import com.cineflex.API.repository.ViewHistoryRepository;
 
 
 
@@ -52,6 +54,7 @@ public class TestAPI {
     private final ShowRepository showRepository;
     private final SubscriptionRepository subscriptionRepository;
     private final VerificationTokenRepository verificationTokenRepository;
+    private final ViewHistoryRepository viewHistoryRepository;
 
     public TestAPI (
         AccountRepository accountRepository, // done
@@ -66,7 +69,8 @@ public class TestAPI {
         ShowGenreRepository showGenreRepository, //aaa
         ShowRepository showRepository, //aaa
         SubscriptionRepository subscriptionRepository, // done
-        VerificationTokenRepository verificationTokenRepository // done
+        VerificationTokenRepository verificationTokenRepository, // done
+        ViewHistoryRepository viewHistoryRepository
     ) {
         this.accountRepository = accountRepository;
         this.commentRepository = commentRepository;
@@ -81,27 +85,28 @@ public class TestAPI {
         this.showRepository = showRepository;
         this.subscriptionRepository = subscriptionRepository;
         this.verificationTokenRepository = verificationTokenRepository;
-        
+        this.viewHistoryRepository = viewHistoryRepository;
     }
 
     @GetMapping("/add")
     public int addTeString() {
-        Rating rating = Rating.builder()
-            .account(UUID.fromString("464007fa-f3b4-47aa-9bd6-3c0d9b3bdd33"))
-            .show(UUID.fromString("bd61bc55-3491-4d58-a8cf-5c061d74e527"))
-            .value(5)
-            .createdTime(LocalDateTime.now())
+        ViewHistory viewHistory = ViewHistory.builder()
+            .account(UUID.fromString("5f854c50-2116-4cc1-a31a-8f66643c091e"))
+            .episode(UUID.fromString("acc3f0a0-fcdc-4317-9350-cb63862f5eee"))
+            .watchedTime(LocalDateTime.now())
+            .duration(5)
             .build();
         
-        ratingRepository.create(rating);
+        viewHistoryRepository.create(viewHistory);
+
         return 0;
     }
     
 
     @GetMapping("/list")
-    public List<Rating> test() {
+    public List<ViewHistory> test() {
 
-        return ratingRepository.readAll();
+        return viewHistoryRepository.readAll();
     }
 
     @GetMapping("/single")
