@@ -20,6 +20,7 @@ public class Episode {
     Integer duration;
     Integer openingStart;
     Integer openingEnd;
+    Integer view;
     UUID season;
     
 }
