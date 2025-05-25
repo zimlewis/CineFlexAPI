@@ -55,7 +55,7 @@ public class LikeRepository implements RepositoryInterface<Like>{
     }
 
     @Override
-    public void delete(UUID id) {
+    public void delete(UUID... ids) {
     }
     
 

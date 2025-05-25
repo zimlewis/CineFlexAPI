@@ -16,6 +16,7 @@ public class Show {
     LocalDate releaseDate;
     String thumbnail;
     LocalDateTime createdTime;
+    LocalDateTime updatedTime;
     Boolean onGoing;
     Boolean isSeries;
 }

@@ -80,12 +80,10 @@ public class SubscriptionRepository implements RepositoryInterface<Subscription>
     }
 
     @Override
-    public void delete(UUID id) {
-        String sql = "DELETE FROM [dbo].[Subscription] WHERE [Id] = ?";
+    public void delete(UUID... ids) {
+        String sql = "DELETE FROM [dbo].[Subscription] WHERE [Id] IN (:ids)";
 
-        int row = jdbcClient.sql(sql)
-            .params(id)
-            .update();
+        int row = jdbcClient.sql(sql).param("ids", ids).update();
         
         if (row == 0) {
             throw new RuntimeException("Cannot delete this subscription from database");

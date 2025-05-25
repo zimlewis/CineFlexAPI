@@ -54,7 +54,7 @@ public class ShowGenreRepository implements RepositoryInterface<ShowGenre> {
     }
 
     @Override
-    public void delete(UUID id) {
+    public void delete(UUID... ids) {
     }
     
 }

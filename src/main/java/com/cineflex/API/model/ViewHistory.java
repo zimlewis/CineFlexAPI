@@ -11,6 +11,7 @@ import lombok.Data;
 public class ViewHistory {
     UUID account;
     UUID episode;
-    LocalDateTime watchedTime;
+    LocalDateTime createdTime;
+    LocalDateTime updatedTime;
     Integer duration;
 }

@@ -83,10 +83,10 @@ public class AccountRepository implements RepositoryInterface<Account>{
         }
     }
 
-    public void delete(UUID id) {
-        String sql = "DELETE FROM [dbo].[Account] WHERE [Id] = ?";
+    public void delete(UUID... ids) {
+        String sql = "DELETE FROM [dbo].[Account] WHERE [Id] IN (:ids)";
 
-        int row = jdbcClient.sql(sql).params(id).update();
+        int row = jdbcClient.sql(sql).param("id", ids).update();
 
         if (row == 0) {
             throw new RuntimeException("Cannot delete account");

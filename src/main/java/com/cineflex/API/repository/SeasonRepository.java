@@ -20,13 +20,15 @@ public class SeasonRepository implements RepositoryInterface<Season> {
 
     @Override
     public void create(Season t) {
-        String sql = "INSERT INTO [dbo].[Season] ([Id], [Title], [ReleaseDate], [Description], [Show]) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO [dbo].[Season] ([Id], [Title], [ReleaseDate], [CreatedTime], [UpdatedTime], [Description], [Show]) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         int row = jdbcClient.sql(sql)
             .params(
                 t.getId(),
                 t.getTitle(),
                 t.getReleaseDate(),
+                t.getCreatedTime(),
+                t.getUpdatedTime(),
                 t.getDescription(),
                 t.getShow()
             ).update();
@@ -64,12 +66,14 @@ public class SeasonRepository implements RepositoryInterface<Season> {
 
     @Override
     public void update(UUID id, Season t) {
-        String sql = "UPDATE [dbo].[Season] SET [Title] = ?, [ReleaseDate] = ?, [Description] = ?, [Show] = ? WHERE [Id] = ?";
+        String sql = "UPDATE [dbo].[Season] SET [Title] = ?, [ReleaseDate] = ?, [CreatedTime] = ?, [UpdatedTime] = ?, [Description] = ?, [Show] = ? WHERE [Id] = ?";
 
         int row = jdbcClient.sql(sql)
             .params(
                 t.getTitle(),
                 t.getReleaseDate(),
+                t.getCreatedTime(),
+                t.getUpdatedTime(),
                 t.getDescription(),
                 t.getShow(),
                 id
@@ -81,17 +85,26 @@ public class SeasonRepository implements RepositoryInterface<Season> {
     }
 
     @Override
-    public void delete(UUID id) {
-        String sql = "DELETE FROM [dbo].[Season] WHERE [Id] = ?";
+    public void delete(UUID... ids) {
+        String sql = "DELETE FROM [dbo].[Season] WHERE [Id] IN (:ids)";
 
-        int row = jdbcClient.sql(sql)
-            .params(
-                id
-            ).update();
+        int row = jdbcClient.sql(sql).param("ids", ids).update();
 
         if (row == 0) {
             throw new RuntimeException("Cannot remove season to database");
         }   
+    }
+
+    public List<Season> getByShow(UUID... ids) {
+        String sql = "SELECT * FROM [dbo].[Season] WHERE [Show] IN :ids";
+
+        List<Season> seasons = jdbcClient
+            .sql(sql)
+            .param("ids", ids)
+            .query(Season.class)
+            .list();
+
+        return seasons;
     }
 
 }

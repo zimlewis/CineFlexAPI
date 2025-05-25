@@ -20,12 +20,13 @@ public class CommentRepository implements RepositoryInterface<Comment>{
 
     @Override
     public void create(Comment comment) {
-        String sql = "INSERT INTO [dbo].[Comment] ([Id], [Content], [CommentedTime], [Account], [Episode]) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO [dbo].[Comment] ([Id], [Content], [CreatedTime], [UpdatedTime], [Account], [Episode]) VALUES (?, ?, ?, ?, ?, ?)";
 
         int row = jdbcClient.sql(sql).params(
             comment.getId(),
             comment.getContent(),
-            comment.getCommentedTime(),
+            comment.getCreatedTime(),
+            comment.getUpdatedTime(),
             comment.getAccount(),
             comment.getEpisode()
         ).update();
@@ -62,11 +63,12 @@ public class CommentRepository implements RepositoryInterface<Comment>{
 
     @Override
     public void update(UUID id, Comment t) {
-        String sql = "UPDATE [dbo].[Comment] SET [Content] = ?, [CommentedTime] = ?, [Account] = ?, [Episode] = ? WHERE [Id] = ?";
+        String sql = "UPDATE [dbo].[Comment] SET [Content] = ?, [CreatedTime] = ?, [UpdatedTime] = ?, [Account] = ?, [Episode] = ? WHERE [Id] = ?";
         
         int row = jdbcClient.sql(sql).params(
             t.getContent(),
-            t.getCommentedTime(),
+            t.getCreatedTime(),
+            t.getUpdatedTime(),
             t.getAccount(),
             t.getEpisode(),
             id
@@ -79,12 +81,10 @@ public class CommentRepository implements RepositoryInterface<Comment>{
     }
 
     @Override
-    public void delete(UUID id) {
-        String sql = "DELETE FROM [dbo].[Comment] WHERE [Id] = ?";
+    public void delete(UUID... ids) {
+        String sql = "DELETE FROM [dbo].[Comment] WHERE [Id] IN (:ids)";
 
-        int row = jdbcClient.sql(sql).params(
-            id
-        ).update();
+        int row = jdbcClient.sql(sql).param("ids", ids).update();
 
         if (row == 0) {
             throw new RuntimeException("Cannot delete comment");

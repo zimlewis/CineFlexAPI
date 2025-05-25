@@ -20,7 +20,7 @@ public class EpisodeRepository implements RepositoryInterface<Episode>{
 
     @Override
     public void create(Episode t) {
-        String sql = "INSERT INTO [dbo].[Episode] ([Id], [Title], [Number], [Description], [Url], [ReleaseDate], [UploadedTime], [Duration], [OpeningStart], [OpeningEnd], [View], [Season]) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO [dbo].[Episode] ([Id], [Title], [Number], [Description], [Url], [ReleaseDate], [CreatedTime], [UpdatedTime], [Duration], [OpeningStart], [OpeningEnd], [View], [Season]) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         int row = jdbcClient.sql(sql).params(
             t.getId(),
@@ -29,7 +29,8 @@ public class EpisodeRepository implements RepositoryInterface<Episode>{
             t.getDescription(),
             t.getUrl(),
             t.getReleaseDate(),
-            t.getUploadedTime(),
+            t.getCreatedTime(),
+            t.getUpdatedTime(),
             t.getDuration(),
             t.getOpeningStart(),
             t.getOpeningEnd(),
@@ -72,7 +73,7 @@ public class EpisodeRepository implements RepositoryInterface<Episode>{
 
     @Override
     public void update(UUID id, Episode t) {
-        String sql = "UPDATE [dbo].[Episode] SET [Title] = ?, [Number] = ?, [Description] = ?, [Url] = ?, [ReleaseDate] = ?, [UploadedTime] = ?, [Duration] = ?, [OpeningStart] = ?, [OpeningEnd] = ?, [View] = ?, [Season] = ? WHERE [Id] = ?";
+        String sql = "UPDATE [dbo].[Episode] SET [Title] = ?, [Number] = ?, [Description] = ?, [Url] = ?, [ReleaseDate] = ?, [CreatedTime] = ?, [UpdatedTime] = ?, [Duration] = ?, [OpeningStart] = ?, [OpeningEnd] = ?, [View] = ?, [Season] = ? WHERE [Id] = ?";
 
         int row = jdbcClient.sql(sql).params(
             t.getTitle(),
@@ -80,7 +81,8 @@ public class EpisodeRepository implements RepositoryInterface<Episode>{
             t.getDescription(),
             t.getUrl(),
             t.getReleaseDate(),
-            t.getUploadedTime(),
+            t.getCreatedTime(),
+            t.getUpdatedTime(),
             t.getDuration(),
             t.getOpeningStart(),
             t.getOpeningEnd(),
@@ -96,15 +98,38 @@ public class EpisodeRepository implements RepositoryInterface<Episode>{
     }
 
     @Override
-    public void delete(UUID id) {
-        String sql = "DELETE FROM [dbo].[Episode] WHERE [Id] = ?";
+    public void delete(UUID... ids) {
+        String sql = "DELETE FROM [dbo].[Episode] WHERE [Id] IN (:ids)";
 
-        int row = jdbcClient.sql(sql).params(
-            id
-        ).update();
+        int row = jdbcClient.sql(sql).param("ids", ids).update();
 
         if (row == 0) {
             throw new RuntimeException("Cannot add episode to database");
+        }
+    }
+
+    public List<Episode> getBySeason(UUID... ids) {
+        String sql = "SELECT * FROM [dbo].[Episode] WHERE [Season] IN :ids";
+        
+        List<Episode> episodes = jdbcClient
+            .sql(sql)
+            .param("ids", ids)
+            .query(Episode.class)
+            .list();
+
+        return episodes;
+    }
+
+    public void deleteBySeason(UUID id) {
+        String sql = "DELETE FROM [dbo].[Episode] WHERE [Season] = ?";
+
+        int row = jdbcClient
+            .sql(sql)
+            .params(id)
+            .update();
+        
+        if (row == 0) {
+            throw new RuntimeException("Cannot delete episode(s)");
         }
     }
     

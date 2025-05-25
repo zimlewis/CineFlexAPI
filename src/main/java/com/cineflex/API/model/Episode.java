@@ -16,7 +16,8 @@ public class Episode {
     String description;
     String url;
     LocalDate releaseDate;
-    LocalDateTime uploadedTime;
+    LocalDateTime createdTime;
+    LocalDateTime updatedTime;
     Integer duration;
     Integer openingStart;
     Integer openingEnd;

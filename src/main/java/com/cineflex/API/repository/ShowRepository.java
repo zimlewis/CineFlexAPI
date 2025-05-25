@@ -19,17 +19,19 @@ public class ShowRepository implements RepositoryInterface<Show> {
 
     @Override
     public void create(Show t) {
-        String sql = "INSERT INTO [dbo].[Show] ([Id], [Title], [Description], [ReleaseDate], [Thumbnail], [CreatedTime], [OnGoing], [IsSeries]) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO [dbo].[Show] ([Id], [Title], [Description], [ReleaseDate], [Thumbnail], [CreatedTime], [UpdatedTime], [OnGoing], [IsSeries]) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         int row = jdbcClient.sql(sql).params(
-                t.getId(),
-                t.getTitle(),
-                t.getDescription(),
-                t.getReleaseDate(),
-                t.getThumbnail(),
-                t.getCreatedTime(),
-                t.getOnGoing(),
-                t.getIsSeries()).update();
+            t.getId(),
+            t.getTitle(),
+            t.getDescription(),
+            t.getReleaseDate(),
+            t.getThumbnail(),
+            t.getCreatedTime(),
+            t.getUpdatedTime(),
+            t.getOnGoing(),
+            t.getIsSeries()
+        ).update();
 
         if (row == 0) {
             throw new RuntimeException("Cannot add show to database");
@@ -64,17 +66,19 @@ public class ShowRepository implements RepositoryInterface<Show> {
 
     @Override
     public void update(UUID id, Show t) {
-        String sql = "UPDATE [dbo].[Show] SET [Title] = ?, [Description] = ?, [ReleaseDate] = ?, [Thumbnail] = ?, [CreatedTime] = ?, [OnGoing] = ?, [IsSeries] = ? WHERE [Id] = ?";
+        String sql = "UPDATE [dbo].[Show] SET [Title] = ?, [Description] = ?, [ReleaseDate] = ?, [Thumbnail] = ?, [CreatedTime] = ?, [UpdatedTime] = ?, [OnGoing] = ?, [IsSeries] = ? WHERE [Id] = ?";
 
         int row = jdbcClient.sql(sql).params(
-                t.getTitle(),
-                t.getDescription(),
-                t.getReleaseDate(),
-                t.getThumbnail(),
-                t.getCreatedTime(),
-                t.getOnGoing(),
-                t.getIsSeries(),
-                id).update();
+            t.getTitle(),
+            t.getDescription(),
+            t.getReleaseDate(),
+            t.getThumbnail(),
+            t.getCreatedTime(),
+            t.getUpdatedTime(),
+            t.getOnGoing(),
+            t.getIsSeries(),
+            id
+        ).update();
 
         if (row == 0) {
             throw new RuntimeException("Cannot update show to database");
@@ -82,11 +86,10 @@ public class ShowRepository implements RepositoryInterface<Show> {
     }
 
     @Override
-    public void delete(UUID id) {
-        String sql = "DELETE FROM [dbo].[Show] WHERE [Id] = ?";
+    public void delete(UUID... ids) {
+        String sql = "DELETE FROM [dbo].[Show] WHERE [Id] IN (:ids)";
 
-        int row = jdbcClient.sql(sql).params(
-                id).update();
+        int row = jdbcClient.sql(sql).param("ids", ids).update();
 
         if (row == 0) {
             throw new RuntimeException("Cannot delete show from database");

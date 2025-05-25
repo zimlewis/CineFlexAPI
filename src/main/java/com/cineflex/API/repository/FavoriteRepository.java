@@ -52,7 +52,7 @@ public class FavoriteRepository implements RepositoryInterface<Favorite>{
     }
 
     @Override
-    public void delete(UUID id) {
+    public void delete(UUID... ids) {
 
     }
     

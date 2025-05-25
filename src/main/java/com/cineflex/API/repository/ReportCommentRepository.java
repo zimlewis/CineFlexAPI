@@ -20,12 +20,13 @@ public class ReportCommentRepository implements RepositoryInterface<ReportCommen
 
     @Override
     public void create(ReportComment t) {
-        String sql = "INSERT INTO [dbo].[ReportComment] ([Id], [Content], [ReportedTime], [Status], [Account], [Comment]) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO [dbo].[ReportComment] ([Id], [Content], [CreatedTime], [UpdatedTime], [Status], [Account], [Comment]) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         int row = jdbcClient.sql(sql).params(
             t.getId(),
             t.getContent(),
-            t.getReportedTime(),
+            t.getCreatedTime(),
+            t.getUpdatedTime(),
             t.getStatus(),
             t.getAccount(),
             t.getComment()
@@ -64,11 +65,12 @@ public class ReportCommentRepository implements RepositoryInterface<ReportCommen
 
     @Override
     public void update(UUID id, ReportComment t) {
-        String sql = "UPDATE [dbo].[ReportComment] SET [Content] = ?, [ReportedTime] = ?, [Status] = ?, [Account] = ?, [Comment] = ? WHERE [Id] = ?";
+        String sql = "UPDATE [dbo].[ReportComment] SET [Content] = ?, [CreatedTime] = ?, [UpdatedTime] = ?, [Status] = ?, [Account] = ?, [Comment] = ? WHERE [Id] = ?";
 
         int row = jdbcClient.sql(sql).params(
             t.getContent(),
-            t.getReportedTime(),
+            t.getCreatedTime(),
+            t.getUpdatedTime(),
             t.getStatus(),
             t.getAccount(),
             t.getComment(),
@@ -81,12 +83,10 @@ public class ReportCommentRepository implements RepositoryInterface<ReportCommen
     }
 
     @Override
-    public void delete(UUID id) {
-        String sql = "DELETE FROM [dbo].[ReportComment] WHERE [Id] = ?";
+    public void delete(UUID... ids) {
+        String sql = "DELETE FROM [dbo].[ReportComment] WHERE [Id] IN (:ids)";
 
-        int row = jdbcClient.sql(sql).params(
-            id
-        ).update();
+        int row = jdbcClient.sql(sql).param("ids", ids).update();
 
         if (row == 0) {
             throw new RuntimeException("Cannot update this report to database");
