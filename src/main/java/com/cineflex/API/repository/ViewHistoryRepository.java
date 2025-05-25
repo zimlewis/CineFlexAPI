@@ -21,10 +21,16 @@ public class ViewHistoryRepository implements RepositoryInterface<ViewHistory>{
 
     @Override
     public void create(ViewHistory t) {
-        String sql = "INSERT INTO [dbo].[ViewHistory] ([Account], [Episode], [WatchedTime], [Duration]) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO [dbo].[ViewHistory] ([Account], [Episode], [CreatedTime], [UpdatedTime], [Duration]) VALUES (?, ?, ?, ?, ?)";
         
         int row = jdbcClient.sql(sql)
-            .params(t.getAccount(), t.getEpisode(), t.getWatchedTime(), t.getDuration())
+            .params(
+                t.getAccount(), 
+                t.getEpisode(),
+                t.getCreatedTime(),
+                t.getUpdatedTime(),
+                t.getDuration()
+            )
             .update();
         
         if (row == 0) {
@@ -50,7 +56,7 @@ public class ViewHistoryRepository implements RepositoryInterface<ViewHistory>{
     }
 
     @Override
-    public void delete(UUID id) {
+    public void delete(UUID... ids) {
     }
     
 }

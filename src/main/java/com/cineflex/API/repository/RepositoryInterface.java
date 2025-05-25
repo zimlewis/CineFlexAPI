@@ -13,6 +13,6 @@ public interface RepositoryInterface<T> {
 
     public void update(UUID id, T t);
 
-    public void delete(UUID id);
+    public void delete(UUID... ids);
 
 }

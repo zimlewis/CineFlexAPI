@@ -57,7 +57,7 @@ public class RatingRepository implements RepositoryInterface<Rating>{
     }
 
     @Override
-    public void delete(UUID id) {
+    public void delete(UUID... ids) {
     }
     
 }

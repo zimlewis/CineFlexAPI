@@ -11,7 +11,8 @@ import lombok.Builder;
 public class Comment {
     UUID id;
     String content;
-    LocalDateTime commentedTime;
+    LocalDateTime createdTime;
+    LocalDateTime updatedTime;
     UUID account;
     UUID episode;
 }
