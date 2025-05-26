@@ -2,10 +2,10 @@ package com.cineflex.API.controller;
 
 import org.springframework.web.bind.annotation.RestController;
 import com.cineflex.API.model.Show;
+import com.cineflex.API.service.JsonService;
 import com.cineflex.API.service.ShowService;
 import com.fasterxml.jackson.databind.JsonNode;
 
-import jakarta.websocket.server.PathParam;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -31,18 +31,22 @@ import org.springframework.web.bind.annotation.PathVariable;
 public class ShowAPI {
 
     private final ShowService showService;
+    private final JsonService jsonService;
 
     // Inject show service
     public ShowAPI (
-        ShowService showService
+        ShowService showService,
+        JsonService jsonService
     ) {
         this.showService = showService;
+        this.jsonService = jsonService;
     }
     
     // Get single show database
     @GetMapping("/{id}")
-    public ResponseEntity<Show> findShow(@PathParam(value = "id") String id) {
-        
+    public ResponseEntity<Show> findShow(@PathVariable String id) {
+        System.out.println(id);
+
         try {
             Show show = showService.findShowById(UUID.fromString(id));
 
@@ -92,12 +96,12 @@ public class ShowAPI {
         try {
             // Get the show content from json node
             Show show = Show.builder()
-                .title(jsonNode.get("title").asText())
-                .description(jsonNode.get("description").asText())
-                .releaseDate(LocalDate.parse(jsonNode.get("releaseDate").asText()))
-                .thumbnail(jsonNode.get("thumbnail").asText())
-                .onGoing(jsonNode.get("onGoing").asBoolean())
-                .isSeries(jsonNode.get("isSeries").asBoolean())
+                .title(jsonService.getOrNull(jsonNode, "title", String.class))
+                .description(jsonService.getOrNull(jsonNode, "description", String.class))
+                .releaseDate(jsonService.getOrNull(jsonNode, "releaseDate", LocalDate.class))
+                .thumbnail(jsonService.getOrNull(jsonNode, "thumbnail", String.class))
+                .onGoing(jsonService.getOrNull(jsonNode, "onGoing", Boolean.class))
+                .isSeries(jsonService.getOrNull(jsonNode, "isSeries", Boolean.class))
                 .build();
             
             Show returnShow = showService.addShow(show);
@@ -122,12 +126,12 @@ public class ShowAPI {
             // Get the show content from json node
             Show show = Show.builder()
                 .id(UUID.fromString(id))
-                .title(jsonNode.get("title").asText())
-                .description(jsonNode.get("description").asText())
-                .releaseDate(LocalDate.parse(jsonNode.get("releaseDate").asText()))
-                .thumbnail(jsonNode.get("thumbnail").asText())
-                .onGoing(jsonNode.get("onGoing").asBoolean())
-                .isSeries(jsonNode.get("isSeries").asBoolean())
+                .title(jsonService.getOrNull(jsonNode, "title", String.class))
+                .description(jsonService.getOrNull(jsonNode, "description", String.class))
+                .releaseDate(jsonService.getOrNull(jsonNode, "releaseDate", LocalDate.class))
+                .thumbnail(jsonService.getOrNull(jsonNode, "thumbnail", String.class))
+                .onGoing(jsonService.getOrNull(jsonNode, "onGoing", Boolean.class))
+                .isSeries(jsonService.getOrNull(jsonNode, "isSeries", Boolean.class))
                 .build();
             
             Show returnShow = showService.updateShow(show);
@@ -144,7 +148,7 @@ public class ShowAPI {
         }
     }
 
-    // Delete show
+    // Delete show41a41207-b4c3-4832-ac4e-d9b6417a8ed4
     @DeleteMapping("/{id}")
     public ResponseEntity<Integer> deleteShow(@PathVariable String id) {
         try {
