@@ -1,6 +1,8 @@
 package com.cineflex.API.controller;
 
 import org.springframework.web.bind.annotation.RestController;
+
+import com.cineflex.API.model.Season;
 import com.cineflex.API.model.Show;
 import com.cineflex.API.service.JsonService;
 import com.cineflex.API.service.ShowService;
@@ -26,8 +28,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 
 
+
 @RestController
-@RequestMapping("/api/show")
+@RequestMapping("/api/shows")
 public class ShowAPI {
 
     private final ShowService showService;
@@ -94,11 +97,12 @@ public class ShowAPI {
     @PostMapping("")
     public ResponseEntity<Show> addShow(@RequestBody JsonNode jsonNode) {
         try {
+
             // Get the show content from json node
             Show show = Show.builder()
                 .title(jsonService.getOrNull(jsonNode, "title", String.class))
                 .description(jsonService.getOrNull(jsonNode, "description", String.class))
-                .releaseDate(jsonService.getOrNull(jsonNode, "releaseDate", LocalDate.class))
+                .releaseDate(LocalDate.parse(jsonService.getOrNull(jsonNode, "releaseDate", String.class)))
                 .thumbnail(jsonService.getOrNull(jsonNode, "thumbnail", String.class))
                 .onGoing(jsonService.getOrNull(jsonNode, "onGoing", Boolean.class))
                 .isSeries(jsonService.getOrNull(jsonNode, "isSeries", Boolean.class))
@@ -106,7 +110,7 @@ public class ShowAPI {
             
             Show returnShow = showService.addShow(show);
 
-            return ResponseEntity.ok(returnShow);
+            return new ResponseEntity<Show>(returnShow, HttpStatus.CREATED);
         }
         catch (Exception e) {
 
@@ -128,7 +132,7 @@ public class ShowAPI {
                 .id(UUID.fromString(id))
                 .title(jsonService.getOrNull(jsonNode, "title", String.class))
                 .description(jsonService.getOrNull(jsonNode, "description", String.class))
-                .releaseDate(jsonService.getOrNull(jsonNode, "releaseDate", LocalDate.class))
+                .releaseDate(LocalDate.parse(jsonService.getOrNull(jsonNode, "releaseDate", String.class)))
                 .thumbnail(jsonService.getOrNull(jsonNode, "thumbnail", String.class))
                 .onGoing(jsonService.getOrNull(jsonNode, "onGoing", Boolean.class))
                 .isSeries(jsonService.getOrNull(jsonNode, "isSeries", Boolean.class))
@@ -148,7 +152,7 @@ public class ShowAPI {
         }
     }
 
-    // Delete show41a41207-b4c3-4832-ac4e-d9b6417a8ed4
+    // Delete show
     @DeleteMapping("/{id}")
     public ResponseEntity<Integer> deleteShow(@PathVariable String id) {
         try {
@@ -162,6 +166,34 @@ public class ShowAPI {
                 HttpStatus.INTERNAL_SERVER_ERROR, 
                 e.getMessage()
             )).build();
+        }
+    }
+
+    @GetMapping("/{id}/seasons")
+    public ResponseEntity<List<Season>> getSeasonsOfAShow(@PathVariable String id) {
+        return ResponseEntity.ok().body(showService.findSeaonsByShows(UUID.fromString(id)));
+    }
+    
+    @PostMapping("/{id}/seasons")
+    public ResponseEntity<Season> addSeasonToShowShowAPI(@PathVariable String id, @RequestBody JsonNode jsonNode) {
+        try {
+            Season season = Season.builder()
+                .title(jsonService.getOrNull(jsonNode, "title", String.class))
+                .releaseDate(LocalDate.parse(jsonService.getOrNull(jsonNode, "releaseDate", String.class)))
+                .description(jsonService.getOrNull(jsonNode, "description", String.class))
+                .show(UUID.fromString(id))
+                .build();
+            
+            Season returnSeason = showService.addSeason(season);
+
+            return new ResponseEntity<Season>(returnSeason, HttpStatus.CREATED);
+        }
+        catch (Exception e) {
+            // Return error
+            return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
+                HttpStatus.INTERNAL_SERVER_ERROR, 
+                e.getMessage()
+            )).build();   
         }
     }
     

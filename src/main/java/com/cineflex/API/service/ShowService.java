@@ -173,5 +173,10 @@ public class ShowService {
         return episodeRepository.readAll();
     }
 
+    // find the show using the given id, this could be multiple id
+    public List<Season> findSeaonsByShows(UUID... ids) {
+        return seasonRepository.getByShow(ids);
+    }
+
 
 }
