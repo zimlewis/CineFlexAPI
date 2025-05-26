@@ -1,7 +1,9 @@
 package com.cineflex.API.repository;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
@@ -79,9 +81,15 @@ public class VerificationTokenRepository implements RepositoryInterface<Verifica
 
     @Override
     public void delete(UUID... ids) {
-        String sql = "DELETE FROM [dbo].[VerificationToken] WHERE [Id] IN (:ids)";
+        if (ids.length == 0) return; // avoid syntax error
 
-        int row = jdbcClient.sql(sql).param("ids", ids).update();
+        String placeholders = Arrays.stream(ids)
+            .map(_ -> "?")
+            .collect(Collectors.joining(", "));
+        
+        String sql = "DELETE FROM [dbo].[VerificationToken] WHERE [Id] IN (" + placeholders + ")";
+
+        int row = jdbcClient.sql(sql).params(Arrays.asList(ids)).update();
 
         if (row == 0) {
             throw new RuntimeException("Cannont remove this verification token");
