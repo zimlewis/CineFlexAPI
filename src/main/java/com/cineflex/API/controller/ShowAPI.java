@@ -154,7 +154,7 @@ public class ShowAPI {
 
     // Delete show
     @DeleteMapping("/{id}")
-    public ResponseEntity<Integer> deleteShow(@PathVariable String id) {
+    public ResponseEntity<?> deleteShow(@PathVariable String id) {
         try {
             showService.deleteShow(UUID.fromString(id));
 
