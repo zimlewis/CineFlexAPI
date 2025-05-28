@@ -34,11 +34,11 @@ public class AuthenticationService {
     @Transactional
     public Account register(String username, String email, String password) {
         if (accountRepository.readAll().stream().anyMatch(a -> a.getUsername().equals(username))) {
-            return null;
+            throw new RuntimeException("Username has already taken");
         }
 
         if (accountRepository.readAll().stream().anyMatch(a -> a.getEmail().equals(email))) {
-            return null;
+            throw new RuntimeException("Email has already taken");
         }
 
         UUID id = UUID.randomUUID();
@@ -54,7 +54,12 @@ public class AuthenticationService {
             .role(0)
             .build();
         
-        accountRepository.create(account);
+        try {
+            accountRepository.create(account);
+        }
+        catch (Exception e) {
+            throw e;
+        }
 
         return accountRepository.read(id);
     }
@@ -70,10 +75,10 @@ public class AuthenticationService {
 
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
 
-        if (authentication.isAuthenticated()) {
-            return jwtService.createToken(username);
+        if (!authentication.isAuthenticated()) {
+            throw new RuntimeException("Cannot login");
         }
 
-        return null;
+        return jwtService.createToken(username);
     }
 }
