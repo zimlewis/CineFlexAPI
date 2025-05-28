@@ -6,10 +6,10 @@ import org.springframework.web.bind.annotation.RestController;
 import com.cineflex.API.model.Account;
 import com.cineflex.API.model.UserPrincipal;
 import com.cineflex.API.service.AuthenticationService;
+import com.cineflex.API.service.JsonService;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -24,17 +24,30 @@ import org.springframework.web.bind.annotation.GetMapping;
 @RequestMapping("/api/authentication")
 public class AuthenticationAPI {
     private final AuthenticationService authenticationService;
+    private final JsonService jsonService;
     
     public AuthenticationAPI (
-        AuthenticationService authenticationService
+        AuthenticationService authenticationService,
+        JsonService jsonService
     ) {
         this.authenticationService = authenticationService;
+        this.jsonService = jsonService;
     }
 
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody JsonNode jsonNode) {
         try {
-            String token = authenticationService.login(jsonNode.get("email").asText(), jsonNode.get("password").asText());
+            String email = jsonService.getOrNull(jsonNode, "email", String.class);
+            String password = jsonService.getOrNull(jsonNode, "password", String.class);
+            
+            if (email == null || password == null) {
+                return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
+                    HttpStatus.UNAUTHORIZED, 
+                    "Cannot login"
+                )).build();
+            }
+
+            String token = authenticationService.login(email, password);
 
             return new ResponseEntity<>(token, HttpStatus.OK);
         }
@@ -49,9 +62,16 @@ public class AuthenticationAPI {
     @PostMapping("/register")
     public ResponseEntity<Account> register(@RequestBody JsonNode jsonNode) {
         try {
-            String email = jsonNode.get("email").asText();
-            String password = jsonNode.get("password").asText();
-            String username = jsonNode.get("username").asText();
+            String email = jsonService.getOrNull(jsonNode, "email", String.class);
+            String password = jsonService.getOrNull(jsonNode, "passowrd", String.class);
+            String username = jsonService.getOrNull(jsonNode, "username", String.class);
+            
+            if (email == null || password == null || username == null) {
+                return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
+                    HttpStatus.UNAUTHORIZED, 
+                    "Cannot register"
+                )).build();
+            }
 
             Account account = authenticationService.register(username, email, password);
 
