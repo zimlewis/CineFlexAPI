@@ -3,6 +3,7 @@ package com.cineflex.API.controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.cineflex.API.model.Episode;
 import com.cineflex.API.model.Season;
 import com.cineflex.API.service.JsonService;
 import com.cineflex.API.service.ShowService;
@@ -19,6 +20,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.PostMapping;
+
 
 
 @RestController
@@ -99,5 +102,13 @@ public class SeasonAPI {
             )).build();
         }
     }
+
+    @PostMapping("/{id}/episodes")
+    public ResponseEntity<Episode> addEpisode(@RequestBody JsonNode jsonNode) {
+        //TODO: process POST request
+        
+        return null;
+    }
+    
     
 }
