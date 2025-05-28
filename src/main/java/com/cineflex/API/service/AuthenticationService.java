@@ -31,6 +31,10 @@ public class AuthenticationService {
         this.jwtService = jwtService;
     }
 
+    public Account fromUsername(String username) {
+        return accountRepository.readByUsername(username);
+    }
+
     @Transactional
     public Account register(String username, String email, String password) {
         if (accountRepository.readAll().stream().anyMatch(a -> a.getUsername().equals(username))) {
