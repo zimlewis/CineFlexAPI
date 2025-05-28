@@ -1,6 +1,5 @@
 package com.cineflex.API.config;
 
-import java.net.Authenticator;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

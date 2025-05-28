@@ -101,12 +101,25 @@ public class AccountRepository implements RepositoryInterface<Account>{
         }
     }
 
-    public Account readByUserName(String username) {
+    public Account readByUsername(String username) {
         Account account = null;
         String sql = "SELECT * FROM [dbo].[Account] WHERE [Username] = ?";
 
         account = jdbcClient.sql(sql)
             .params(username)
+            .query(Account.class)
+            .optional()
+            .orElse(null);
+
+        return account;
+    }
+
+    public Account readByEmail(String email) {
+        Account account = null;
+        String sql = "SELECT * FROM [dbo].[Account] WHERE [Email] = ?";
+
+        account = jdbcClient.sql(sql)
+            .params(email)
             .query(Account.class)
             .optional()
             .orElse(null);

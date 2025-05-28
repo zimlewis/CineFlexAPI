@@ -22,7 +22,7 @@ public class AccountDetailService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Account account = accountRepository.readByUserName(username);
+        Account account = accountRepository.readByUsername(username);
 
         if (account == null) {
             throw new UsernameNotFoundException("User not found with username: " + username);
