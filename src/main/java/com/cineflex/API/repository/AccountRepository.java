@@ -100,4 +100,17 @@ public class AccountRepository implements RepositoryInterface<Account>{
             throw new RuntimeException("Cannot delete account");
         }
     }
+
+    public Account readByUserName(String username) {
+        Account account = null;
+        String sql = "SELECT * FROM [dbo].[Account] WHERE [Username] = ?";
+
+        account = jdbcClient.sql(sql)
+            .params(username)
+            .query(Account.class)
+            .optional()
+            .orElse(null);
+
+        return account;
+    }
 }
