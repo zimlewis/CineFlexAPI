@@ -3,6 +3,7 @@ package com.cineflex.API.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -38,6 +39,12 @@ public class SecurityConfiguration {
 
         http.addFilterAfter(this.jwtFilter, UsernamePasswordAuthenticationFilter.class);
         http.authorizeHttpRequests(auth -> auth
+            .requestMatchers("/api/authentication/login").permitAll()
+            .requestMatchers("/api/authentication/register").permitAll()
+            .requestMatchers("/api/authentication/profile").authenticated()
+
+            .requestMatchers(HttpMethod.GET, "/*").permitAll()
+
             .anyRequest().permitAll()
         );
         
