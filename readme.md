@@ -12,7 +12,15 @@
     "email": "string"
   }
   ```
-- **Response:** Registered account object
+- **Response:**
+  ```json
+  {
+    "id": "uuid",
+    "username": "string",
+    "email": "string",
+    "createdAt": "YYYY-MM-DDTHH:MM:SSZ"
+  }
+  ```
 
 ### Login
 - **POST** `/api/authentication/login`
@@ -23,12 +31,25 @@
     "password": "string"
   }
   ```
-- **Response:** JWT token string
+- **Response:**
+  ```json
+  {
+    "token": "jwt-token-string"
+  }
+  ```
 
 ### Profile
 - **GET** `/api/authentication/profile`
 - **Headers:** `Authorization: Bearer <token>`
-- **Response:** Account object
+- **Response:**
+  ```json
+  {
+    "id": "uuid",
+    "username": "string",
+    "email": "string",
+    "createdAt": "YYYY-MM-DDTHH:MM:SSZ"
+  }
+  ```
 
 ---
 
@@ -36,11 +57,35 @@
 
 ### Get All Shows
 - **GET** `/api/shows`
-- **Response:** List of shows
+- **Response:**
+  ```json
+  [
+    {
+      "id": "uuid",
+      "title": "string",
+      "description": "string",
+      "releaseDate": "YYYY-MM-DD",
+      "thumbnail": "string",
+      "onGoing": true,
+      "isSeries": true
+    }
+  ]
+  ```
 
 ### Get Show by ID
 - **GET** `/api/shows/{id}`
-- **Response:** Show object
+- **Response:**
+  ```json
+  {
+    "id": "uuid",
+    "title": "string",
+    "description": "string",
+    "releaseDate": "YYYY-MM-DD",
+    "thumbnail": "string",
+    "onGoing": true,
+    "isSeries": true
+  }
+  ```
 
 ### Add Show
 - **POST** `/api/shows`
@@ -55,20 +100,68 @@
     "isSeries": true
   }
   ```
-- **Response:** Created show object
+- **Response:**
+  ```json
+  {
+    "id": "uuid",
+    "title": "string",
+    "description": "string",
+    "releaseDate": "YYYY-MM-DD",
+    "thumbnail": "string",
+    "onGoing": true,
+    "isSeries": true
+  }
+  ```
 
 ### Update Show
 - **PUT** `/api/shows/{id}`
-- **Body:** Same as Add Show
-- **Response:** Updated show object
+- **Body:**
+  ```json
+  {
+    "title": "string",
+    "description": "string",
+    "releaseDate": "YYYY-MM-DD",
+    "thumbnail": "string",
+    "onGoing": true,
+    "isSeries": true
+  }
+  ```
+- **Response:**
+  ```json
+  {
+    "id": "uuid",
+    "title": "string",
+    "description": "string",
+    "releaseDate": "YYYY-MM-DD",
+    "thumbnail": "string",
+    "onGoing": true,
+    "isSeries": true
+  }
+  ```
 
 ### Delete Show
 - **DELETE** `/api/shows/{id}`
-- **Response:** 200 OK
+- **Response:**
+  ```json
+  {
+    "message": "Show deleted successfully"
+  }
+  ```
 
 ### Get Seasons of a Show
 - **GET** `/api/shows/{id}/seasons`
-- **Response:** List of seasons
+- **Response:**
+  ```json
+  [
+    {
+      "id": "uuid",
+      "title": "string",
+      "releaseDate": "YYYY-MM-DD",
+      "description": "string",
+      "show": "uuid"
+    }
+  ]
+  ```
 
 ### Add Season to Show
 - **POST** `/api/shows/{id}/seasons`
@@ -80,7 +173,16 @@
     "description": "string"
   }
   ```
-- **Response:** Created season object
+- **Response:**
+  ```json
+  {
+    "id": "uuid",
+    "title": "string",
+    "releaseDate": "YYYY-MM-DD",
+    "description": "string",
+    "show": "uuid"
+  }
+  ```
 
 ---
 
@@ -88,7 +190,16 @@
 
 ### Get Season by ID
 - **GET** `/api/seasons/{id}`
-- **Response:** Season object
+- **Response:**
+  ```json
+  {
+    "id": "uuid",
+    "title": "string",
+    "releaseDate": "YYYY-MM-DD",
+    "description": "string",
+    "show": "uuid"
+  }
+  ```
 
 ### Update Season
 - **PUT** `/api/seasons/{id}`
@@ -101,15 +212,45 @@
     "show": "uuid (optional)"
   }
   ```
-- **Response:** Updated season object
+- **Response:**
+  ```json
+  {
+    "id": "uuid",
+    "title": "string",
+    "releaseDate": "YYYY-MM-DD",
+    "description": "string",
+    "show": "uuid"
+  }
+  ```
 
 ### Delete Season
 - **DELETE** `/api/seasons/{id}`
-- **Response:** 200 OK
+- **Response:**
+  ```json
+  {
+    "message": "Season deleted successfully"
+  }
+  ```
 
 ### Get Episodes of a Season
 - **GET** `/api/seasons/{id}/episodes`
-- **Response:** List of episodes
+- **Response:**
+  ```json
+  [
+    {
+      "id": "uuid",
+      "title": "string",
+      "number": "string",
+      "description": "string",
+      "url": "string",
+      "releaseDate": "YYYY-MM-DD",
+      "duration": 0,
+      "openingStart": 0,
+      "openingEnd": 0,
+      "season": "uuid"
+    }
+  ]
+  ```
 
 ### Add Episode to Season
 - **POST** `/api/seasons/{id}/episodes`
@@ -126,7 +267,21 @@
     "openingEnd": 0
   }
   ```
-- **Response:** Created episode object
+- **Response:**
+  ```json
+  {
+    "id": "uuid",
+    "title": "string",
+    "number": "string",
+    "description": "string",
+    "url": "string",
+    "releaseDate": "YYYY-MM-DD",
+    "duration": 0,
+    "openingStart": 0,
+    "openingEnd": 0,
+    "season": "uuid"
+  }
+  ```
 
 ---
 
@@ -134,16 +289,61 @@
 
 ### Get Episode by ID
 - **GET** `/api/episodes/{id}`
-- **Response:** Episode object
+- **Response:**
+  ```json
+  {
+    "id": "uuid",
+    "title": "string",
+    "number": "string",
+    "description": "string",
+    "url": "string",
+    "releaseDate": "YYYY-MM-DD",
+    "duration": 0,
+    "openingStart": 0,
+    "openingEnd": 0,
+    "season": "uuid"
+  }
+  ```
 
 ### Update Episode
 - **PUT** `/api/episodes/{id}`
-- **Body:** Same as Add Episode
-- **Response:** Updated episode object
+- **Body:**
+  ```json
+  {
+    "title": "string",
+    "number": "string",
+    "description": "string",
+    "url": "string",
+    "releaseDate": "YYYY-MM-DD",
+    "duration": 0,
+    "openingStart": 0,
+    "openingEnd": 0
+  }
+  ```
+- **Response:**
+  ```json
+  {
+    "id": "uuid",
+    "title": "string",
+    "number": "string",
+    "description": "string",
+    "url": "string",
+    "releaseDate": "YYYY-MM-DD",
+    "duration": 0,
+    "openingStart": 0,
+    "openingEnd": 0,
+    "season": "uuid"
+  }
+  ```
 
 ### Delete Episode
 - **DELETE** `/api/episodes/{id}`
-- **Response:** 200 OK
+- **Response:**
+  ```json
+  {
+    "message": "Episode deleted successfully"
+  }
+  ```
 
 ---
 
