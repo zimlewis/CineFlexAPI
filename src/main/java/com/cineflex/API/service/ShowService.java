@@ -96,6 +96,7 @@ public class ShowService {
         season.setTitle(Objects.requireNonNullElse(season.getTitle(), oldSeason.getTitle()));
         season.setReleaseDate(oldSeason.getReleaseDate());
         season.setCreatedTime(oldSeason.getCreatedTime());
+        season.setUpdatedTime(LocalDateTime.now());
         season.setDescription(Objects.requireNonNullElse(season.getDescription(), oldSeason.getDescription()));
         season.setShow(Objects.requireNonNullElse(season.getShow(), oldSeason.getShow()));
 
@@ -112,9 +113,9 @@ public class ShowService {
         episode.setNumber(Objects.requireNonNullElse(episode.getNumber(), oldEpisode.getNumber()));
         episode.setDescription(Objects.requireNonNullElse(episode.getDescription(), oldEpisode.getDescription()));
         episode.setUrl(Objects.requireNonNullElse(episode.getUrl(), oldEpisode.getUrl()));
-        episode.setReleaseDate(oldEpisode.getReleaseDate());
+        episode.setReleaseDate(Objects.requireNonNullElse(episode.getReleaseDate(), oldEpisode.getReleaseDate()));
         episode.setCreatedTime(oldEpisode.getCreatedTime());
-        episode.setUpdatedTime(oldEpisode.getUpdatedTime());
+        episode.setUpdatedTime(LocalDateTime.now());
         episode.setDuration(Objects.requireNonNullElse(episode.getDuration(), oldEpisode.getDuration()));
         episode.setOpeningStart(Objects.requireNonNullElse(episode.getOpeningStart(), oldEpisode.getOpeningStart()));
         episode.setOpeningEnd(Objects.requireNonNullElse(episode.getOpeningEnd(), oldEpisode.getOpeningEnd()));
@@ -173,9 +174,14 @@ public class ShowService {
         return episodeRepository.readAll();
     }
 
-    // find the show using the given id, this could be multiple id
+    // find the season using the given id show, this could be multiple id
     public List<Season> findSeaonsByShows(UUID... ids) {
         return seasonRepository.getByShow(ids);
+    }
+
+    // find the episodes using given id season
+    public List<Episode> findEpisodesBySeasons(UUID... ids) {
+        return episodeRepository.getBySeason(ids);
     }
 
 

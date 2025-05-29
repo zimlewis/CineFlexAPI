@@ -107,7 +107,7 @@ public class EpisodeRepository implements RepositoryInterface<Episode>{
             .map(_ -> "?")
             .collect(Collectors.joining(", "));
 
-        String sql = "DELETE FROM [dbo].[Episode] WHERE [Id] IN (:" + placeholders + ")";
+        String sql = "DELETE FROM [dbo].[Episode] WHERE [Id] IN (" + placeholders + ")";
 
         int row = jdbcClient.sql(sql).params(Arrays.asList(ids)).update();
 

@@ -10,6 +10,7 @@ import com.cineflex.API.service.ShowService;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PostMapping;
+
 
 
 
@@ -66,12 +68,14 @@ public class SeasonAPI {
     @PutMapping("/{id}")
     public ResponseEntity<Season> updateSeason(@PathVariable String id, @RequestBody JsonNode jsonNode) {
         try {
+            UUID updateId = jsonService.getOrNull(jsonNode, "show", String.class) == null ? null : UUID.fromString(jsonService.getOrNull(jsonNode, "show", String.class));
+
             Season season = Season.builder()
                 .id(UUID.fromString(id))
                 .title(jsonService.getOrNull(jsonNode, "title", String.class))
                 .releaseDate(LocalDate.parse(jsonService.getOrNull(jsonNode, "releaseDate", String.class)))
                 .description(jsonService.getOrNull(jsonNode, "description", String.class))
-                .show(UUID.fromString(jsonService.getOrNull(jsonNode, "show", String.class)))
+                .show(updateId)
                 .build();
             
             Season returnSeason = showService.updateSeason(season);
@@ -103,11 +107,39 @@ public class SeasonAPI {
         }
     }
 
+    @GetMapping("/{id}/episodes")
+    public ResponseEntity<List<Episode>> getAllEpisodesFromSeason(@PathVariable String id) {
+        List<Episode> episodes = showService.findEpisodesBySeasons(UUID.fromString(id));
+        return new ResponseEntity<>(episodes, HttpStatus.OK);
+    }
+    
+
     @PostMapping("/{id}/episodes")
-    public ResponseEntity<Episode> addEpisode(@RequestBody JsonNode jsonNode) {
-        //TODO: process POST request
-        
-        return null;
+    public ResponseEntity<Episode> addEpisode(@PathVariable String id, @RequestBody JsonNode jsonNode) {
+        try {
+            Episode episode = Episode.builder()
+                .title(jsonService.getOrNull(jsonNode, "title", String.class))
+                .number(jsonService.getOrNull(jsonNode, "number", String.class))
+                .description(jsonService.getOrNull(jsonNode, "description", String.class))
+                .url(jsonService.getOrNull(jsonNode, "url", String.class))
+                .releaseDate(LocalDate.parse(jsonService.getOrNull(jsonNode, "releaseDate", String.class)))
+                .duration(jsonService.getOrNull(jsonNode, "duration", Integer.class))
+                .openingStart(jsonService.getOrNull(jsonNode, "openingStart", Integer.class))
+                .openingEnd(jsonService.getOrNull(jsonNode, "openingEnd", Integer.class))
+                .view(0)
+                .season(UUID.fromString(id))
+                .build();
+            
+            Episode returnEpisode = showService.addEpisode(episode);
+
+            return new ResponseEntity<>(returnEpisode, HttpStatus.CREATED);
+        }
+        catch (Exception e) {
+            return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
+                HttpStatus.INTERNAL_SERVER_ERROR, 
+                e.getMessage()
+            )).build();
+        }
     }
     
     

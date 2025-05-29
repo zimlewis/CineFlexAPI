@@ -1,0 +1,11 @@
+POST http://localhost:8080/api/shows HTTP/1.1
+Content-Type: application/json
+
+{
+    "title": "Me May Beautiful",
+    "description": "Yamama",
+    "releaseDate": "2006-08-28",
+    "thumbnail": "aaaaaaaaaaaaa",
+    "onGoing": true,
+    "isSeries": true
+}

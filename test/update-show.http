@@ -1,0 +1,11 @@
+PUT http://localhost:8080/api/shows/c54398ef-94d1-4623-9d9c-bd25fdecbc17 HTTP/1.1
+Content-Type: application/json
+
+{
+    "title": "me may beo",
+    "description": "skibidi",
+    "releaseDate": "2002-02-01",
+    "thumbnail": "qwertyuiopasd",
+    "onGoing": false,
+    "isSeries": true
+}

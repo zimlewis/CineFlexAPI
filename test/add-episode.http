@@ -1,0 +1,13 @@
+POST http://localhost:8080/api/seasons/79d653ec-d9f7-459c-ae21-5a29f378cb96/episodes HTTP/1.1
+Content-Type: application/json
+
+{
+    "title": "Epi 2",
+    "number": "02",
+    "description": "adasdq qe wq asdas qwe dsadqwd as ds awd sa",
+    "url": "aaasdasqewqqwed",
+    "releaseDate": "2021-03-01",
+    "duration": 9000,
+    "openingStart": 200,
+    "openingEnd": 400
+}
