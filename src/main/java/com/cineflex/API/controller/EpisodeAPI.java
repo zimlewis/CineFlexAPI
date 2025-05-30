@@ -69,7 +69,7 @@ public class EpisodeAPI {
                 .number(jsonService.getOrNull(jsonNode, "number", String.class))
                 .description(jsonService.getOrNull(jsonNode, "description", String.class))
                 .url(jsonService.getOrNull(jsonNode, "url", String.class))
-                .releaseDate(LocalDate.parse(jsonService.getOrNull(jsonNode, "releaseDate", String.class)))
+                .releaseDate(jsonNode.has("releaseDate")?LocalDate.parse(jsonNode.get("releaseDate").asText()):null)
                 .duration(jsonService.getOrNull(jsonNode, "duration", Integer.class))
                 .openingStart(jsonService.getOrNull(jsonNode, "openingStart", Integer.class))
                 .openingEnd(jsonService.getOrNull(jsonNode, "openingEnd", Integer.class))

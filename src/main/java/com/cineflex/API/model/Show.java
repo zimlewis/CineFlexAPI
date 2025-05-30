@@ -19,4 +19,5 @@ public class Show {
     LocalDateTime updatedTime;
     Boolean onGoing;
     Boolean isSeries;
+    String ageRating;
 }

@@ -21,7 +21,7 @@ public class ShowRepository implements RepositoryInterface<Show> {
 
     @Override
     public void create(Show t) {
-        String sql = "INSERT INTO [dbo].[Show] ([Id], [Title], [Description], [ReleaseDate], [Thumbnail], [CreatedTime], [UpdatedTime], [OnGoing], [IsSeries]) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO [dbo].[Show] ([Id], [Title], [Description], [ReleaseDate], [Thumbnail], [CreatedTime], [UpdatedTime], [OnGoing], [IsSeries], [AgeRating]) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         int row = jdbcClient.sql(sql).params(
             t.getId(),
@@ -32,7 +32,8 @@ public class ShowRepository implements RepositoryInterface<Show> {
             t.getCreatedTime(),
             t.getUpdatedTime(),
             t.getOnGoing(),
-            t.getIsSeries()
+            t.getIsSeries(),
+            t.getAgeRating()
         ).update();
 
         if (row == 0) {
@@ -68,7 +69,7 @@ public class ShowRepository implements RepositoryInterface<Show> {
 
     @Override
     public void update(UUID id, Show t) {
-        String sql = "UPDATE [dbo].[Show] SET [Title] = ?, [Description] = ?, [ReleaseDate] = ?, [Thumbnail] = ?, [CreatedTime] = ?, [UpdatedTime] = ?, [OnGoing] = ?, [IsSeries] = ? WHERE [Id] = ?";
+        String sql = "UPDATE [dbo].[Show] SET [Title] = ?, [Description] = ?, [ReleaseDate] = ?, [Thumbnail] = ?, [CreatedTime] = ?, [UpdatedTime] = ?, [OnGoing] = ?, [IsSeries] = ?, [AgeRating] = ? WHERE [Id] = ?";
 
         int row = jdbcClient.sql(sql).params(
             t.getTitle(),
@@ -79,6 +80,7 @@ public class ShowRepository implements RepositoryInterface<Show> {
             t.getUpdatedTime(),
             t.getOnGoing(),
             t.getIsSeries(),
+            t.getAgeRating(),
             id
         ).update();
 

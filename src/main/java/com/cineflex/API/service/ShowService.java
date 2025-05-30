@@ -83,6 +83,7 @@ public class ShowService {
         show.setUpdatedTime(LocalDateTime.now());
         show.setOnGoing(Objects.requireNonNullElse(show.getOnGoing(), oldShow.getOnGoing()));
         show.setIsSeries(Objects.requireNonNullElse(show.getIsSeries(), oldShow.getIsSeries()));
+        show.setAgeRating(Objects.requireNonNullElse(show.getAgeRating(), oldShow.getAgeRating()));
 
         showRepository.update(id, show); // Update the show with the given information
         

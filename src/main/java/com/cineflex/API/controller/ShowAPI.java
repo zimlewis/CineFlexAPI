@@ -102,10 +102,11 @@ public class ShowAPI {
             Show show = Show.builder()
                 .title(jsonService.getOrNull(jsonNode, "title", String.class))
                 .description(jsonService.getOrNull(jsonNode, "description", String.class))
-                .releaseDate(LocalDate.parse(jsonService.getOrNull(jsonNode, "releaseDate", String.class)))
+                .releaseDate(jsonNode.has("releaseDate")?LocalDate.parse(jsonNode.get("releaseDate").asText()):null)
                 .thumbnail(jsonService.getOrNull(jsonNode, "thumbnail", String.class))
                 .onGoing(jsonService.getOrNull(jsonNode, "onGoing", Boolean.class))
                 .isSeries(jsonService.getOrNull(jsonNode, "isSeries", Boolean.class))
+                .ageRating(jsonService.getOrNull(jsonNode, "ageRating", String.class))
                 .build();
             
             Show returnShow = showService.addShow(show);
@@ -132,10 +133,11 @@ public class ShowAPI {
                 .id(UUID.fromString(id))
                 .title(jsonService.getOrNull(jsonNode, "title", String.class))
                 .description(jsonService.getOrNull(jsonNode, "description", String.class))
-                .releaseDate(LocalDate.parse(jsonService.getOrNull(jsonNode, "releaseDate", String.class)))
+                .releaseDate(jsonNode.has("releaseDate")?LocalDate.parse(jsonNode.get("releaseDate").asText()):null)
                 .thumbnail(jsonService.getOrNull(jsonNode, "thumbnail", String.class))
                 .onGoing(jsonService.getOrNull(jsonNode, "onGoing", Boolean.class))
                 .isSeries(jsonService.getOrNull(jsonNode, "isSeries", Boolean.class))
+                .ageRating(jsonService.getOrNull(jsonNode, "ageRating", String.class))
                 .build();
             
             Show returnShow = showService.updateShow(show);
@@ -147,7 +149,7 @@ public class ShowAPI {
             // Return error
             return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
                 HttpStatus.INTERNAL_SERVER_ERROR, 
-                e.getMessage()
+                e.toString()
             )).build();
         }
     }
@@ -179,7 +181,7 @@ public class ShowAPI {
         try {
             Season season = Season.builder()
                 .title(jsonService.getOrNull(jsonNode, "title", String.class))
-                .releaseDate(LocalDate.parse(jsonService.getOrNull(jsonNode, "releaseDate", String.class)))
+                .releaseDate(jsonNode.has("releaseDate")?LocalDate.parse(jsonNode.get("releaseDate").asText()):null)
                 .description(jsonService.getOrNull(jsonNode, "description", String.class))
                 .show(UUID.fromString(id))
                 .build();

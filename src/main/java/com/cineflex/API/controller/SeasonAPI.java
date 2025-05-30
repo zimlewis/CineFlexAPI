@@ -73,7 +73,7 @@ public class SeasonAPI {
             Season season = Season.builder()
                 .id(UUID.fromString(id))
                 .title(jsonService.getOrNull(jsonNode, "title", String.class))
-                .releaseDate(LocalDate.parse(jsonService.getOrNull(jsonNode, "releaseDate", String.class)))
+                .releaseDate(jsonNode.has("releaseDate")?LocalDate.parse(jsonNode.get("releaseDate").asText()):null)
                 .description(jsonService.getOrNull(jsonNode, "description", String.class))
                 .show(updateId)
                 .build();
@@ -122,7 +122,7 @@ public class SeasonAPI {
                 .number(jsonService.getOrNull(jsonNode, "number", String.class))
                 .description(jsonService.getOrNull(jsonNode, "description", String.class))
                 .url(jsonService.getOrNull(jsonNode, "url", String.class))
-                .releaseDate(LocalDate.parse(jsonService.getOrNull(jsonNode, "releaseDate", String.class)))
+                .releaseDate(jsonNode.has("releaseDate")?LocalDate.parse(jsonNode.get("releaseDate").asText()):null)
                 .duration(jsonService.getOrNull(jsonNode, "duration", Integer.class))
                 .openingStart(jsonService.getOrNull(jsonNode, "openingStart", Integer.class))
                 .openingEnd(jsonService.getOrNull(jsonNode, "openingEnd", Integer.class))
