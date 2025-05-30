@@ -35,3 +35,4 @@ build/
 
 ### Testing ###
 !**/src/main/java/com/cineflex/API/controller/TestAPI.java
+test/

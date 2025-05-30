@@ -2,5 +2,5 @@ PUT http://localhost:8080/api/shows/d2c3df61-9f0f-4feb-ada2-09ec937072e8 HTTP/1.
 Content-Type: application/json
 
 {
-    "ageRating": "0"
+    "ageRating": "3"
 }

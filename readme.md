@@ -97,7 +97,8 @@
     "releaseDate": "YYYY-MM-DD",
     "thumbnail": "string",
     "onGoing": true,
-    "isSeries": true
+    "isSeries": true,
+    "ageRating": "string"
   }
   ```
 - **Response:**
@@ -109,7 +110,8 @@
     "releaseDate": "YYYY-MM-DD",
     "thumbnail": "string",
     "onGoing": true,
-    "isSeries": true
+    "isSeries": true,
+    "ageRating": "string"
   }
   ```
 
@@ -123,7 +125,8 @@
     "releaseDate": "YYYY-MM-DD",
     "thumbnail": "string",
     "onGoing": true,
-    "isSeries": true
+    "isSeries": true,
+    "ageRating": "string"
   }
   ```
 - **Response:**
@@ -135,7 +138,8 @@
     "releaseDate": "YYYY-MM-DD",
     "thumbnail": "string",
     "onGoing": true,
-    "isSeries": true
+    "isSeries": true,
+    "ageRating": "string"
   }
   ```
 
