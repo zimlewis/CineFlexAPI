@@ -67,7 +67,8 @@
       "releaseDate": "YYYY-MM-DD",
       "thumbnail": "string",
       "onGoing": true,
-      "isSeries": true
+      "isSeries": true,
+      "ageRating": "string"
     }
   ]
   ```
@@ -83,12 +84,14 @@
     "releaseDate": "YYYY-MM-DD",
     "thumbnail": "string",
     "onGoing": true,
-    "isSeries": true
+    "isSeries": true,
+    "ageRating": "string"
   }
   ```
 
 ### Add Show
 - **POST** `/api/shows`
+- **Authority Required:** `ADD_CONTENT`
 - **Body:**
   ```json
   {
@@ -117,6 +120,7 @@
 
 ### Update Show
 - **PUT** `/api/shows/{id}`
+- **Authority Required:** `EDIT_CONTENT`
 - **Body:**
   ```json
   {
@@ -145,6 +149,7 @@
 
 ### Delete Show
 - **DELETE** `/api/shows/{id}`
+- **Authority Required:** `DELETE_CONTENT`
 - **Response:**
   ```json
   {
@@ -169,6 +174,7 @@
 
 ### Add Season to Show
 - **POST** `/api/shows/{id}/seasons`
+- **Authority Required:** `ADD_CONTENT`
 - **Body:**
   ```json
   {
@@ -207,6 +213,7 @@
 
 ### Update Season
 - **PUT** `/api/seasons/{id}`
+- **Authority Required:** `EDIT_CONTENT`
 - **Body:**
   ```json
   {
@@ -229,6 +236,7 @@
 
 ### Delete Season
 - **DELETE** `/api/seasons/{id}`
+- **Authority Required:** `DELETE_CONTENT`
 - **Response:**
   ```json
   {
@@ -258,6 +266,7 @@
 
 ### Add Episode to Season
 - **POST** `/api/seasons/{id}/episodes`
+- **Authority Required:** `ADD_CONTENT`
 - **Body:**
   ```json
   {
@@ -311,6 +320,7 @@
 
 ### Update Episode
 - **PUT** `/api/episodes/{id}`
+- **Authority Required:** `EDIT_CONTET`
 - **Body:**
   ```json
   {
@@ -342,6 +352,7 @@
 
 ### Delete Episode
 - **DELETE** `/api/episodes/{id}`
+- **Authority Required:** `DELETE_CONTENT`
 - **Response:**
   ```json
   {
@@ -352,3 +363,8 @@
 ---
 
 > For all endpoints requiring authentication, include the `Authorization: Bearer <token>` header.
+
+> **Note:**  
+> - `EDIT_CONTET` is used for updating episodes (as per your current SecurityConfiguration).  
+> - `EDIT_CONTENT`, `ADD_CONTENT`, and `DELETE_CONTENT` are used for other endpoints as shown above.  
+> - If `EDIT_CONTET` is a typo, you should correct it in your SecurityConfiguration.
