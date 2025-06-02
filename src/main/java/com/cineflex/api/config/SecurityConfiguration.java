@@ -43,7 +43,7 @@ public class SecurityConfiguration {
             .requestMatchers("/api/authentication/register").permitAll()
             .requestMatchers("/api/authentication/profile").authenticated()
 
-            .requestMatchers(HttpMethod.PUT, "/api/episodes/*").hasAuthority("EDIT_CONTET")
+            .requestMatchers(HttpMethod.PUT, "/api/episodes/*").hasAuthority("EDIT_CONTENT")
             .requestMatchers(HttpMethod.DELETE, "/api/episodes/*").hasAuthority("DELETE_CONTENT")
 
             .requestMatchers(HttpMethod.PUT, "/api/seasons/*").hasAuthority("EDIT_CONTENT")
