@@ -43,7 +43,17 @@ public class SecurityConfiguration {
             .requestMatchers("/api/authentication/register").permitAll()
             .requestMatchers("/api/authentication/profile").authenticated()
 
-            .requestMatchers(HttpMethod.GET, "/*").permitAll()
+            .requestMatchers(HttpMethod.PUT, "/api/episodes/*").hasAuthority("EDIT_CONTET")
+            .requestMatchers(HttpMethod.DELETE, "/api/episodes/*").hasAuthority("DELETE_CONTENT")
+
+            .requestMatchers(HttpMethod.PUT, "/api/seasons/*").hasAuthority("EDIT_CONTENT")
+            .requestMatchers(HttpMethod.DELETE, "/api/seasons/*").hasAuthority("DELETE_CONTENT")
+            .requestMatchers(HttpMethod.POST, "/api/seasons/*/episodes").hasAuthority("ADD_CONTENT")
+
+            .requestMatchers(HttpMethod.POST, "/api/shows").hasAuthority("ADD_CONTENT")
+            .requestMatchers(HttpMethod.PUT, "/api/shows/*").hasAuthority("EDIT_CONTENT")
+            .requestMatchers(HttpMethod.DELETE, "/api/shows/*").hasAuthority("DELETE_CONTENT")
+            .requestMatchers(HttpMethod.POST, "/api/shows/*/seasons").hasAuthority("ADD_CONTENT")
 
             .anyRequest().permitAll()
         );
