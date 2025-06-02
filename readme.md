@@ -321,6 +321,7 @@
 ### Update Episode
 - **PUT** `/api/episodes/{id}`
 - **Authority Required:** `EDIT_CONTENT`
+>>>>>>> e7d3cff40eae33d9a7c13803cbf31842522d6e31
 - **Body:**
   ```json
   {
