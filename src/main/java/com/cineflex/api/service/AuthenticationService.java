@@ -19,16 +19,19 @@ public class AuthenticationService {
     private final AccountRepository accountRepository;
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
+    private final TokenService tokenService;
 
 
     public AuthenticationService (
         AccountRepository accountRepository,
         AuthenticationManager authenticationManager,
-        JwtService jwtService
+        JwtService jwtService,
+        TokenService tokenService
     ) {
         this.accountRepository = accountRepository;
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
+        this.tokenService = tokenService;
     }
 
     public Account fromUsername(String username) {
@@ -37,35 +40,40 @@ public class AuthenticationService {
 
     @Transactional
     public Account register(String username, String email, String password) {
-        if (accountRepository.readAll().stream().anyMatch(a -> a.getUsername().equals(username))) {
-            throw new RuntimeException("Username has already taken");
-        }
 
-        if (accountRepository.readAll().stream().anyMatch(a -> a.getEmail().equals(email))) {
-            throw new RuntimeException("Email has already taken");
-        }
-
-        UUID id = UUID.randomUUID();
-
-        Account account = Account.builder()
-            .id(id)
-            .username(username)
-            .email(email)
-            .password(encoder.encode(password))
-            .createdTime(LocalDateTime.now())
-            .updatedTime(LocalDateTime.now())
-            .verify(true)
-            .role(0)
-            .build();
         
         try {
+            if (accountRepository.readAll().stream().anyMatch(a -> a.getUsername().equals(username))) {
+                throw new RuntimeException("Username has already taken");
+            }
+
+            if (accountRepository.readAll().stream().anyMatch(a -> a.getEmail().equals(email))) {
+                throw new RuntimeException("Email has already taken");
+            }
+
+            UUID id = UUID.randomUUID();
+
+            Account account = Account.builder()
+                .id(id)
+                .username(username)
+                .email(email)
+                .password(encoder.encode(password))
+                .createdTime(LocalDateTime.now())
+                .updatedTime(LocalDateTime.now())
+                .verify(false)
+                .role(0)
+                .build();
+
             accountRepository.create(account);
+
+            tokenService.createToken(account);
+
+            return accountRepository.read(id);
         }
         catch (Exception e) {
             throw e;
         }
 
-        return accountRepository.read(id);
     }
 
 

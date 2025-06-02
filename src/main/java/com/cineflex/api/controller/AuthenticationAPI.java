@@ -63,7 +63,7 @@ public class AuthenticationAPI {
     public ResponseEntity<Account> register(@RequestBody JsonNode jsonNode) {
         try {
             String email = jsonService.getOrNull(jsonNode, "email", String.class);
-            String password = jsonService.getOrNull(jsonNode, "passowrd", String.class);
+            String password = jsonService.getOrNull(jsonNode, "password", String.class);
             String username = jsonService.getOrNull(jsonNode, "username", String.class);
             
             if (email == null || password == null || username == null) {
