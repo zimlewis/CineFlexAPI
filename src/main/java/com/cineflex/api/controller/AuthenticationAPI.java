@@ -3,8 +3,8 @@ package com.cineflex.api.controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.cineflex.api.entity.UserPrincipal;
 import com.cineflex.api.model.Account;
-import com.cineflex.api.model.UserPrincipal;
 import com.cineflex.api.service.AuthenticationService;
 import com.cineflex.api.service.JsonService;
 import com.fasterxml.jackson.databind.JsonNode;

@@ -1,2 +1,0 @@
-GET http://localhost:8080/api/authentication/profile HTTP/1.1
-Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJaaW1sZXdpcyIsImlhdCI6MTc0ODQyMjY5NywiZXhwIjoxNzQ5MDI3NDk3fQ.6KLYLwWWQkL-FnOIUJrmDOZbL8q9IlLMYIiV6woq1M5CyV16atOX3G8jc4wKexGif3rgXHKoYcaSzKkmzI8zAQ

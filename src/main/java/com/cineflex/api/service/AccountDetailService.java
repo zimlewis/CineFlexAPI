@@ -5,8 +5,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import com.cineflex.api.entity.UserPrincipal;
 import com.cineflex.api.model.Account;
-import com.cineflex.api.model.UserPrincipal;
 import com.cineflex.api.repository.AccountRepository;
 
 @Service
