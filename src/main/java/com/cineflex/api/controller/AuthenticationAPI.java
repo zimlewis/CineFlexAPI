@@ -160,12 +160,12 @@ public class AuthenticationAPI {
         VerificationToken token = tokenService.getAvailableToken(account);
 
         if (token != null) {
-            return new ResponseEntity<>("Send old to email", HttpStatus.OK);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
 
         try {
             tokenService.createToken(account);
-            return new ResponseEntity<>("Send new to email", HttpStatus.OK);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
         catch (ResponseStatusException e) {
             return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
