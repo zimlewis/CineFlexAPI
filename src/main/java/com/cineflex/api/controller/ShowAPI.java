@@ -1,6 +1,7 @@
 package com.cineflex.api.controller;
 
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.cineflex.api.model.Season;
 import com.cineflex.api.model.Show;
@@ -48,7 +49,6 @@ public class ShowAPI {
     // Get single show database
     @GetMapping("/{id}")
     public ResponseEntity<Show> findShow(@PathVariable String id) {
-        System.out.println(id);
 
         try {
             Show show = showService.findShowById(UUID.fromString(id));
@@ -65,10 +65,9 @@ public class ShowAPI {
 
             return ResponseEntity.ok(show); // Return a show if the id is correct
         }
-        catch (Exception e) {
-            
+        catch (ResponseStatusException e) {
             return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
-                HttpStatus.INTERNAL_SERVER_ERROR, 
+                e.getStatusCode(), 
                 e.getMessage()
             )).build();
         }
@@ -83,10 +82,9 @@ public class ShowAPI {
 
             return ResponseEntity.ok(shows);
         }
-        catch (Exception e) {
-            // Return there's an exception
+        catch (ResponseStatusException e) {
             return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
-                HttpStatus.INTERNAL_SERVER_ERROR, 
+                e.getStatusCode(), 
                 e.getMessage()
             )).build();
         }
@@ -113,11 +111,9 @@ public class ShowAPI {
 
             return new ResponseEntity<Show>(returnShow, HttpStatus.CREATED);
         }
-        catch (Exception e) {
-
-            // Return error
+        catch (ResponseStatusException e) {
             return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
-                HttpStatus.INTERNAL_SERVER_ERROR, 
+                e.getStatusCode(), 
                 e.getMessage()
             )).build();
         }
@@ -144,12 +140,10 @@ public class ShowAPI {
 
             return ResponseEntity.ok(returnShow);
         }
-        catch (Exception e) {
-
-            // Return error
+        catch (ResponseStatusException e) {
             return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
-                HttpStatus.INTERNAL_SERVER_ERROR, 
-                e.toString()
+                e.getStatusCode(), 
+                e.getMessage()
             )).build();
         }
     }
@@ -162,10 +156,9 @@ public class ShowAPI {
 
             return ResponseEntity.ok(null);
         }
-        catch (Exception e) {
-            // Return error
+        catch (ResponseStatusException e) {
             return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
-                HttpStatus.INTERNAL_SERVER_ERROR, 
+                e.getStatusCode(), 
                 e.getMessage()
             )).build();
         }
@@ -190,12 +183,11 @@ public class ShowAPI {
 
             return new ResponseEntity<Season>(returnSeason, HttpStatus.CREATED);
         }
-        catch (Exception e) {
-            // Return error
+        catch (ResponseStatusException e) {
             return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
-                HttpStatus.INTERNAL_SERVER_ERROR, 
+                e.getStatusCode(), 
                 e.getMessage()
-            )).build();   
+            )).build();
         }
     }
     

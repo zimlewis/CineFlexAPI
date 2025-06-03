@@ -23,13 +23,16 @@ public class VerificationTokenRepository implements RepositoryInterface<Verifica
 
     @Override
     public void create(VerificationToken t) {
-        String sql = "INSERT INTO [dbo].[VerificationToken] ([Id], [Account], [Token]) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO [dbo].[VerificationToken] ([Id], [Account], [Token], [CreatedTime], [ExpiredTime], [Verified]) VALUES (?, ?, ?, ?, ?, ?)";
 
         int row = jdbcClient.sql(sql)
             .params(
                 t.getId(),
                 t.getAccount(),
-                t.getToken()
+                t.getToken(),
+                t.getCreatedTime(),
+                t.getExpiredTime(),
+                t.getVerified()
             )
             .update();
 
@@ -64,12 +67,15 @@ public class VerificationTokenRepository implements RepositoryInterface<Verifica
 
     @Override
     public void update(UUID id, VerificationToken t) {
-        String sql = "UPDATE [dbo].[VerificationToken] SET [Account] = ?, [Token] = ? WHERE [Id] = ?";
+        String sql = "UPDATE [dbo].[VerificationToken] SET [Account] = ?, [Token] = ?, [CreatedTime] = ?, [ExpiredTime] = ?, [Verified] = ? WHERE [Id] = ?";
 
         int row = jdbcClient.sql(sql)
             .params(
                 t.getAccount(),
                 t.getToken(),
+                t.getCreatedTime(),
+                t.getExpiredTime(),
+                t.getVerified(),
                 id
             )
             .update();
@@ -94,6 +100,30 @@ public class VerificationTokenRepository implements RepositoryInterface<Verifica
         if (row == 0) {
             throw new RuntimeException("Cannont remove this verification token");
         }
+    }
+
+    public VerificationToken readByTokenContent(String token) {
+        String sql = "SELECT * FROM [dbo].[VerificationToken] WHERE [Token] = ?";
+
+        VerificationToken verificationToken = jdbcClient.sql(sql)
+            .params(token)
+            .query(VerificationToken.class)
+            .optional()
+            .orElse(null);
+        
+        return verificationToken;
+    }
+
+    public List<VerificationToken> readByAccount(UUID id) {
+        String sql = "SELECT * FROM [dbo].[VerificationToken] WHERE [Account] = ?";
+
+        List<VerificationToken> verificationTokens = jdbcClient
+            .sql(sql)
+            .params(id)
+            .query(VerificationToken.class)
+            .list();
+        
+        return verificationTokens;
     }
     
 }

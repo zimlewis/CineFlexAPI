@@ -1,5 +1,6 @@
 package com.cineflex.api.model;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import lombok.Data;
@@ -11,4 +12,7 @@ public class VerificationToken {
     UUID id;
     UUID account;
     String token;
+    LocalDateTime createdTime;
+    LocalDateTime expiredTime;
+    Boolean verified;
 }

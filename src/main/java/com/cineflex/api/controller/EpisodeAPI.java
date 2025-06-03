@@ -2,6 +2,7 @@ package com.cineflex.api.controller;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.cineflex.api.model.Episode;
 import com.cineflex.api.service.JsonService;
@@ -51,9 +52,9 @@ public class EpisodeAPI {
 
             return new ResponseEntity<>(episode, HttpStatus.OK);
         }
-        catch (Exception e) {
+        catch (ResponseStatusException e) {
             return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
-                HttpStatus.INTERNAL_SERVER_ERROR, 
+                e.getStatusCode(), 
                 e.getMessage()
             )).build();
         }
@@ -82,9 +83,9 @@ public class EpisodeAPI {
             return new ResponseEntity<>(returnEpisode, HttpStatus.OK);
             
         }
-        catch (Exception e) {
+        catch (ResponseStatusException e) {
             return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
-                HttpStatus.INTERNAL_SERVER_ERROR, 
+                e.getStatusCode(), 
                 e.getMessage()
             )).build();
         }
@@ -97,9 +98,9 @@ public class EpisodeAPI {
 
             return new ResponseEntity<>(HttpStatus.OK);
         }
-        catch (Exception e) {
+        catch (ResponseStatusException e) {
             return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
-                HttpStatus.INTERNAL_SERVER_ERROR, 
+                e.getStatusCode(), 
                 e.getMessage()
             )).build();
         }

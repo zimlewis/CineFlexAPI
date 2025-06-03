@@ -3,12 +3,17 @@ package com.cineflex.api.service;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.cineflex.api.model.Account;
 import com.cineflex.api.repository.AccountRepository;
@@ -38,18 +43,21 @@ public class AuthenticationService {
         return accountRepository.readByUsername(username);
     }
 
+    public Account fromEmail(String email) {
+        return accountRepository.readByEmail(email);
+    }
+
     @Transactional
     public Account register(String username, String email, String password) {
+        if (accountRepository.readAll().stream().anyMatch(a -> a.getUsername().equals(username))) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Username has already taken");
+        }
 
+        if (accountRepository.readAll().stream().anyMatch(a -> a.getEmail().equals(email))) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Email has already taken");
+        }
         
         try {
-            if (accountRepository.readAll().stream().anyMatch(a -> a.getUsername().equals(username))) {
-                throw new RuntimeException("Username has already taken");
-            }
-
-            if (accountRepository.readAll().stream().anyMatch(a -> a.getEmail().equals(email))) {
-                throw new RuntimeException("Email has already taken");
-            }
 
             UUID id = UUID.randomUUID();
 
@@ -71,7 +79,7 @@ public class AuthenticationService {
             return accountRepository.read(id);
         }
         catch (Exception e) {
-            throw e;
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }
 
     }
@@ -82,14 +90,28 @@ public class AuthenticationService {
         String username = account != null?account.getUsername():null;
 
         if (username == null) {
-            return null;
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Email does not exist");
         }
 
-        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
+        Authentication authentication;
+
+        try {
+            authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
+        }
+        catch (DisabledException e) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());
+        } 
+        catch (LockedException e) {
+            throw new ResponseStatusException(HttpStatus.LOCKED, e.getMessage());
+        }
+        catch (BadCredentialsException e) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage());
+        }
 
         if (!authentication.isAuthenticated()) {
-            throw new RuntimeException("Cannot login");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Cannot login");
         }
+
 
         return jwtService.createToken(username);
     }
