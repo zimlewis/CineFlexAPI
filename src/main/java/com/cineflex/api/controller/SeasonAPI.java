@@ -2,6 +2,7 @@ package com.cineflex.api.controller;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.cineflex.api.model.Episode;
 import com.cineflex.api.model.Season;
@@ -57,9 +58,9 @@ public class SeasonAPI {
             return new ResponseEntity<Season>(season, HttpStatus.OK);
 
         }
-        catch (Exception e) {
+        catch (ResponseStatusException e) {
             return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
-                HttpStatus.INTERNAL_SERVER_ERROR, 
+                e.getStatusCode(), 
                 e.getMessage()
             )).build();
         }
@@ -82,9 +83,9 @@ public class SeasonAPI {
 
             return new ResponseEntity<Season>(returnSeason, HttpStatus.OK);
         }
-        catch (Exception e) {
+        catch (ResponseStatusException e) {
             return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
-                HttpStatus.INTERNAL_SERVER_ERROR, 
+                e.getStatusCode(), 
                 e.getMessage()
             )).build();
         }
@@ -98,10 +99,9 @@ public class SeasonAPI {
 
             return new ResponseEntity<>(HttpStatus.OK);
         }
-        catch (Exception e) {
-            // Return error
+        catch (ResponseStatusException e) {
             return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
-                HttpStatus.INTERNAL_SERVER_ERROR, 
+                e.getStatusCode(), 
                 e.getMessage()
             )).build();
         }
@@ -134,9 +134,9 @@ public class SeasonAPI {
 
             return new ResponseEntity<>(returnEpisode, HttpStatus.CREATED);
         }
-        catch (Exception e) {
+        catch (ResponseStatusException e) {
             return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
-                HttpStatus.INTERNAL_SERVER_ERROR, 
+                e.getStatusCode(), 
                 e.getMessage()
             )).build();
         }

@@ -18,7 +18,8 @@
     "id": "uuid",
     "username": "string",
     "email": "string",
-    "createdAt": "YYYY-MM-DDTHH:MM:SSZ"
+    "createdAt": "YYYY-MM-DDTHH:MM:SSZ",
+    "verify": false
   }
   ```
 
@@ -33,9 +34,7 @@
   ```
 - **Response:**
   ```json
-  {
-    "token": "jwt-token-string"
-  }
+  "jwt-token-string"
   ```
 
 ### Profile
@@ -47,9 +46,31 @@
     "id": "uuid",
     "username": "string",
     "email": "string",
-    "createdAt": "YYYY-MM-DDTHH:MM:SSZ"
+    "createdAt": "YYYY-MM-DDTHH:MM:SSZ",
+    "verify": false
   }
   ```
+
+### Send Verification Email
+- **POST** `/api/authentication/verify`
+- **Body:**
+  ```json
+  {
+    "email": "string"
+  }
+  ```
+- **Response:**
+  - `204 OK`
+  - Error responses:
+    - `406 NOT_ACCEPTABLE` if email is null
+    - `401 UNAUTHORIZED` if email not found
+    - `409 CONFLICT` if account already verified
+
+### Verify Account
+- **GET** `/api/authentication/verify/{token}`
+- **Response:**
+  - `204 NO_CONTENT` if successful
+  - Error responses with appropriate status and message if token is invalid or expired
 
 ---
 

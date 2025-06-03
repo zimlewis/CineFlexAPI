@@ -2,11 +2,15 @@ package com.cineflex.api.controller;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.cineflex.api.entity.UserPrincipal;
 import com.cineflex.api.model.Account;
+import com.cineflex.api.model.VerificationToken;
+import com.cineflex.api.service.AccountDetailService;
 import com.cineflex.api.service.AuthenticationService;
 import com.cineflex.api.service.JsonService;
+import com.cineflex.api.service.TokenService;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import org.springframework.http.HttpStatus;
@@ -17,21 +21,28 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.GetMapping;
-
+import org.springframework.web.bind.annotation.PathVariable;
 
 
 @RestController
 @RequestMapping("/api/authentication")
 public class AuthenticationAPI {
+
+    private final AccountDetailService accountDetailService;
     private final AuthenticationService authenticationService;
+    private final TokenService tokenService;
     private final JsonService jsonService;
     
     public AuthenticationAPI (
         AuthenticationService authenticationService,
-        JsonService jsonService
+        JsonService jsonService,
+        TokenService tokenService, 
+        AccountDetailService accountDetailService
     ) {
         this.authenticationService = authenticationService;
         this.jsonService = jsonService;
+        this.tokenService = tokenService;
+        this.accountDetailService = accountDetailService;
     }
 
     @PostMapping("/login")
@@ -51,9 +62,9 @@ public class AuthenticationAPI {
 
             return new ResponseEntity<>(token, HttpStatus.OK);
         }
-        catch (Exception e) {
+        catch (ResponseStatusException e) {
             return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
-                HttpStatus.UNAUTHORIZED, 
+                e.getStatusCode(), 
                 e.getMessage()
             )).build();
         }
@@ -63,7 +74,7 @@ public class AuthenticationAPI {
     public ResponseEntity<Account> register(@RequestBody JsonNode jsonNode) {
         try {
             String email = jsonService.getOrNull(jsonNode, "email", String.class);
-            String password = jsonService.getOrNull(jsonNode, "passowrd", String.class);
+            String password = jsonService.getOrNull(jsonNode, "password", String.class);
             String username = jsonService.getOrNull(jsonNode, "username", String.class);
             
             if (email == null || password == null || username == null) {
@@ -78,9 +89,9 @@ public class AuthenticationAPI {
             return new ResponseEntity<>(account, HttpStatus.ACCEPTED);
 
         }
-        catch (Exception e) {
+        catch (ResponseStatusException e) {
             return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
-                HttpStatus.UNAUTHORIZED, 
+                e.getStatusCode(), 
                 e.getMessage()
             )).build();
         }
@@ -101,6 +112,68 @@ public class AuthenticationAPI {
         )).build();
     }
     
+    @GetMapping("/verify/{token}")
+    public ResponseEntity<?> verify(@PathVariable String token) {
+        try {
+            tokenService.verifyToken(token);
+
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+        catch (ResponseStatusException e) {
+            return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
+                e.getStatusCode(),
+                e.getMessage()
+            )).build();
+        }
+    }
+    
+    @PostMapping("/verify")
+    public ResponseEntity<?> sendVerifyEmail(@RequestBody JsonNode jsonNode) {
+        String email = jsonService.getOrNull(jsonNode, "email", String.class);
+
+        
+        if (email == null) {
+            return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
+                HttpStatus.NOT_ACCEPTABLE, 
+                "Email cannot be null"
+            )).build();
+        }
+
+        Account account = authenticationService.fromEmail(email);
+
+
+        if (account == null) {
+            return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
+                HttpStatus.UNAUTHORIZED, 
+                "Email not found"
+            )).build();
+        }
+
+        if (account.getVerify()) {
+            return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
+                HttpStatus.CONFLICT, 
+                "This account has verified already"
+            )).build();
+        }
+
+
+        VerificationToken token = tokenService.getAvailableToken(account);
+
+        if (token != null) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+
+        try {
+            tokenService.createToken(account);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+        catch (ResponseStatusException e) {
+            return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
+                e.getStatusCode(),
+                e.getMessage()
+            )).build();
+        }
+    }
     
     
 }
