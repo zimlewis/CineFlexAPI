@@ -9,6 +9,7 @@ import com.cineflex.api.model.Account;
 import com.cineflex.api.model.VerificationToken;
 import com.cineflex.api.service.AccountDetailService;
 import com.cineflex.api.service.AuthenticationService;
+import com.cineflex.api.service.EmailService;
 import com.cineflex.api.service.JsonService;
 import com.cineflex.api.service.TokenService;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -20,6 +21,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
@@ -32,17 +34,20 @@ public class AuthenticationAPI {
     private final AuthenticationService authenticationService;
     private final TokenService tokenService;
     private final JsonService jsonService;
+    private final EmailService emailService;
     
     public AuthenticationAPI (
         AuthenticationService authenticationService,
         JsonService jsonService,
         TokenService tokenService, 
-        AccountDetailService accountDetailService
+        AccountDetailService accountDetailService,
+        EmailService emailService
     ) {
         this.authenticationService = authenticationService;
         this.jsonService = jsonService;
         this.tokenService = tokenService;
         this.accountDetailService = accountDetailService;
+        this.emailService = emailService;
     }
 
     @PostMapping("/login")
@@ -128,7 +133,7 @@ public class AuthenticationAPI {
     }
     
     @PostMapping("/verify")
-    public ResponseEntity<?> sendVerifyEmail(@RequestBody JsonNode jsonNode) {
+    public ResponseEntity<?> sendVerifyEmail(@RequestBody JsonNode jsonNode, @RequestHeader String host) {
         String email = jsonService.getOrNull(jsonNode, "email", String.class);
 
         
@@ -159,12 +164,14 @@ public class AuthenticationAPI {
 
         VerificationToken token = tokenService.getAvailableToken(account);
 
-        if (token != null) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }
 
         try {
-            tokenService.createToken(account);
+            if (token == null) {
+                token = tokenService.createToken(account);
+            }
+            // TODO send email
+            emailService.sendActivationEmail(token.getToken(), email, host);
+
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
         catch (ResponseStatusException e) {
