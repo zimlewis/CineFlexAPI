@@ -60,7 +60,7 @@
   }
   ```
 - **Response:**
-  - `204 OK`
+  - `204 NO_CONTENT` if successful
   - Error responses:
     - `406 NOT_ACCEPTABLE` if email is null
     - `401 UNAUTHORIZED` if email not found
@@ -74,10 +74,35 @@
 
 ---
 
+## Genres
+
+### Add Genre
+- **POST** `/api/genre`
+- **Authority Required:** `ADD_CONTENT`
+- **Body:**
+  ```json
+  {
+    "name": "string"
+  }
+  ```
+- **Response:**
+  ```json
+  {
+    "id": "uuid",
+    "name": "string"
+  }
+  ```
+
+---
+
 ## Shows
 
 ### Get All Shows
 - **GET** `/api/shows`
+- **Query Parameters:**
+  - `genres`: (optional) List of genre names. Example: `/api/shows?genres=Action&genres=Drama`
+- **Note:**  
+  If the `genres` parameter is provided, this endpoint returns all shows that have **all** the provided genres.
 - **Response:**
   ```json
   [
@@ -213,6 +238,28 @@
     "description": "string",
     "show": "uuid"
   }
+  ```
+
+### Add Genres to Show
+- **POST** `/api/shows/{id}/genres`
+- **Authority Required:** `EDIT_CONTENT`
+- **Body:**
+  ```json
+  {
+    "genres": [
+      "uuid",
+      "uuid"
+    ]
+  }
+  ```
+- **Response:**
+  ```json
+  [
+    {
+      "id": "uuid",
+      "name": "string"
+    }
+  ]
   ```
 
 ---

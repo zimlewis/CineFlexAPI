@@ -169,7 +169,6 @@ public class AuthenticationAPI {
             if (token == null) {
                 token = tokenService.createToken(account);
             }
-            // TODO send email
             emailService.sendActivationEmail(token.getToken(), email, host);
 
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
