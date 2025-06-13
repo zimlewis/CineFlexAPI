@@ -1,19 +1,25 @@
 package com.cineflex.api.service;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.cineflex.api.model.Episode;
+import com.cineflex.api.model.Genre;
 import com.cineflex.api.model.Season;
 import com.cineflex.api.model.Show;
 import com.cineflex.api.repository.EpisodeRepository;
+import com.cineflex.api.repository.GenreRepository;
 import com.cineflex.api.repository.SeasonRepository;
 import com.cineflex.api.repository.ShowRepository;
 
@@ -24,16 +30,21 @@ public class ShowService {
     private final ShowRepository showRepository;
     private final SeasonRepository seasonRepository;
     private final EpisodeRepository episodeRepository;
+    private final GenreRepository genreRepository;
+
 
     // Inject repository to service
     public ShowService (
         ShowRepository showRepository,
         SeasonRepository seasonRepository,
-        EpisodeRepository episodeRepository
+        EpisodeRepository episodeRepository,
+        GenreRepository genreRepository
+
     ) {
         this.showRepository = showRepository;
         this.seasonRepository = seasonRepository;
         this.episodeRepository = episodeRepository;
+        this.genreRepository = genreRepository;
     }
 
     /* ---- INSERT METHOD ---- */
@@ -280,6 +291,49 @@ public class ShowService {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }
 
+    }
+
+    // Add a genre to show
+    @Transactional
+    public List<Genre> addGenresToShow(UUID showId, UUID... genreIds) {
+        try {
+            List<Genre> showGenres = showRepository.getGenres(showId);
+            List<UUID> showGenresId = showGenres.stream()
+                .map(genre -> genre.getId())
+                .toList();
+            
+            List<UUID> genresIdList = List.of(genreIds);
+
+            List<UUID> missingId = genresIdList.stream()
+                .filter(id -> !showGenresId.contains(id))
+                .toList()
+                .stream()
+                .distinct()
+                .toList();
+
+            List<Genre> addedToShowGenre = showRepository.addGenres(showId, missingId.toArray(new UUID[0]));
+ 
+            return addedToShowGenre;
+        }
+        catch (ResponseStatusException e) {
+            throw e;
+        }
+        catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getLocalizedMessage());
+        }
+    }
+
+    public List<Show> findShowByGenre(String... names) {
+        try {
+            List<UUID> ids = genreRepository.getIdsByNames(names);
+
+            List<Show> shows = showRepository.showByGenres(ids.toArray(new UUID[0]));
+
+            return shows;
+        }
+        catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getLocalizedMessage());
+        }
     }
 
 

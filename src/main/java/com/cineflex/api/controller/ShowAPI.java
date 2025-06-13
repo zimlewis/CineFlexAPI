@@ -3,6 +3,7 @@ package com.cineflex.api.controller;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.cineflex.api.model.Genre;
 import com.cineflex.api.model.Season;
 import com.cineflex.api.model.Show;
 import com.cineflex.api.service.JsonService;
@@ -11,6 +12,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -20,6 +22,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -75,10 +78,19 @@ public class ShowAPI {
 
     // Get all show
     @GetMapping("")
-    public ResponseEntity<List<Show>> findAllShow() {
+    public ResponseEntity<List<Show>> find(@RequestParam(required = false) List<String> genres) {
 
         try {
-            List<Show> shows = showService.findAllShows();
+            List<Show> shows;
+
+            
+            
+            if (genres != null) {
+                shows = showService.findShowByGenre(genres.toArray(new String[0]));
+            }
+            else {
+                shows = showService.findAllShows();
+            }
 
             return ResponseEntity.ok(shows);
         }
@@ -190,6 +202,43 @@ public class ShowAPI {
             )).build();
         }
     }
+
+    @PostMapping("/{id}/genres")
+    public ResponseEntity<List<Genre>> postMethodName(@PathVariable String id, @RequestBody JsonNode jsonNode) {
+        try {
+            UUID showId = UUID.fromString(id);
+            JsonNode genreIdsNode = jsonNode.get("genres");
+
+            if (genreIdsNode == null || !genreIdsNode.isArray()) {
+                return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
+                    HttpStatus.NOT_ACCEPTABLE,
+                    "genres field must be an array"
+                )).build();
+            }
+
+            List<UUID> genreIds = new ArrayList<>();
+
+            for (JsonNode node : genreIdsNode) {
+                UUID genreId = UUID.fromString(node.asText());
+                genreIds.add(genreId);
+            }
+
+            List<Genre> addedGenres = showService.addGenresToShow(showId, genreIds.toArray(UUID[]::new));
+
+            return new ResponseEntity<>(addedGenres, HttpStatus.CREATED);
+        }
+        catch (ResponseStatusException e) {
+            return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
+                e.getStatusCode(), e.getLocalizedMessage()
+            )).build();
+        }
+        catch (Exception e) {
+            return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
+                HttpStatus.INTERNAL_SERVER_ERROR, e.getLocalizedMessage()
+            )).build();
+        }
+    }
+    
     
     
 
