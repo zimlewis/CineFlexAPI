@@ -77,7 +77,7 @@
 ## Genres
 
 ### Add Genre
-- **POST** `/api/genre`
+- **POST** `/api/genres`
 - **Authority Required:** `ADD_CONTENT`
 - **Body:**
   ```json

@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 
 @RestController
-@RequestMapping("/api/genre")
+@RequestMapping("/api/genres")
 public class GenreAPI {
     private final JsonService jsonService;
     private final GenreService genreService;
@@ -53,7 +53,7 @@ public class GenreAPI {
         catch (ResponseStatusException e) {
             return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
                 e.getStatusCode(), 
-                e.getMessage()
+                e.getDetailMessageCode()
             )).build();
         }
     }

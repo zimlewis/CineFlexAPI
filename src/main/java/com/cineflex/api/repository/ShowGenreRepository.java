@@ -1,7 +1,9 @@
 package com.cineflex.api.repository;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
@@ -57,4 +59,18 @@ public class ShowGenreRepository implements RepositoryInterface<ShowGenre> {
     public void delete(UUID... ids) {
     }
     
+    public void deleteByShow(UUID... shows) {
+        String placeholders = Arrays.stream(shows)
+            .map(_ -> "?")
+            .collect(Collectors.joining(", "));
+
+        String sql = "DELETE FROM [dbo].[Season] WHERE [Id] IN (" + placeholders + ")";
+        
+        int row = jdbcClient.sql(sql).params(Arrays.asList(shows)).update();
+
+        if (row == 0) {
+            throw new RuntimeException("Cannot delete from database please try again");
+        }
+    }
+
 }

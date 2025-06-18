@@ -55,7 +55,7 @@ public class EpisodeAPI {
         catch (ResponseStatusException e) {
             return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
                 e.getStatusCode(), 
-                e.getMessage()
+                e.getDetailMessageCode()
             )).build();
         }
     }
@@ -86,7 +86,7 @@ public class EpisodeAPI {
         catch (ResponseStatusException e) {
             return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
                 e.getStatusCode(), 
-                e.getMessage()
+                e.getDetailMessageCode()
             )).build();
         }
     }
@@ -101,7 +101,7 @@ public class EpisodeAPI {
         catch (ResponseStatusException e) {
             return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
                 e.getStatusCode(), 
-                e.getMessage()
+                e.getDetailMessageCode()
             )).build();
         }
     }

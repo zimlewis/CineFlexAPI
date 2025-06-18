@@ -1,15 +1,11 @@
 package com.cineflex.api.service;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -18,9 +14,11 @@ import com.cineflex.api.model.Episode;
 import com.cineflex.api.model.Genre;
 import com.cineflex.api.model.Season;
 import com.cineflex.api.model.Show;
+import com.cineflex.api.model.ShowGenre;
 import com.cineflex.api.repository.EpisodeRepository;
 import com.cineflex.api.repository.GenreRepository;
 import com.cineflex.api.repository.SeasonRepository;
+import com.cineflex.api.repository.ShowGenreRepository;
 import com.cineflex.api.repository.ShowRepository;
 
 
@@ -31,6 +29,7 @@ public class ShowService {
     private final SeasonRepository seasonRepository;
     private final EpisodeRepository episodeRepository;
     private final GenreRepository genreRepository;
+    private final ShowGenreRepository showGenreRepository;
 
 
     // Inject repository to service
@@ -38,13 +37,15 @@ public class ShowService {
         ShowRepository showRepository,
         SeasonRepository seasonRepository,
         EpisodeRepository episodeRepository,
-        GenreRepository genreRepository
+        GenreRepository genreRepository,
+        ShowGenreRepository showGenreRepository
 
     ) {
         this.showRepository = showRepository;
         this.seasonRepository = seasonRepository;
         this.episodeRepository = episodeRepository;
         this.genreRepository = genreRepository;
+        this.showGenreRepository = showGenreRepository;
     }
 
     /* ---- INSERT METHOD ---- */
@@ -179,6 +180,7 @@ public class ShowService {
         try {
             List<UUID> seasons = seasonRepository.getByShow(ids).stream().map(s -> s.getId()).toList(); // get all seasons id related to shows
             deleteSeason(seasons.toArray(new UUID[0])); // delete the seasons
+            showGenreRepository.deleteByShow(ids);
             showRepository.delete(ids); // Delete with repository using given information
         }
         catch (Exception e) {
@@ -291,6 +293,17 @@ public class ShowService {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }
 
+    }
+
+    public List<Genre> getShowGenres(UUID showId) {
+        try {
+            List<Genre> showGenres = showRepository.getGenres(showId);
+
+            return showGenres;
+        }
+        catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
     }
 
     // Add a genre to show

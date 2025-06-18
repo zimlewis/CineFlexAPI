@@ -71,7 +71,7 @@ public class ShowAPI {
         catch (ResponseStatusException e) {
             return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
                 e.getStatusCode(), 
-                e.getMessage()
+                e.getDetailMessageCode()
             )).build();
         }
     }
@@ -97,7 +97,7 @@ public class ShowAPI {
         catch (ResponseStatusException e) {
             return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
                 e.getStatusCode(), 
-                e.getMessage()
+                e.getDetailMessageCode()
             )).build();
         }
     }
@@ -126,7 +126,7 @@ public class ShowAPI {
         catch (ResponseStatusException e) {
             return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
                 e.getStatusCode(), 
-                e.getMessage()
+                e.getDetailMessageCode()
             )).build();
         }
 
@@ -155,7 +155,7 @@ public class ShowAPI {
         catch (ResponseStatusException e) {
             return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
                 e.getStatusCode(), 
-                e.getMessage()
+                e.getDetailMessageCode()
             )).build();
         }
     }
@@ -171,7 +171,7 @@ public class ShowAPI {
         catch (ResponseStatusException e) {
             return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
                 e.getStatusCode(), 
-                e.getMessage()
+                e.getDetailMessageCode()
             )).build();
         }
     }
@@ -198,10 +198,26 @@ public class ShowAPI {
         catch (ResponseStatusException e) {
             return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
                 e.getStatusCode(), 
-                e.getMessage()
+                e.getDetailMessageCode()
             )).build();
         }
     }
+
+    @GetMapping("/{id}/genres")
+    public ResponseEntity<List<Genre>> getGenresOfShow(@PathVariable String id) {
+        try {
+            List<Genre> genres = showService.getShowGenres(UUID.fromString(id));
+
+            return new ResponseEntity<>(genres, HttpStatus.OK);
+        }
+        catch (ResponseStatusException e) {
+            return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
+                e.getStatusCode(),
+                e.getDetailMessageCode()
+            )).build();
+        }
+    }
+    
 
     @PostMapping("/{id}/genres")
     public ResponseEntity<List<Genre>> postMethodName(@PathVariable String id, @RequestBody JsonNode jsonNode) {
