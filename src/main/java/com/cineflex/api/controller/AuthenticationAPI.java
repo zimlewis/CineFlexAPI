@@ -17,8 +17,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -70,13 +68,13 @@ public class AuthenticationAPI {
         catch (ResponseStatusException e) {
             return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
                 e.getStatusCode(), 
-                e.getDetailMessageCode()
+                e.getReason()
             )).build();
         }
     }
 
     @PostMapping("/register")
-    public ResponseEntity<Account> register(@RequestBody JsonNode jsonNode) {
+    public ResponseEntity<String> register(@RequestBody JsonNode jsonNode) {
         try {
             String email = jsonService.getOrNull(jsonNode, "email", String.class);
             String password = jsonService.getOrNull(jsonNode, "password", String.class);
@@ -91,24 +89,26 @@ public class AuthenticationAPI {
 
             Account account = authenticationService.register(username, email, password);
 
-            return new ResponseEntity<>(account, HttpStatus.ACCEPTED);
+            String token = authenticationService.login(account.getEmail(), password);
+
+            return new ResponseEntity<>(token, HttpStatus.ACCEPTED);
 
         }
         catch (ResponseStatusException e) {
             return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
                 e.getStatusCode(), 
-                e.getDetailMessageCode()
+                e.getReason()
             )).build();
         }
     }
 
     @GetMapping("/profile")
     public ResponseEntity<Account> getProfile() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Account account = authenticationService.getAccount();
 
-        if (authentication != null && authentication.getPrincipal() instanceof UserPrincipal) {
-            UserPrincipal up = (UserPrincipal) authentication.getPrincipal();
-            return new ResponseEntity<>(authenticationService.fromUsername(up.getUsername()), HttpStatus.OK);
+        if (account != null) {
+            account.setPassword(null);
+            return new ResponseEntity<>(account, HttpStatus.OK);
         }
 
         return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
@@ -127,7 +127,7 @@ public class AuthenticationAPI {
         catch (ResponseStatusException e) {
             return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
                 e.getStatusCode(),
-                e.getDetailMessageCode()
+                e.getReason()
             )).build();
         }
     }
@@ -176,7 +176,7 @@ public class AuthenticationAPI {
         catch (ResponseStatusException e) {
             return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
                 e.getStatusCode(),
-                e.getDetailMessageCode()
+                e.getReason()
             )).build();
         }
     }

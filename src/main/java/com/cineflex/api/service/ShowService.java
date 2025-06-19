@@ -15,6 +15,7 @@ import com.cineflex.api.model.Genre;
 import com.cineflex.api.model.Season;
 import com.cineflex.api.model.Show;
 import com.cineflex.api.model.ShowGenre;
+import com.cineflex.api.repository.CommentRepository;
 import com.cineflex.api.repository.EpisodeRepository;
 import com.cineflex.api.repository.GenreRepository;
 import com.cineflex.api.repository.SeasonRepository;
@@ -30,7 +31,8 @@ public class ShowService {
     private final EpisodeRepository episodeRepository;
     private final GenreRepository genreRepository;
     private final ShowGenreRepository showGenreRepository;
-
+    private final CommentService commentService;
+    private final CommentRepository commentRepository;
 
     // Inject repository to service
     public ShowService (
@@ -38,14 +40,17 @@ public class ShowService {
         SeasonRepository seasonRepository,
         EpisodeRepository episodeRepository,
         GenreRepository genreRepository,
-        ShowGenreRepository showGenreRepository
-
+        ShowGenreRepository showGenreRepository,
+        CommentService commentService,
+        CommentRepository commentRepository
     ) {
         this.showRepository = showRepository;
         this.seasonRepository = seasonRepository;
         this.episodeRepository = episodeRepository;
         this.genreRepository = genreRepository;
         this.showGenreRepository = showGenreRepository;
+        this.commentService = commentService;
+        this.commentRepository = commentRepository;
     }
 
     /* ---- INSERT METHOD ---- */
@@ -205,6 +210,8 @@ public class ShowService {
     @Transactional
     public void deleteEpisode(UUID... ids) {
         try {
+            List<UUID> commentIds = commentRepository.getCommentsByEpisode(ids).stream().map((comment) -> comment.getId()).toList();
+            commentService.deleteComments(commentIds.toArray(new UUID[0]));
             episodeRepository.delete(ids);
         }
         catch (Exception e) {
@@ -276,7 +283,11 @@ public class ShowService {
     // find the season using the given id show, this could be multiple id
     public List<Season> findSeaonsByShows(UUID... ids) {
         try {
-            return seasonRepository.getByShow(ids);
+            List<Season> seasons = seasonRepository.getByShow(ids);
+
+            seasons.sort((s1, s2) -> s1.getReleaseDate().compareTo(s2.getReleaseDate()));
+
+            return seasons;
         }
         catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
@@ -287,7 +298,10 @@ public class ShowService {
     // find the episodes using given id season
     public List<Episode> findEpisodesBySeasons(UUID... ids) {
         try {
-            return episodeRepository.getBySeason(ids);
+            List<Episode> episodes = episodeRepository.getBySeason(ids);
+            episodes.sort((e1, e2) -> e1.getReleaseDate().compareTo(e2.getReleaseDate()));
+
+            return episodes;
         }
         catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());

@@ -98,4 +98,16 @@ public class CommentRepository implements RepositoryInterface<Comment>{
             throw new RuntimeException("Cannot delete comment");
         }
     }
+
+    public List<Comment> getCommentsByEpisode(UUID ...ids) {
+        String placeholders = Arrays.stream(ids)
+            .map((_) -> "?")
+            .collect(Collectors.joining(", "));
+
+        String sql = "SELECT * FROM [dbo].[Comment] WHERE [Episode] IN (" + placeholders + ")";
+
+        List<Comment> comments = jdbcClient.sql(sql).params(Arrays.asList(ids)).query(Comment.class).list();
+
+        return comments;
+    }
 }

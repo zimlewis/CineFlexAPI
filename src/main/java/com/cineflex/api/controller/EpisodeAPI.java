@@ -4,12 +4,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.cineflex.api.model.Comment;
 import com.cineflex.api.model.Episode;
+import com.cineflex.api.service.CommentService;
 import com.cineflex.api.service.JsonService;
 import com.cineflex.api.service.ShowService;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
@@ -20,6 +23,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 
 
@@ -29,13 +34,16 @@ public class EpisodeAPI {
 
     private final ShowService showService;
     private final JsonService jsonService;
+    private final CommentService commentService;
 
     public EpisodeAPI (
         ShowService showService,
-        JsonService jsonService
+        JsonService jsonService,
+        CommentService commentService
     ) {
         this.showService = showService;
         this.jsonService = jsonService;
+        this.commentService = commentService;
     }
     
     @GetMapping("/{id}")
@@ -55,7 +63,7 @@ public class EpisodeAPI {
         catch (ResponseStatusException e) {
             return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
                 e.getStatusCode(), 
-                e.getDetailMessageCode()
+                e.getReason()
             )).build();
         }
     }
@@ -86,7 +94,7 @@ public class EpisodeAPI {
         catch (ResponseStatusException e) {
             return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
                 e.getStatusCode(), 
-                e.getDetailMessageCode()
+                e.getReason()
             )).build();
         }
     }
@@ -101,9 +109,25 @@ public class EpisodeAPI {
         catch (ResponseStatusException e) {
             return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
                 e.getStatusCode(), 
-                e.getDetailMessageCode()
+                e.getReason()
             )).build();
         }
     }
+
+    @GetMapping("/{id}/comments")
+    public ResponseEntity<List<Comment>> getComments(@PathVariable String id) {
+        try {
+            List<Comment> comments = commentService.getAllCommentsFromEpisode(UUID.fromString(id));
+
+            return new ResponseEntity<>(comments, HttpStatus.OK);
+        }
+        catch (ResponseStatusException e) {
+            return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                e.getReason()
+            )).build();
+        }
+    }
+    
     
 }

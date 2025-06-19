@@ -9,11 +9,17 @@ import com.cineflex.api.service.GenreService;
 import com.cineflex.api.service.JsonService;
 import com.fasterxml.jackson.databind.JsonNode;
 
+import java.util.UUID;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 
 @RestController
@@ -29,6 +35,22 @@ public class GenreAPI {
         this.jsonService = jsonService;
         this.genreService = genreService;
     }
+
+    @GetMapping("{id}")
+    public ResponseEntity<Genre> getGenreById(@PathVariable String id) {
+        try {
+            Genre genre = genreService.getGenre(UUID.fromString(id));
+            
+            return new ResponseEntity<Genre>(genre, HttpStatus.OK);
+        }
+        catch (ResponseStatusException e) {
+            return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
+                e.getStatusCode(), 
+                e.getReason()
+            )).build();
+        }
+    }
+    
     
     @PostMapping("")
     public ResponseEntity<Genre> addGenre(@RequestBody JsonNode jsonNode) {
@@ -53,7 +75,7 @@ public class GenreAPI {
         catch (ResponseStatusException e) {
             return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
                 e.getStatusCode(), 
-                e.getDetailMessageCode()
+                e.getReason()
             )).build();
         }
     }

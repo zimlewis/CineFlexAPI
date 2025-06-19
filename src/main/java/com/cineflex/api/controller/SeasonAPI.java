@@ -61,7 +61,7 @@ public class SeasonAPI {
         catch (ResponseStatusException e) {
             return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
                 e.getStatusCode(), 
-                e.getDetailMessageCode()
+                e.getReason()
             )).build();
         }
     }
@@ -86,7 +86,7 @@ public class SeasonAPI {
         catch (ResponseStatusException e) {
             return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
                 e.getStatusCode(), 
-                e.getDetailMessageCode()
+                e.getReason()
             )).build();
         }
 
@@ -102,7 +102,7 @@ public class SeasonAPI {
         catch (ResponseStatusException e) {
             return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
                 e.getStatusCode(), 
-                e.getDetailMessageCode()
+                e.getReason()
             )).build();
         }
     }
@@ -137,7 +137,7 @@ public class SeasonAPI {
         catch (ResponseStatusException e) {
             return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
                 e.getStatusCode(), 
-                e.getDetailMessageCode()
+                e.getReason()
             )).build();
         }
     }

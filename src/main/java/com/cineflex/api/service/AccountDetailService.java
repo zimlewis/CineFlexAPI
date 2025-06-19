@@ -1,9 +1,13 @@
 package com.cineflex.api.service;
 
+import java.util.UUID;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.cineflex.api.entity.UserPrincipal;
 import com.cineflex.api.model.Account;
@@ -31,6 +35,18 @@ public class AccountDetailService implements UserDetailsService {
         UserDetails userDetails = new UserPrincipal(account);
 
         return userDetails;
+    }
+
+    public Account getById(UUID id) {
+        try {
+            Account account = accountRepository.read(id);
+            account.setPassword(null);
+
+            return account;
+        }
+        catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
     }
     
 }

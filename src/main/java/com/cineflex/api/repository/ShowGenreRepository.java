@@ -64,7 +64,7 @@ public class ShowGenreRepository implements RepositoryInterface<ShowGenre> {
             .map(_ -> "?")
             .collect(Collectors.joining(", "));
 
-        String sql = "DELETE FROM [dbo].[Season] WHERE [Id] IN (" + placeholders + ")";
+        String sql = "DELETE FROM [dbo].[ShowGenre] WHERE [Show] IN (" + placeholders + ")";
         
         int row = jdbcClient.sql(sql).params(Arrays.asList(shows)).update();
 

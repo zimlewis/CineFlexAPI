@@ -71,7 +71,7 @@ public class ShowAPI {
         catch (ResponseStatusException e) {
             return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
                 e.getStatusCode(), 
-                e.getDetailMessageCode()
+                e.getReason()
             )).build();
         }
     }
@@ -97,7 +97,7 @@ public class ShowAPI {
         catch (ResponseStatusException e) {
             return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
                 e.getStatusCode(), 
-                e.getDetailMessageCode()
+                e.getReason()
             )).build();
         }
     }
@@ -126,7 +126,7 @@ public class ShowAPI {
         catch (ResponseStatusException e) {
             return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
                 e.getStatusCode(), 
-                e.getDetailMessageCode()
+                e.getReason()
             )).build();
         }
 
@@ -155,7 +155,7 @@ public class ShowAPI {
         catch (ResponseStatusException e) {
             return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
                 e.getStatusCode(), 
-                e.getDetailMessageCode()
+                e.getReason()
             )).build();
         }
     }
@@ -171,7 +171,7 @@ public class ShowAPI {
         catch (ResponseStatusException e) {
             return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
                 e.getStatusCode(), 
-                e.getDetailMessageCode()
+                e.getReason()
             )).build();
         }
     }
@@ -198,7 +198,7 @@ public class ShowAPI {
         catch (ResponseStatusException e) {
             return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
                 e.getStatusCode(), 
-                e.getDetailMessageCode()
+                e.getReason()
             )).build();
         }
     }
@@ -213,7 +213,7 @@ public class ShowAPI {
         catch (ResponseStatusException e) {
             return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
                 e.getStatusCode(),
-                e.getDetailMessageCode()
+                e.getReason()
             )).build();
         }
     }
