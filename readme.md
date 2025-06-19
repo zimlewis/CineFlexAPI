@@ -74,6 +74,17 @@
 
 ---
 
+## Health Check
+
+### Ping
+- **GET** `/api/health/ping`
+- **Response:**  
+  ```
+  pong
+  ```
+
+---
+
 ## Genres
 
 ### Add Genre
@@ -238,6 +249,18 @@
     "description": "string",
     "show": "uuid"
   }
+  ```
+
+### Get Genres of a Show
+- **GET** `/api/shows/{id}/genres`
+- **Response:**
+  ```json
+  [
+    {
+      "id": "uuid",
+      "name": "string"
+    }
+  ]
   ```
 
 ### Add Genres to Show
