@@ -14,13 +14,7 @@
   ```
 - **Response:**
   ```json
-  {
-    "id": "uuid",
-    "username": "string",
-    "email": "string",
-    "createdAt": "YYYY-MM-DDTHH:MM:SSZ",
-    "verify": false
-  }
+  "jwt-token-string"
   ```
 
 ### Login
@@ -53,6 +47,7 @@
 
 ### Send Verification Email
 - **POST** `/api/authentication/verify`
+- **Headers:** `host: <your-domain>`
 - **Body:**
   ```json
   {
@@ -71,6 +66,23 @@
 - **Response:**
   - `204 NO_CONTENT` if successful
   - Error responses with appropriate status and message if token is invalid or expired
+
+---
+
+## Users
+
+### Get User by ID
+- **GET** `/api/users/{id}`
+- **Response:**
+  ```json
+  {
+    "id": "uuid",
+    "username": "string",
+    "email": "string",
+    "createdAt": "YYYY-MM-DDTHH:MM:SSZ",
+    "verify": false
+  }
+  ```
 
 ---
 
@@ -96,6 +108,16 @@
     "name": "string"
   }
   ```
+- **Response:**
+  ```json
+  {
+    "id": "uuid",
+    "name": "string"
+  }
+  ```
+
+### Get Genre by ID
+- **GET** `/api/genres/{id}`
 - **Response:**
   ```json
   {
@@ -208,11 +230,7 @@
 - **DELETE** `/api/shows/{id}`
 - **Authority Required:** `DELETE_CONTENT`
 - **Response:**
-  ```json
-  {
-    "message": "Show deleted successfully"
-  }
-  ```
+  - `200 OK` if successful
 
 ### Get Seasons of a Show
 - **GET** `/api/shows/{id}/seasons`
@@ -329,11 +347,7 @@
 - **DELETE** `/api/seasons/{id}`
 - **Authority Required:** `DELETE_CONTENT`
 - **Response:**
-  ```json
-  {
-    "message": "Season deleted successfully"
-  }
-  ```
+  - `200 OK` if successful
 
 ### Get Episodes of a Season
 - **GET** `/api/seasons/{id}/episodes`
@@ -445,9 +459,44 @@
 - **DELETE** `/api/episodes/{id}`
 - **Authority Required:** `DELETE_CONTENT`
 - **Response:**
+  - `200 OK` if successful
+
+### Get Comments of an Episode
+- **GET** `/api/episodes/{id}/comments`
+- **Response:**
+  ```json
+  [
+    {
+      "id": "uuid",
+      "content": "string",
+      "account": "uuid",
+      "episode": "uuid",
+      "createdAt": "YYYY-MM-DDTHH:MM:SSZ"
+    }
+  ]
+  ```
+
+---
+
+## Comments
+
+### Add Comment to an Episode
+- **POST** `/api/comments/{id}`
+- **Headers:** `Authorization: Bearer <token>`
+- **Body:**
   ```json
   {
-    "message": "Episode deleted successfully"
+    "content": "string"
+  }
+  ```
+- **Response:**
+  ```json
+  {
+    "id": "uuid",
+    "content": "string",
+    "account": "uuid",
+    "episode": "uuid",
+    "createdAt": "YYYY-MM-DDTHH:MM:SSZ"
   }
   ```
 
