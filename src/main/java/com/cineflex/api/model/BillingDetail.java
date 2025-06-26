@@ -8,11 +8,12 @@ import lombok.Data;
 
 @Data
 @Builder
-public class ViewHistory {
+public class BillingDetail {
+    UUID id;
     UUID account;
-    UUID episode;
+    UUID subscription;
+    Double amount;
     LocalDateTime createdTime;
-    LocalDateTime updatedTime;
-    Integer duration;
-    Boolean isDeleted;
+    LocalDateTime paidTime;
+    Boolean paid;
 }

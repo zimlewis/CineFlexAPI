@@ -15,4 +15,5 @@ public class Comment {
     LocalDateTime updatedTime;
     UUID account;
     UUID episode;
+    Boolean isDeleted;
 }

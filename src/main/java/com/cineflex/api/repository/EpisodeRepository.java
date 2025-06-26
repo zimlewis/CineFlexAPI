@@ -48,7 +48,7 @@ public class EpisodeRepository implements RepositoryInterface<Episode>{
 
     @Override
     public Episode read(UUID id) {
-        String sql = "SELECT * FROM [dbo].[Episode] WHERE [Id] = ?";
+        String sql = "SELECT * FROM [dbo].[Episode] WHERE [Id] = ? AND [IsDeleted] = 0";
 
         Episode episode = jdbcClient
             .sql(sql)
@@ -63,7 +63,7 @@ public class EpisodeRepository implements RepositoryInterface<Episode>{
 
     @Override
     public List<Episode> readAll() {
-        String sql = "SELECT * FROM [dbo].[Episode]";
+        String sql = "SELECT * FROM [dbo].[Episode] WHERE [IsDeleted] = 0";
         
         List<Episode> episodes = jdbcClient
             .sql(sql)
@@ -75,7 +75,7 @@ public class EpisodeRepository implements RepositoryInterface<Episode>{
 
     @Override
     public void update(UUID id, Episode t) {
-        String sql = "UPDATE [dbo].[Episode] SET [Title] = ?, [Number] = ?, [Description] = ?, [Url] = ?, [ReleaseDate] = ?, [CreatedTime] = ?, [UpdatedTime] = ?, [Duration] = ?, [OpeningStart] = ?, [OpeningEnd] = ?, [View] = ?, [Season] = ? WHERE [Id] = ?";
+        String sql = "UPDATE [dbo].[Episode] SET [Title] = ?, [Number] = ?, [Description] = ?, [Url] = ?, [ReleaseDate] = ?, [CreatedTime] = ?, [UpdatedTime] = ?, [Duration] = ?, [OpeningStart] = ?, [OpeningEnd] = ?, [View] = ?, [Season] = ? WHERE [Id] = ? AND [IsDeleted] = 0";
 
         int row = jdbcClient.sql(sql).params(
             t.getTitle(),
@@ -107,7 +107,7 @@ public class EpisodeRepository implements RepositoryInterface<Episode>{
             .map(_ -> "?")
             .collect(Collectors.joining(", "));
 
-        String sql = "DELETE FROM [dbo].[Episode] WHERE [Id] IN (" + placeholders + ")";
+        String sql = "UPDATE [dbo].[Episode] SET [IsDeleted] = 1 WHERE [Id] IN (" + placeholders + ")";
 
         int row = jdbcClient.sql(sql).params(Arrays.asList(ids)).update();
 
@@ -123,7 +123,7 @@ public class EpisodeRepository implements RepositoryInterface<Episode>{
             .map(_ -> "?")
             .collect(Collectors.joining(", "));
 
-        String sql = "SELECT * FROM [dbo].[Episode] WHERE [Season] IN (" + placeholders + ")";
+        String sql = "SELECT * FROM [dbo].[Episode] WHERE [Season] IN (" + placeholders + ") AND [IsDeleted] = 0";
         
         List<Episode> episodes = jdbcClient
             .sql(sql)

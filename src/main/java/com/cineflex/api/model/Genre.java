@@ -10,4 +10,5 @@ import lombok.Builder;
 public class Genre {
     UUID id;
     String name;
+    Boolean isDeleted;
 }

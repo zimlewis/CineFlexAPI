@@ -65,6 +65,8 @@ public class SecurityConfiguration {
             .requestMatchers(HttpMethod.POST, "/api/shows/*/seasons").hasAuthority("ADD_CONTENT")
             .requestMatchers(HttpMethod.POST, "/api/shows/*/genres").hasAuthority("EDIT_CONTENT")
 
+            .requestMatchers(HttpMethod.POST, "/api/comments/*").authenticated()
+
             .anyRequest().permitAll()
         );
         

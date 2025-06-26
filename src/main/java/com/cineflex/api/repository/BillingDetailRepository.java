@@ -1,0 +1,101 @@
+package com.cineflex.api.repository;
+
+import java.util.List;
+import java.util.UUID;
+
+import org.springframework.jdbc.core.simple.JdbcClient;
+import org.springframework.stereotype.Repository;
+
+import com.cineflex.api.model.BillingDetail;
+
+@Repository
+public class BillingDetailRepository implements RepositoryInterface<BillingDetail>{
+    private JdbcClient jdbcClient;
+
+    public BillingDetailRepository (
+        JdbcClient jdbcClient
+    ) {
+        this.jdbcClient = jdbcClient;
+    }
+
+    @Override
+    public void create(BillingDetail t) {
+        String sql = "INSERT INTO [dbo].[BillingDetail] ([Id], [Account], [Subscription], [Amount], [CreatedTime], [PaidTime], [Paid]) VALUES (?, ?, ?, ?, ?, ?, ?)";
+
+        int row = jdbcClient.sql(sql).params(
+            t.getId(),
+            t.getAccount(),
+            t.getSubscription(),
+            t.getAmount(),
+            t.getCreatedTime(),
+            t.getPaidTime(),
+            t.getPaid()
+        ).update();
+
+        if (row == 0) {
+            throw new RuntimeException("Cannot add billing detail to database, please try again");
+        }
+
+        
+    }
+
+    @Override
+    public BillingDetail read(UUID id) {
+        String sql = "SELECT * FROM [dbo].[BillingDetail] WHERE [Id] = ?";
+
+        BillingDetail b = jdbcClient
+            .sql(sql)
+            .params(id)
+            .query(BillingDetail.class)
+            .optional()
+            .orElse(null);
+
+        return b;
+    }
+
+    @Override
+    public List<BillingDetail> readAll() {
+        String sql = "SELECT * FROM [dbo].[BillingDetail]";
+
+        List<BillingDetail> billingDetails = jdbcClient.sql(sql).query(BillingDetail.class).list();
+
+        return billingDetails;
+    }
+
+    @Override
+    public void update(UUID id, BillingDetail t) {
+        String sql = "UPDATE [dbo].[BillingDetail] SET [Account] = ?, [Subscription] = ?, [Amount] = ?, [CreatedTime] = ?, [PaidTime] = ?, [Paid] = ? WHERE [Id] = ?";
+    
+        int row = jdbcClient.sql(sql).params(
+            t.getAccount(),
+            t.getSubscription(),
+            t.getAmount(),
+            t.getCreatedTime(),
+            t.getPaidTime(),
+            t.getPaid(),
+            id
+        ).update();
+
+        if (row == 0) {
+            throw new RuntimeException("Cannot add billing detail to database, please try again");
+        }
+    }
+
+    @Override
+    public void delete(UUID... ids) {
+    }
+
+    public BillingDetail getAccountUnpaid(UUID account) {
+        String sql = "SELECT * FROM [dbo].[BillingDetail] WHERE [Account] = ? AND [Paid] = 0";
+
+        BillingDetail b = jdbcClient
+            .sql(sql)
+            .params(account)
+            .query(BillingDetail.class)
+            .optional()
+            .orElse(null);
+
+        return b;
+    }
+    
+}

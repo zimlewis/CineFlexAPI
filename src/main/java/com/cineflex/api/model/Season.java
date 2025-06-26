@@ -17,4 +17,5 @@ public class Season {
     LocalDateTime updatedTime;
     String description;
     UUID show;
+    Boolean isDeleted;
 }

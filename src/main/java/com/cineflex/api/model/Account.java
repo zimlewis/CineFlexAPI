@@ -17,4 +17,5 @@ public class Account {
     LocalDateTime updatedTime;
     Boolean verify;
     Integer role;
+    Boolean activate;
 }

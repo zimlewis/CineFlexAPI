@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
 
+import com.cineflex.api.model.Account;
 import com.cineflex.api.model.Subscription;
 
 @Repository
@@ -98,5 +99,12 @@ public class SubscriptionRepository implements RepositoryInterface<Subscription>
         }
     }
     
+    public Subscription getActivatedByAccount(UUID account) {
+        String sql = "SELECT * FROM [dbo].[Subscription] WHERE [Account] = ? AND [EndTime] > GETDATE()";
+
+        Subscription subscription = jdbcClient.sql(sql).params(account).query(Subscription.class).optional().orElse(null);
+
+        return subscription;
+    } 
 
 }

@@ -45,7 +45,7 @@ public class ViewHistoryRepository implements RepositoryInterface<ViewHistory>{
 
     @Override
     public List<ViewHistory> readAll() {
-        String sql = "SELECT * FROM [dbo].[ViewHistory]";
+        String sql = "SELECT * FROM [dbo].[ViewHistory] WHERE [IsDeleted] = 0";
 
         List<ViewHistory> viewHistories = jdbcClient.sql(sql).query(ViewHistory.class).list();
         return viewHistories;

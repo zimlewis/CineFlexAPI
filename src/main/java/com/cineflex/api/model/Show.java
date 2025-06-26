@@ -20,4 +20,5 @@ public class Show {
     Boolean onGoing;
     Boolean isSeries;
     String ageRating;
+    Boolean isDeleted;
 }

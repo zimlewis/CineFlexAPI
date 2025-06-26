@@ -37,7 +37,7 @@ public class GenreRepository implements RepositoryInterface<Genre>{
 
     @Override
     public Genre read(UUID id) {
-        String sql = "SELECT * FROM [dbo].[Genre] WHERE [Id] = ?";
+        String sql = "SELECT * FROM [dbo].[Genre] WHERE [Id] = ? AND [IsDeleted] = 0";
 
         Genre genre = jdbcClient
             .sql(sql)
@@ -51,7 +51,7 @@ public class GenreRepository implements RepositoryInterface<Genre>{
 
     @Override
     public List<Genre> readAll() {
-        String sql = "SELECT * FROM [dbo].[Genre]";
+        String sql = "SELECT * FROM [dbo].[Genre] WHERE [IsDeleted] = 0";
 
         List<Genre> genres = jdbcClient.sql(sql).query(Genre.class).list();
 
@@ -60,7 +60,7 @@ public class GenreRepository implements RepositoryInterface<Genre>{
 
     @Override
     public void update(UUID id, Genre t) {
-        String sql = "UPDATE [dbo].[Genre] SET [Name] = ? WHERE [Id] = ?";
+        String sql = "UPDATE [dbo].[Genre] SET [Name] = ? WHERE [Id] = ? AND [IsDeleted] = 0";
 
         int row = jdbcClient.sql(sql).params(
             t.getName(),
@@ -80,7 +80,7 @@ public class GenreRepository implements RepositoryInterface<Genre>{
             .map(_ -> "?")
             .collect(Collectors.joining(", "));
 
-        String sql = "DELETE FROM [dbo].[Genre] WHERE [Id] IN (" + placeholders + ")";
+        String sql = "UPDATE [dbo].[Genre] SET [IsDeleted] = ? WHERE [Id] IN (" + placeholders + ")";
 
         int row = jdbcClient.sql(sql).params(Arrays.asList(ids)).update();
 
@@ -96,7 +96,7 @@ public class GenreRepository implements RepositoryInterface<Genre>{
             .map(_ -> "?")
             .collect(Collectors.joining(", "));
         
-        String sql = "SELECT * FROM [dbo].[Genre] WHERE [Id] IN (" + placeholders + ")";
+        String sql = "SELECT * FROM [dbo].[Genre] WHERE [Id] IN (" + placeholders + ") AND [IsDeleted] = 0";
 
         List<Genre> genres = jdbcClient.sql(sql).params(Arrays.asList(ids)).query(Genre.class).list();
 
@@ -112,7 +112,7 @@ public class GenreRepository implements RepositoryInterface<Genre>{
             .map(_ -> "(?)")
             .collect(Collectors.joining(", "));
 
-        String sql = "SELECT input_ids.id FROM (VALUES " + placeholders + ") AS input_ids(id) LEFT JOIN [dbo].[Genre] ON input_ids.id = [dbo].[Genre].[Id] WHERE [dbo].[Genre].[Id] IS NULL";
+        String sql = "SELECT input_ids.id FROM (VALUES " + placeholders + ") AS input_ids(id) LEFT JOIN [dbo].[Genre] ON input_ids.id = [dbo].[Genre].[Id] WHERE [dbo].[Genre].[Id] IS NULL AND [dbo].[Genre].[IsDeleted] = 0";
 
         List<UUID> missignId = jdbcClient.sql(sql).params(Arrays.asList(ids)).query(UUID.class).list();
 
@@ -126,7 +126,7 @@ public class GenreRepository implements RepositoryInterface<Genre>{
             .map(_ -> "?")
             .collect(Collectors.joining(", "));
         
-        String sql = "SELECT [Id] FROM [dbo].[Genre] WHERE [Name] IN ("+ placeholders +")";
+        String sql = "SELECT [Id] FROM [dbo].[Genre] WHERE [Name] IN ("+ placeholders +") AND [IsDeleted] = 0";
 
         List<UUID> ids = jdbcClient.sql(sql).params(Arrays.asList(names)).query(UUID.class).list();
         

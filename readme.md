@@ -86,6 +86,42 @@
 
 ---
 
+## Orders
+
+### Create Order
+- **POST** `/api/orders`
+- **Headers:** `Authorization: Bearer <token>`
+- **Response:**
+  ```json
+  {
+    "id": "uuid",
+    "account": "uuid",
+    "subscription": "uuid",
+    "amount": 10000.0,
+    "createdTime": "YYYY-MM-DDTHH:MM:SSZ",
+    "paidTime": null,
+    "paid": false
+  }
+  ```
+
+### Confirm Order (Webhook Only)
+- **POST** `/api/orders/confirm`
+- **Note:** This endpoint is for payment provider webhook callbacks only.  
+  Do **not** call this directly from the client.
+- **Body:**
+  ```json
+  {
+    "transferType": "string",
+    "content": "string",
+    "referenceCode": "string",
+    "transferAmount": 10000.0
+  }
+  ```
+- **Response:**
+  - `200 OK` if successful
+
+---
+
 ## Health Check
 
 ### Ping

@@ -40,7 +40,7 @@ public class CommentRepository implements RepositoryInterface<Comment>{
 
     @Override
     public Comment read(UUID id) {
-        String sql = "SELECT * FROM [dbo].[Comment] WHERE [Id] = ?";
+        String sql = "SELECT * FROM [dbo].[Comment] WHERE [Id] = ? AND [IsDeleted] = 0";
 
         Comment comment = jdbcClient.sql(sql)
             .params(id)
@@ -53,7 +53,7 @@ public class CommentRepository implements RepositoryInterface<Comment>{
 
     @Override
     public List<Comment> readAll() {
-        String sql = "SELECT * FROM [dbo].[Comment]";
+        String sql = "SELECT * FROM [dbo].[Comment] WHERE [IsDeleted] = 0";
         
         List<Comment> comments = jdbcClient
             .sql(sql)
@@ -65,7 +65,7 @@ public class CommentRepository implements RepositoryInterface<Comment>{
 
     @Override
     public void update(UUID id, Comment t) {
-        String sql = "UPDATE [dbo].[Comment] SET [Content] = ?, [CreatedTime] = ?, [UpdatedTime] = ?, [Account] = ?, [Episode] = ? WHERE [Id] = ?";
+        String sql = "UPDATE [dbo].[Comment] SET [Content] = ?, [CreatedTime] = ?, [UpdatedTime] = ?, [Account] = ?, [Episode] = ? WHERE [Id] = ? AND [IsDeleted] = 0";
         
         int row = jdbcClient.sql(sql).params(
             t.getContent(),
@@ -90,7 +90,7 @@ public class CommentRepository implements RepositoryInterface<Comment>{
             .map(_ -> "?")
             .collect(Collectors.joining(", "));
 
-        String sql = "DELETE FROM [dbo].[Comment] WHERE [Id] IN (" + placeholders + ")";
+        String sql = "UPDATE [dbo].[Comment] SET [IsDeleted] = 1 WHERE [Id] IN (" + placeholders + ")";
 
         int row = jdbcClient.sql(sql).params(Arrays.asList(ids)).update();
 
@@ -103,8 +103,12 @@ public class CommentRepository implements RepositoryInterface<Comment>{
         String placeholders = Arrays.stream(ids)
             .map((_) -> "?")
             .collect(Collectors.joining(", "));
+        
+        if (placeholders.trim().isEmpty()) {
+            return List.of();
+        }
 
-        String sql = "SELECT * FROM [dbo].[Comment] WHERE [Episode] IN (" + placeholders + ")";
+        String sql = "SELECT * FROM [dbo].[Comment] WHERE [Episode] IN (" + placeholders + ") AND [IsDeleted] = 0";
 
         List<Comment> comments = jdbcClient.sql(sql).params(Arrays.asList(ids)).query(Comment.class).list();
 

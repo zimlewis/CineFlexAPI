@@ -42,7 +42,7 @@ public class AccountRepository implements RepositoryInterface<Account>{
 
     public Account read(UUID id) {
         Account account = null;
-        String sql = "SELECT * FROM [dbo].[Account] WHERE [Id] = ?";
+        String sql = "SELECT * FROM [dbo].[Account] WHERE [Id] = ? AND [Activate] = 1";
 
         account = jdbcClient.sql(sql)
             .params(id)
@@ -56,7 +56,7 @@ public class AccountRepository implements RepositoryInterface<Account>{
     public List<Account> readAll() {
         List<Account> accounts = new ArrayList<Account>();
 
-        String sql = "SELECT * FROM [dbo].[Account]";
+        String sql = "SELECT * FROM [dbo].[Account] WHERE [Activate] = 1";
 
         accounts = jdbcClient
             .sql(sql)
@@ -67,7 +67,7 @@ public class AccountRepository implements RepositoryInterface<Account>{
     }
 
     public void update(UUID id, Account account) {
-        String sql = "UPDATE [dbo].[Account] SET [Username] = ?, [Email] = ?, [Password] = ?, [CreatedTime] = ?, [UpdatedTime] = ?, [Verify] = ?, [Role] = ? WHERE [Id] = ?";
+        String sql = "UPDATE [dbo].[Account] SET [Username] = ?, [Email] = ?, [Password] = ?, [CreatedTime] = ?, [UpdatedTime] = ?, [Verify] = ?, [Role] = ? WHERE [Id] = ? AND [Activate] = 1";
         
         int row = jdbcClient.sql(sql).params(
             account.getUsername(), 
@@ -92,7 +92,7 @@ public class AccountRepository implements RepositoryInterface<Account>{
             .map(_ -> "?")
             .collect(Collectors.joining(", "));
         
-        String sql = "DELETE FROM [dbo].[Account] WHERE [Id] IN (" + placeholders + ")";
+        String sql = "UPDATE [dbo].[Account] SET [Activate] = 0 WHERE [Id] IN (" + placeholders + ")";
 
         int row = jdbcClient.sql(sql).params(Arrays.asList(ids)).update();
 
@@ -103,7 +103,7 @@ public class AccountRepository implements RepositoryInterface<Account>{
 
     public Account readByUsername(String username) {
         Account account = null;
-        String sql = "SELECT * FROM [dbo].[Account] WHERE [Username] = ?";
+        String sql = "SELECT * FROM [dbo].[Account] WHERE [Username] = ? AND [Activate] = 1";
 
         account = jdbcClient.sql(sql)
             .params(username)

@@ -15,11 +15,15 @@ public class EmailService {
     }
 
     public void sendActivationEmail(String token, String email, String host) {
+        sendEmail(host + "/api/authentication/verify/" + token, email, "Activation email");
+    }
+
+    public void sendEmail(String content, String email, String subject) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(email);
         message.setSubject("Activation email");
 
-        message.setText(host + "/api/authentication/verify/" + token);
+        message.setText(content);
 
         javaMailSender.send(message);
     }

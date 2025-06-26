@@ -47,7 +47,7 @@ public class ShowRepository implements RepositoryInterface<Show> {
 
     @Override
     public Show read(UUID id) {
-        String sql = "SELECT * FROM [dbo].[Show] WHERE [Id] = ?";
+        String sql = "SELECT * FROM [dbo].[Show] WHERE [Id] = ? AND [IsDeleted] = 0";
 
         Show show = jdbcClient
             .sql(sql)
@@ -61,7 +61,7 @@ public class ShowRepository implements RepositoryInterface<Show> {
 
     @Override
     public List<Show> readAll() {
-        String sql = "SELECT * FROM [dbo].[Show]";
+        String sql = "SELECT * FROM [dbo].[Show] WHERE [IsDeleted] = 0";
 
         List<Show> shows = jdbcClient
             .sql(sql)
@@ -73,7 +73,7 @@ public class ShowRepository implements RepositoryInterface<Show> {
 
     @Override
     public void update(UUID id, Show t) {
-        String sql = "UPDATE [dbo].[Show] SET [Title] = ?, [Description] = ?, [ReleaseDate] = ?, [Thumbnail] = ?, [CreatedTime] = ?, [UpdatedTime] = ?, [OnGoing] = ?, [IsSeries] = ?, [AgeRating] = ? WHERE [Id] = ?";
+        String sql = "UPDATE [dbo].[Show] SET [Title] = ?, [Description] = ?, [ReleaseDate] = ?, [Thumbnail] = ?, [CreatedTime] = ?, [UpdatedTime] = ?, [OnGoing] = ?, [IsSeries] = ?, [AgeRating] = ? WHERE [Id] = ? AND [IsDeleted] = 0";
 
         int row = jdbcClient.sql(sql).params(
             t.getTitle(),
@@ -101,7 +101,7 @@ public class ShowRepository implements RepositoryInterface<Show> {
             .map(_ -> "?")
             .collect(Collectors.joining(", "));
 
-        String sql = "DELETE FROM [dbo].[Show] WHERE [Id] IN (" + placeholders + ")";
+        String sql = "UPDATE [dbo].[Show] SET [IsDeleted] = 1 WHERE [Id] IN (" + placeholders + ")";
 
         int row = jdbcClient.sql(sql).params(Arrays.asList(ids)).update();
 
@@ -112,7 +112,7 @@ public class ShowRepository implements RepositoryInterface<Show> {
 
     
     public List<Genre> getGenres(UUID id) {
-        String sql = "SELECT g.* FROM [dbo].[Genre] AS g LEFT JOIN [dbo].[ShowGenre] AS sg ON g.[Id] = sg.[Genre] WHERE sg.[Show] = ?";
+        String sql = "SELECT g.* FROM [dbo].[Genre] AS g LEFT JOIN [dbo].[ShowGenre] AS sg ON g.[Id] = sg.[Genre] WHERE sg.[Show] = ? AND g.[IsDeleted] = 0";
 
         List<Genre> genres = jdbcClient
             .sql(sql)
@@ -124,18 +124,41 @@ public class ShowRepository implements RepositoryInterface<Show> {
     }
 
     public List<Genre> addGenres(UUID show, UUID... genres) {
-        String placeholder = Arrays.stream(genres)
+        // Validate show
+        Boolean isShowValid = read(show) != null;
+
+        if (!isShowValid) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Show not found or deleted");
+        }
+
+        // Validate genres list
+        String placeholder;
+        String sql;
+
+        placeholder = Arrays.stream(genres).map(_ -> "?").collect(Collectors.joining(", "));
+
+        sql = "SELECT * FROM [dbo].[Genre] WHERE [Id] IN ("+ placeholder +") AND [IsDeleted] = 0";
+
+
+        List<UUID> valid = jdbcClient.sql("SELECT [Id] FROM [dbo].[Genre] WHERE [Id] IN ("+ placeholder +") AND [IsDeleted] = 0")
+            .params(Arrays.asList(genres))
+            .query(UUID.class)
+            .list();
+
+        System.out.println(valid);
+        
+        placeholder = valid.stream()
             .map(_ -> "(?, ?)")
             .collect(Collectors.joining(", "));
 
         if (placeholder.trim().isEmpty()) {
             throw new ResponseStatusException(
               HttpStatus.NOT_ACCEPTABLE,
-              "You either added an already added genre to this show or an empty value"  
+              "You either added an already added genre to this show, an empty value or already deleted genres"  
             );
         }
 
-        String sql = "INSERT INTO [dbo].[ShowGenre] ([Show], [Genre]) VALUES " + placeholder;
+        sql = "INSERT INTO [dbo].[ShowGenre] ([Show], [Genre]) VALUES " + placeholder;
         
         List<UUID> params = new ArrayList<>();
 
@@ -171,7 +194,7 @@ public class ShowRepository implements RepositoryInterface<Show> {
             return List.of();
         }
 
-        String sql = "SELECT * FROM [dbo].[Show] WHERE [Id] IN (SELECT [Show] FROM [dbo].[ShowGenre] WHERE [Genre] IN ("+ placeHolder +") GROUP BY [Show] HAVING COUNT(DISTINCT [Genre]) = ?)";
+        String sql = "SELECT * FROM [dbo].[Show] WHERE [Id] IN (SELECT [Show] FROM [dbo].[ShowGenre] WHERE [Genre] IN ("+ placeHolder +") AND [Show] IN (SELECT [Id] FROM [dbo].[Show] WHERE [IsDeleted] = 0) AND [Genre] IN (SELECT [Id] FROM [dbo].[Genre] WHERE [IsDeleted] = 0) GROUP BY [Show] HAVING COUNT(DISTINCT [Genre]) = ?) AND [IsDeleted] = 0";
     
         List<Show> shows = jdbcClient.sql(sql).params(Arrays.asList(genres)).param(genres.length).query(Show.class).list();
 

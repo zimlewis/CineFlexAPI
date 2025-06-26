@@ -42,7 +42,7 @@ public class SeasonRepository implements RepositoryInterface<Season> {
 
     @Override
     public Season read(UUID id) {
-        String sql = "SELECT * FROM [dbo].[Season] WHERE [Id] = ?";
+        String sql = "SELECT * FROM [dbo].[Season] WHERE [Id] = ? AND [IsDeleted] = 0";
 
         Season season = jdbcClient
             .sql(sql)
@@ -56,7 +56,7 @@ public class SeasonRepository implements RepositoryInterface<Season> {
 
     @Override
     public List<Season> readAll() {
-        String sql = "SELECT * FROM [dbo].[Season]";
+        String sql = "SELECT * FROM [dbo].[Season] WHERE [IsDeleted] = 0";
 
         List<Season> seasons = jdbcClient
             .sql(sql)
@@ -68,7 +68,7 @@ public class SeasonRepository implements RepositoryInterface<Season> {
 
     @Override
     public void update(UUID id, Season t) {
-        String sql = "UPDATE [dbo].[Season] SET [Title] = ?, [ReleaseDate] = ?, [CreatedTime] = ?, [UpdatedTime] = ?, [Description] = ?, [Show] = ? WHERE [Id] = ?";
+        String sql = "UPDATE [dbo].[Season] SET [Title] = ?, [ReleaseDate] = ?, [CreatedTime] = ?, [UpdatedTime] = ?, [Description] = ?, [Show] = ? WHERE [Id] = ? AND [IsDeleted] = 0";
 
         int row = jdbcClient.sql(sql)
             .params(
@@ -94,7 +94,7 @@ public class SeasonRepository implements RepositoryInterface<Season> {
             .map(_ -> "?")
             .collect(Collectors.joining(", "));
 
-        String sql = "DELETE FROM [dbo].[Season] WHERE [Id] IN (" + placeholders + ")";
+        String sql = "UPDATE [dbo].[Season] SET [IsDeleted] = 1 WHERE [Id] IN (" + placeholders + ")";
 
         int row = jdbcClient.sql(sql).params(Arrays.asList(ids)).update();
 
@@ -110,7 +110,7 @@ public class SeasonRepository implements RepositoryInterface<Season> {
             .map(_ -> "?")
             .collect(Collectors.joining(", "));
 
-        String sql = "SELECT * FROM [dbo].[Season] WHERE [Show] IN (" + placeholders + ")";
+        String sql = "SELECT * FROM [dbo].[Season] WHERE [Show] IN (" + placeholders + ") AND [IsDeleted] = 0";
 
         List<Season> seasons = jdbcClient
             .sql(sql)
