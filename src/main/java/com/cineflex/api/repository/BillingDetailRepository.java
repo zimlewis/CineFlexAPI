@@ -20,7 +20,7 @@ public class BillingDetailRepository implements RepositoryInterface<BillingDetai
 
     @Override
     public void create(BillingDetail t) {
-        String sql = "INSERT INTO [dbo].[BillingDetail] ([Id], [Account], [Subscription], [Amount], [CreatedTime], [PaidTime], [Paid]) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO [dbo].[BillingDetail] ([Id], [Account], [Subscription], [Amount], [CreatedTime], [PaidTime], [Paid], [TransactionCode]) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
         int row = jdbcClient.sql(sql).params(
             t.getId(),
@@ -29,7 +29,8 @@ public class BillingDetailRepository implements RepositoryInterface<BillingDetai
             t.getAmount(),
             t.getCreatedTime(),
             t.getPaidTime(),
-            t.getPaid()
+            t.getPaid(),
+            t.getTransactionCode()
         ).update();
 
         if (row == 0) {
@@ -64,7 +65,7 @@ public class BillingDetailRepository implements RepositoryInterface<BillingDetai
 
     @Override
     public void update(UUID id, BillingDetail t) {
-        String sql = "UPDATE [dbo].[BillingDetail] SET [Account] = ?, [Subscription] = ?, [Amount] = ?, [CreatedTime] = ?, [PaidTime] = ?, [Paid] = ? WHERE [Id] = ?";
+        String sql = "UPDATE [dbo].[BillingDetail] SET [Account] = ?, [Subscription] = ?, [Amount] = ?, [CreatedTime] = ?, [PaidTime] = ?, [Paid] = ?, [TransactionCode] = ? WHERE [Id] = ?";
     
         int row = jdbcClient.sql(sql).params(
             t.getAccount(),
@@ -73,6 +74,7 @@ public class BillingDetailRepository implements RepositoryInterface<BillingDetai
             t.getCreatedTime(),
             t.getPaidTime(),
             t.getPaid(),
+            t.getTransactionCode(),
             id
         ).update();
 

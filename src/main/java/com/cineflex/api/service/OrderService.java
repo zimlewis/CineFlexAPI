@@ -1,6 +1,7 @@
 package com.cineflex.api.service;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 import java.util.Random;
 import java.util.UUID;
 
@@ -16,26 +17,26 @@ import com.cineflex.api.model.Subscription;
 import com.cineflex.api.repository.BillingDetailRepository;
 import com.cineflex.api.repository.SubscriptionRepository;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 @Service
 public class OrderService {
     private final BillingDetailRepository billingDetailRepository;
     private final AuthenticationService authenticationService;
     private final SubscriptionRepository subscriptionRepository;
     private final EmailService emailService;
+    private final AccountDetailService accountDetailService;
     
     public OrderService (
         BillingDetailRepository billingDetailRepository,
         AuthenticationService authenticationService,
         EmailService emailService,
-        SubscriptionRepository subscriptionRepository
+        SubscriptionRepository subscriptionRepository,
+        AccountDetailService accountDetailService
     ) {
         this.billingDetailRepository = billingDetailRepository;
         this.authenticationService = authenticationService;
         this.emailService = emailService;
         this.subscriptionRepository = subscriptionRepository;
+        this.accountDetailService = accountDetailService;
     }
 
     @Transactional
@@ -59,6 +60,8 @@ public class OrderService {
             Random random = new Random();
             int tc = random.nextInt(99999999);
             String transactionCode = String.format("GD%08d", tc); 
+
+            System.out.println(tc);
 
             billingDetail = BillingDetail.builder()
                 .id(UUID.randomUUID())
@@ -104,11 +107,9 @@ public class OrderService {
 
 
 
-            if (billingDetail.getAmount() == b.getTransferAmount()) {
-                System.out.println(billingDetail.getAmount());
-                System.out.println(b.getTransferAmount());
-                System.out.println(b.getTransferAmount() == billingDetail.getAmount());
-                System.out.println("Not equal money money");
+            if (!Objects.equals(billingDetail.getAmount(), b.getTransferAmount())) {
+                Account user = accountDetailService.getById(billingDetail.getAccount());
+                emailService.sendEmail("Please contact admin to get your money back", (user != null)?user.getEmail():"z1ml3w1s123@gmail.com", "Bank transfer not equal");
                 return;
             }
 
