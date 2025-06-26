@@ -1,6 +1,7 @@
 package com.cineflex.api.service;
 
 import java.time.LocalDateTime;
+import java.util.Random;
 import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
@@ -55,6 +56,10 @@ public class OrderService {
                 return billingDetail;
             }
 
+            Random random = new Random();
+            int tc = random.nextInt(99999999);
+            String transactionCode = String.format("GD%08d", tc); 
+
             billingDetail = BillingDetail.builder()
                 .id(UUID.randomUUID())
                 .account(user.getId())
@@ -63,6 +68,7 @@ public class OrderService {
                 .createdTime(LocalDateTime.now())
                 .paidTime(null)
                 .paid(false)
+                .transactionCode(transactionCode)
                 .build();
             
             billingDetailRepository.create(billingDetail);
@@ -84,18 +90,16 @@ public class OrderService {
                 return;
             }
 
-            String regex = "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}";
-            Pattern pattern = Pattern.compile(regex);
-            Matcher matcher = pattern.matcher(b.getContent());
+            String code = b.getCode();
 
-            if (!matcher.find()) {
-                throw new RuntimeException("Cannot find order id, reference code: " + b.getReferenceCode());
+            if (code == null) {
+                throw new RuntimeException("Cannot find transaction code, reference code: " + b.getReferenceCode() + ", transaction code: " + b.getCode());
             }
 
-            BillingDetail billingDetail = billingDetailRepository.read(UUID.fromString(matcher.group()));
+            BillingDetail billingDetail = billingDetailRepository.getByTransactionCode(code);
 
             if (billingDetail == null) {
-                throw new RuntimeException("Cannot find order, reference code: " + b.getReferenceCode());
+                throw new RuntimeException("Cannot find order, reference code: " + b.getReferenceCode() + ", transaction code: " + b.getCode());
             }
 
 

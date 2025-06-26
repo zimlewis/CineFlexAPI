@@ -97,5 +97,18 @@ public class BillingDetailRepository implements RepositoryInterface<BillingDetai
 
         return b;
     }
+
+    public BillingDetail getByTransactionCode(String code) {
+        String sql = "SELECT * FROM [dbo].[BillingDetail] WHERE [TransactionCode] = ?";
+
+        BillingDetail b = jdbcClient
+            .sql(sql)
+            .params(code)
+            .query(BillingDetail.class)
+            .optional()
+            .orElse(null);
+
+        return b;
+    }
     
 }

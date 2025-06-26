@@ -16,4 +16,5 @@ public class BillingDetail {
     LocalDateTime createdTime;
     LocalDateTime paidTime;
     Boolean paid;
+    String transactionCode;
 }
