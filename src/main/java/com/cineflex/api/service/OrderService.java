@@ -86,6 +86,17 @@ public class OrderService {
 
     }
 
+    public BillingDetail getOrderById(UUID id) {
+        try {
+            BillingDetail b = billingDetailRepository.read(id);
+
+            return b;
+        }
+        catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR ,e.getMessage());
+        }
+    }
+
     @Transactional
     public void confirmPayment(BankTransfer b) {
         try {
