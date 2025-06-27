@@ -89,9 +89,7 @@ public class AuthenticationAPI {
 
             Account account = authenticationService.register(username, email, password);
 
-            String token = authenticationService.login(account.getEmail(), password);
-
-            return new ResponseEntity<>(token, HttpStatus.ACCEPTED);
+            return new ResponseEntity<>(account.getEmail(), HttpStatus.ACCEPTED);
 
         }
         catch (ResponseStatusException e) {
