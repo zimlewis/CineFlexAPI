@@ -23,14 +23,10 @@ public class LikeRepository implements RepositoryInterface<Like>{
     public void create(Like t) {
         String sql = "INSERT INTO [dbo].[Like] ([Account], [Episode], [CreatedTime]) VALUES (?, ?, ?)";
 
-        int row = jdbcClient
+        jdbcClient
             .sql(sql)
             .params(t.getAccount(), t.getEpisode(), t.getCreatedTime())
             .update();
-
-        if (row == 0) {
-            throw new RuntimeException("Cannot like this episode");
-        }
     }
 
     @Override

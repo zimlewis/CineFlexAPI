@@ -23,15 +23,11 @@ public class FavoriteRepository implements RepositoryInterface<Favorite>{
     public void create(Favorite t) {
         String sql = "INSERT INTO [dbo].[Favorite] ([Account], [Show], [CreatedTime]) VALUES (?, ?, ?)";
         
-        int row = jdbcClient.sql(sql).params(
+        jdbcClient.sql(sql).params(
             t.getAccount(), 
             t.getShow(), 
             t.getCreatedTime()
         ).update();
-
-        if (row == 0) {
-            throw new RuntimeException("Cannot add favorite this");
-        }
     }
 
     @Override

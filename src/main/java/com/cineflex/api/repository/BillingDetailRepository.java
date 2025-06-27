@@ -22,7 +22,7 @@ public class BillingDetailRepository implements RepositoryInterface<BillingDetai
     public void create(BillingDetail t) {
         String sql = "INSERT INTO [dbo].[BillingDetail] ([Id], [Account], [Subscription], [Amount], [CreatedTime], [PaidTime], [Paid], [TransactionCode]) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
-        int row = jdbcClient.sql(sql).params(
+        jdbcClient.sql(sql).params(
             t.getId(),
             t.getAccount(),
             t.getSubscription(),
@@ -32,10 +32,6 @@ public class BillingDetailRepository implements RepositoryInterface<BillingDetai
             t.getPaid(),
             t.getTransactionCode()
         ).update();
-
-        if (row == 0) {
-            throw new RuntimeException("Cannot add billing detail to database, please try again");
-        }
 
         
     }
@@ -67,7 +63,7 @@ public class BillingDetailRepository implements RepositoryInterface<BillingDetai
     public void update(UUID id, BillingDetail t) {
         String sql = "UPDATE [dbo].[BillingDetail] SET [Account] = ?, [Subscription] = ?, [Amount] = ?, [CreatedTime] = ?, [PaidTime] = ?, [Paid] = ?, [TransactionCode] = ? WHERE [Id] = ?";
     
-        int row = jdbcClient.sql(sql).params(
+        jdbcClient.sql(sql).params(
             t.getAccount(),
             t.getSubscription(),
             t.getAmount(),
@@ -77,10 +73,6 @@ public class BillingDetailRepository implements RepositoryInterface<BillingDetai
             t.getTransactionCode(),
             id
         ).update();
-
-        if (row == 0) {
-            throw new RuntimeException("Cannot add billing detail to database, please try again");
-        }
     }
 
     @Override

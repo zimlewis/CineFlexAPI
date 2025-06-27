@@ -24,7 +24,7 @@ public class AccountRepository implements RepositoryInterface<Account>{
     public void create(Account account) {
         String sql = "INSERT INTO [dbo].[Account] ([Id], [Username], [Email], [Password], [CreatedTime], [UpdatedTime], [Verify], [Role]) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
-        int row = jdbcClient.sql(sql).params(
+        jdbcClient.sql(sql).params(
             account.getId(), 
             account.getUsername(), 
             account.getEmail(), 
@@ -34,10 +34,6 @@ public class AccountRepository implements RepositoryInterface<Account>{
             account.getVerify(), 
             account.getRole()
         ).update();
-
-        if (row == 0) {
-            throw new RuntimeException("Cannot add account to database");
-        }
     }
 
     public Account read(UUID id) {
@@ -69,7 +65,7 @@ public class AccountRepository implements RepositoryInterface<Account>{
     public void update(UUID id, Account account) {
         String sql = "UPDATE [dbo].[Account] SET [Username] = ?, [Email] = ?, [Password] = ?, [CreatedTime] = ?, [UpdatedTime] = ?, [Verify] = ?, [Role] = ? WHERE [Id] = ? AND [Activate] = 1";
         
-        int row = jdbcClient.sql(sql).params(
+        jdbcClient.sql(sql).params(
             account.getUsername(), 
             account.getEmail(), 
             account.getPassword(), 
@@ -79,10 +75,6 @@ public class AccountRepository implements RepositoryInterface<Account>{
             account.getRole(), 
             id
         ).update();
-
-        if (row == 0) {
-            throw new RuntimeException("Cannot update account");
-        }
     }
 
     public void delete(UUID... ids) {
@@ -94,11 +86,7 @@ public class AccountRepository implements RepositoryInterface<Account>{
         
         String sql = "UPDATE [dbo].[Account] SET [Activate] = 0 WHERE [Id] IN (" + placeholders + ")";
 
-        int row = jdbcClient.sql(sql).params(Arrays.asList(ids)).update();
-
-        if (row == 0) {
-            throw new RuntimeException("Cannot delete account");
-        }
+        jdbcClient.sql(sql).params(Arrays.asList(ids)).update();
     }
 
     public Account readByUsername(String username) {

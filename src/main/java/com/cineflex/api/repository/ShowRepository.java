@@ -27,7 +27,7 @@ public class ShowRepository implements RepositoryInterface<Show> {
     public void create(Show t) {
         String sql = "INSERT INTO [dbo].[Show] ([Id], [Title], [Description], [ReleaseDate], [Thumbnail], [CreatedTime], [UpdatedTime], [OnGoing], [IsSeries], [AgeRating]) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-        int row = jdbcClient.sql(sql).params(
+        jdbcClient.sql(sql).params(
             t.getId(),
             t.getTitle(),
             t.getDescription(),
@@ -39,10 +39,6 @@ public class ShowRepository implements RepositoryInterface<Show> {
             t.getIsSeries(),
             t.getAgeRating()
         ).update();
-
-        if (row == 0) {
-            throw new RuntimeException("Cannot add show to database");
-        }
     }
 
     @Override
@@ -75,7 +71,7 @@ public class ShowRepository implements RepositoryInterface<Show> {
     public void update(UUID id, Show t) {
         String sql = "UPDATE [dbo].[Show] SET [Title] = ?, [Description] = ?, [ReleaseDate] = ?, [Thumbnail] = ?, [CreatedTime] = ?, [UpdatedTime] = ?, [OnGoing] = ?, [IsSeries] = ?, [AgeRating] = ? WHERE [Id] = ? AND [IsDeleted] = 0";
 
-        int row = jdbcClient.sql(sql).params(
+        jdbcClient.sql(sql).params(
             t.getTitle(),
             t.getDescription(),
             t.getReleaseDate(),
@@ -88,9 +84,6 @@ public class ShowRepository implements RepositoryInterface<Show> {
             id
         ).update();
 
-        if (row == 0) {
-            throw new RuntimeException("Cannot update show to database");
-        }
     }
 
     @Override
@@ -103,11 +96,8 @@ public class ShowRepository implements RepositoryInterface<Show> {
 
         String sql = "UPDATE [dbo].[Show] SET [IsDeleted] = 1 WHERE [Id] IN (" + placeholders + ")";
 
-        int row = jdbcClient.sql(sql).params(Arrays.asList(ids)).update();
+        jdbcClient.sql(sql).params(Arrays.asList(ids)).update();
 
-        if (row == 0) {
-            throw new RuntimeException("Cannot delete show from database");
-        }
     }
 
     
@@ -167,11 +157,7 @@ public class ShowRepository implements RepositoryInterface<Show> {
             params.add(genre);
         }
 
-        int row = jdbcClient.sql(sql).params(params).update();
-
-        if (row == 0) {
-            throw new RuntimeException("Cannot add genres to show");
-        }
+        jdbcClient.sql(sql).params(params).update();
 
         placeholder = Arrays.stream(genres)
             .map(_ -> "?")

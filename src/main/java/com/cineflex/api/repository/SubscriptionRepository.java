@@ -26,17 +26,14 @@ public class SubscriptionRepository implements RepositoryInterface<Subscription>
     public void create(Subscription t) {
         String sql = "INSERT INTO [dbo].[Subscription] ([Id], [StartTime], [EndTime], [Account]) VALUES (?, ?, ?, ?)";
 
-        int row = jdbcClient.sql(sql)
+        jdbcClient.sql(sql)
             .params(
                 t.getId(),
                 t.getStartTime(),
                 t.getEndTime(),
                 t.getAccount()
             ).update();
-        
-        if (row == 0) {
-            throw new RuntimeException("Cannot add this subscription to database");
-        }
+
     }
 
     @Override
@@ -69,17 +66,13 @@ public class SubscriptionRepository implements RepositoryInterface<Subscription>
     public void update(UUID id, Subscription t) {
         String sql = "UPDATE [dbo].[Subscription] SET [StartTime] = ?, [EndTime] = ?, [Account] = ? WHERE [Id] = ?";
 
-        int row = jdbcClient.sql(sql)
+        jdbcClient.sql(sql)
             .params(
                 t.getStartTime(),
                 t.getEndTime(),
                 t.getAccount(),
                 id
             ).update();
-        
-        if (row == 0) {
-            throw new RuntimeException("Cannot update this subscription to database");
-        }
     }
 
     @Override
@@ -92,11 +85,7 @@ public class SubscriptionRepository implements RepositoryInterface<Subscription>
 
         String sql = "DELETE FROM [dbo].[Subscription] WHERE [Id] IN (" + placeholders + ")";
 
-        int row = jdbcClient.sql(sql).params(Arrays.asList(ids)).update();
-        
-        if (row == 0) {
-            throw new RuntimeException("Cannot delete this subscription from database");
-        }
+        jdbcClient.sql(sql).params(Arrays.asList(ids)).update();
     }
     
     public Subscription getActivatedByAccount(UUID account) {

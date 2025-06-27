@@ -24,7 +24,7 @@ public class CommentRepository implements RepositoryInterface<Comment>{
     public void create(Comment comment) {
         String sql = "INSERT INTO [dbo].[Comment] ([Id], [Content], [CreatedTime], [UpdatedTime], [Account], [Episode]) VALUES (?, ?, ?, ?, ?, ?)";
 
-        int row = jdbcClient.sql(sql).params(
+        jdbcClient.sql(sql).params(
             comment.getId(),
             comment.getContent(),
             comment.getCreatedTime(),
@@ -32,10 +32,6 @@ public class CommentRepository implements RepositoryInterface<Comment>{
             comment.getAccount(),
             comment.getEpisode()
         ).update();
-
-        if (row == 0) {
-            throw new RuntimeException("Cannot added comment to the database");
-        }
     }
 
     @Override
@@ -67,7 +63,7 @@ public class CommentRepository implements RepositoryInterface<Comment>{
     public void update(UUID id, Comment t) {
         String sql = "UPDATE [dbo].[Comment] SET [Content] = ?, [CreatedTime] = ?, [UpdatedTime] = ?, [Account] = ?, [Episode] = ? WHERE [Id] = ? AND [IsDeleted] = 0";
         
-        int row = jdbcClient.sql(sql).params(
+        jdbcClient.sql(sql).params(
             t.getContent(),
             t.getCreatedTime(),
             t.getUpdatedTime(),
@@ -75,10 +71,6 @@ public class CommentRepository implements RepositoryInterface<Comment>{
             t.getEpisode(),
             id
         ).update();
-
-        if (row == 0) {
-            throw new RuntimeException("Cannot update comment");
-        }
 
     }
 
@@ -92,11 +84,7 @@ public class CommentRepository implements RepositoryInterface<Comment>{
 
         String sql = "UPDATE [dbo].[Comment] SET [IsDeleted] = 1 WHERE [Id] IN (" + placeholders + ")";
 
-        int row = jdbcClient.sql(sql).params(Arrays.asList(ids)).update();
-
-        if (row == 0) {
-            throw new RuntimeException("Cannot delete comment");
-        }
+        jdbcClient.sql(sql).params(Arrays.asList(ids)).update();
     }
 
     public List<Comment> getCommentsByEpisode(UUID ...ids) {

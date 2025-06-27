@@ -23,16 +23,12 @@ public class RatingRepository implements RepositoryInterface<Rating>{
     public void create(Rating t) {
         String sql = "INSERT INTO [dbo].[Rating] ([Account], [Show], [Value], [CreatedTime]) VALUES (?, ?, ?, ?)";
         
-        int row = jdbcClient.sql(sql).params(
+        jdbcClient.sql(sql).params(
             t.getAccount(),
             t.getShow(),
             t.getValue(),
             t.getCreatedTime()
         ).update();
-
-        if (row == 0) {
-            throw new RuntimeException("Cannot rate this at the moment");
-        }
     }
 
     @Override

@@ -24,7 +24,7 @@ public class SeasonRepository implements RepositoryInterface<Season> {
     public void create(Season t) {
         String sql = "INSERT INTO [dbo].[Season] ([Id], [Title], [ReleaseDate], [CreatedTime], [UpdatedTime], [Description], [Show]) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
-        int row = jdbcClient.sql(sql)
+        jdbcClient.sql(sql)
             .params(
                 t.getId(),
                 t.getTitle(),
@@ -33,11 +33,7 @@ public class SeasonRepository implements RepositoryInterface<Season> {
                 t.getUpdatedTime(),
                 t.getDescription(),
                 t.getShow()
-            ).update();
-
-        if (row == 0) {
-            throw new RuntimeException("Cannot add season to database");
-        }        
+            ).update();    
     }
 
     @Override
@@ -70,7 +66,7 @@ public class SeasonRepository implements RepositoryInterface<Season> {
     public void update(UUID id, Season t) {
         String sql = "UPDATE [dbo].[Season] SET [Title] = ?, [ReleaseDate] = ?, [CreatedTime] = ?, [UpdatedTime] = ?, [Description] = ?, [Show] = ? WHERE [Id] = ? AND [IsDeleted] = 0";
 
-        int row = jdbcClient.sql(sql)
+        jdbcClient.sql(sql)
             .params(
                 t.getTitle(),
                 t.getReleaseDate(),
@@ -80,10 +76,6 @@ public class SeasonRepository implements RepositoryInterface<Season> {
                 t.getShow(),
                 id
             ).update();
-
-        if (row == 0) {
-            throw new RuntimeException("Cannot update season to database");
-        }   
     }
 
     @Override
@@ -96,11 +88,7 @@ public class SeasonRepository implements RepositoryInterface<Season> {
 
         String sql = "UPDATE [dbo].[Season] SET [IsDeleted] = 1 WHERE [Id] IN (" + placeholders + ")";
 
-        int row = jdbcClient.sql(sql).params(Arrays.asList(ids)).update();
-
-        if (row == 0) {
-            throw new RuntimeException("Cannot remove season to database");
-        }   
+        jdbcClient.sql(sql).params(Arrays.asList(ids)).update();  
     }
 
     public List<Season> getByShow(UUID... ids) {

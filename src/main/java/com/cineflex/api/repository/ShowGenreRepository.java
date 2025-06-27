@@ -25,14 +25,10 @@ public class ShowGenreRepository implements RepositoryInterface<ShowGenre> {
     public void create(ShowGenre t) {
         String sql = "INSERT INTO [dbo].[ShowGenre] ([Show], [Genre]) VALUES (?, ?)";
 
-        int row = jdbcClient
+        jdbcClient
             .sql(sql)
             .params(t.getShow(), t.getGenre())
             .update();
-        
-        if (row == 0) {
-            throw new RuntimeException("Cannot add this genre to show");
-        } 
     }
 
     @Override
@@ -60,17 +56,15 @@ public class ShowGenreRepository implements RepositoryInterface<ShowGenre> {
     }
     
     public void deleteByShow(UUID... shows) {
+        
+
         String placeholders = Arrays.stream(shows)
             .map(_ -> "?")
             .collect(Collectors.joining(", "));
 
         String sql = "DELETE FROM [dbo].[ShowGenre] WHERE [Show] IN (" + placeholders + ")";
         
-        int row = jdbcClient.sql(sql).params(Arrays.asList(shows)).update();
-
-        if (row == 0) {
-            throw new RuntimeException("Cannot delete from database please try again");
-        }
+        jdbcClient.sql(sql).params(Arrays.asList(shows)).update();
     }
 
 }

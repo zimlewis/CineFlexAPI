@@ -24,7 +24,7 @@ public class EpisodeRepository implements RepositoryInterface<Episode>{
     public void create(Episode t) {
         String sql = "INSERT INTO [dbo].[Episode] ([Id], [Title], [Number], [Description], [Url], [ReleaseDate], [CreatedTime], [UpdatedTime], [Duration], [OpeningStart], [OpeningEnd], [View], [Season]) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-        int row = jdbcClient.sql(sql).params(
+        jdbcClient.sql(sql).params(
             t.getId(),
             t.getTitle(),
             t.getNumber(),
@@ -39,10 +39,6 @@ public class EpisodeRepository implements RepositoryInterface<Episode>{
             t.getView(),
             t.getSeason()
         ).update();
-
-        if (row == 0) {
-            throw new RuntimeException("Cannot add episode to database");
-        }
 
     }
 
@@ -77,7 +73,7 @@ public class EpisodeRepository implements RepositoryInterface<Episode>{
     public void update(UUID id, Episode t) {
         String sql = "UPDATE [dbo].[Episode] SET [Title] = ?, [Number] = ?, [Description] = ?, [Url] = ?, [ReleaseDate] = ?, [CreatedTime] = ?, [UpdatedTime] = ?, [Duration] = ?, [OpeningStart] = ?, [OpeningEnd] = ?, [View] = ?, [Season] = ? WHERE [Id] = ? AND [IsDeleted] = 0";
 
-        int row = jdbcClient.sql(sql).params(
+        jdbcClient.sql(sql).params(
             t.getTitle(),
             t.getNumber(),
             t.getDescription(),
@@ -93,10 +89,6 @@ public class EpisodeRepository implements RepositoryInterface<Episode>{
             id
         ).update();
 
-        if (row == 0) {
-            throw new RuntimeException("Cannot add episode to database");
-        }
-
     }
 
     @Override
@@ -109,11 +101,9 @@ public class EpisodeRepository implements RepositoryInterface<Episode>{
 
         String sql = "UPDATE [dbo].[Episode] SET [IsDeleted] = 1 WHERE [Id] IN (" + placeholders + ")";
 
-        int row = jdbcClient.sql(sql).params(Arrays.asList(ids)).update();
+        jdbcClient.sql(sql).params(Arrays.asList(ids)).update();
 
-        if (row == 0) {
-            throw new RuntimeException("Cannot add episode to database");
-        }
+
     }
 
     public List<Episode> getBySeason(UUID... ids) {

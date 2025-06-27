@@ -169,6 +169,7 @@ public class ShowAPI {
             return ResponseEntity.ok(null);
         }
         catch (ResponseStatusException e) {
+            System.out.println(e.getStackTrace().toString());
             return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
                 e.getStatusCode(), 
                 e.getReason()

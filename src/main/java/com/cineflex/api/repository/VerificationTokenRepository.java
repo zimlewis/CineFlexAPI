@@ -25,7 +25,7 @@ public class VerificationTokenRepository implements RepositoryInterface<Verifica
     public void create(VerificationToken t) {
         String sql = "INSERT INTO [dbo].[VerificationToken] ([Id], [Account], [Token], [CreatedTime], [ExpiredTime], [Verified]) VALUES (?, ?, ?, ?, ?, ?)";
 
-        int row = jdbcClient.sql(sql)
+        jdbcClient.sql(sql)
             .params(
                 t.getId(),
                 t.getAccount(),
@@ -35,10 +35,6 @@ public class VerificationTokenRepository implements RepositoryInterface<Verifica
                 t.getVerified()
             )
             .update();
-
-        if (row == 0) {
-            throw new RuntimeException("Cannont add this verification token");
-        }
     }
 
     @Override
@@ -69,7 +65,7 @@ public class VerificationTokenRepository implements RepositoryInterface<Verifica
     public void update(UUID id, VerificationToken t) {
         String sql = "UPDATE [dbo].[VerificationToken] SET [Account] = ?, [Token] = ?, [CreatedTime] = ?, [ExpiredTime] = ?, [Verified] = ? WHERE [Id] = ?";
 
-        int row = jdbcClient.sql(sql)
+        jdbcClient.sql(sql)
             .params(
                 t.getAccount(),
                 t.getToken(),
@@ -79,10 +75,6 @@ public class VerificationTokenRepository implements RepositoryInterface<Verifica
                 id
             )
             .update();
-
-        if (row == 0) {
-            throw new RuntimeException("Cannont update this verification token");
-        }
     }
 
     @Override
@@ -95,11 +87,7 @@ public class VerificationTokenRepository implements RepositoryInterface<Verifica
         
         String sql = "DELETE FROM [dbo].[VerificationToken] WHERE [Id] IN (" + placeholders + ")";
 
-        int row = jdbcClient.sql(sql).params(Arrays.asList(ids)).update();
-
-        if (row == 0) {
-            throw new RuntimeException("Cannont remove this verification token");
-        }
+        jdbcClient.sql(sql).params(Arrays.asList(ids)).update();
     }
 
     public VerificationToken readByTokenContent(String token) {

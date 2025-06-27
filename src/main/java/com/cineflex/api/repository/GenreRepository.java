@@ -25,14 +25,11 @@ public class GenreRepository implements RepositoryInterface<Genre>{
     public void create(Genre t) {
         String sql = "INSERT INTO [dbo].[Genre] ([Id], [Name]) VALUES (?, ?)";
 
-        int row = jdbcClient.sql(sql).params(
+        jdbcClient.sql(sql).params(
             t.getId(),
             t.getName()
         ).update();
 
-        if (row == 0) {
-            throw new RuntimeException("Cannot add genre to database");
-        }
     }
 
     @Override
@@ -62,14 +59,10 @@ public class GenreRepository implements RepositoryInterface<Genre>{
     public void update(UUID id, Genre t) {
         String sql = "UPDATE [dbo].[Genre] SET [Name] = ? WHERE [Id] = ? AND [IsDeleted] = 0";
 
-        int row = jdbcClient.sql(sql).params(
+        jdbcClient.sql(sql).params(
             t.getName(),
             id
         ).update();
-
-        if (row == 0) {
-            throw new RuntimeException("Cannot update genre to database");
-        }
     }
 
     @Override
@@ -82,11 +75,8 @@ public class GenreRepository implements RepositoryInterface<Genre>{
 
         String sql = "UPDATE [dbo].[Genre] SET [IsDeleted] = ? WHERE [Id] IN (" + placeholders + ")";
 
-        int row = jdbcClient.sql(sql).params(Arrays.asList(ids)).update();
+        jdbcClient.sql(sql).params(Arrays.asList(ids)).update();
 
-        if (row == 0) {
-            throw new RuntimeException("Cannot delete genre from database");
-        }
     }
 
     public List<Genre> readMultipleGenres(UUID... ids) {

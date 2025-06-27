@@ -23,7 +23,7 @@ public class ViewHistoryRepository implements RepositoryInterface<ViewHistory>{
     public void create(ViewHistory t) {
         String sql = "INSERT INTO [dbo].[ViewHistory] ([Account], [Episode], [CreatedTime], [UpdatedTime], [Duration]) VALUES (?, ?, ?, ?, ?)";
         
-        int row = jdbcClient.sql(sql)
+        jdbcClient.sql(sql)
             .params(
                 t.getAccount(), 
                 t.getEpisode(),
@@ -33,9 +33,6 @@ public class ViewHistoryRepository implements RepositoryInterface<ViewHistory>{
             )
             .update();
         
-        if (row == 0) {
-            throw new RuntimeException("Cannot save view history");
-        }
     }
 
     @Override

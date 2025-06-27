@@ -24,7 +24,7 @@ public class ReportCommentRepository implements RepositoryInterface<ReportCommen
     public void create(ReportComment t) {
         String sql = "INSERT INTO [dbo].[ReportComment] ([Id], [Content], [CreatedTime], [UpdatedTime], [Status], [Account], [Comment]) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
-        int row = jdbcClient.sql(sql).params(
+        jdbcClient.sql(sql).params(
             t.getId(),
             t.getContent(),
             t.getCreatedTime(),
@@ -33,10 +33,6 @@ public class ReportCommentRepository implements RepositoryInterface<ReportCommen
             t.getAccount(),
             t.getComment()
         ).update();
-
-        if (row == 0) {
-            throw new RuntimeException("Cannot add this report to database");
-        }
     }
 
     @Override
@@ -69,7 +65,7 @@ public class ReportCommentRepository implements RepositoryInterface<ReportCommen
     public void update(UUID id, ReportComment t) {
         String sql = "UPDATE [dbo].[ReportComment] SET [Content] = ?, [CreatedTime] = ?, [UpdatedTime] = ?, [Status] = ?, [Account] = ?, [Comment] = ? WHERE [Id] = ?";
 
-        int row = jdbcClient.sql(sql).params(
+        jdbcClient.sql(sql).params(
             t.getContent(),
             t.getCreatedTime(),
             t.getUpdatedTime(),
@@ -78,10 +74,6 @@ public class ReportCommentRepository implements RepositoryInterface<ReportCommen
             t.getComment(),
             id
         ).update();
-
-        if (row == 0) {
-            throw new RuntimeException("Cannot update this report to database");
-        }
     }
 
     @Override
