@@ -24,19 +24,22 @@ public class OrderService {
     private final SubscriptionRepository subscriptionRepository;
     private final EmailService emailService;
     private final AccountDetailService accountDetailService;
+    private final WebSocketPushService webSocketPushService;
     
     public OrderService (
         BillingDetailRepository billingDetailRepository,
         AuthenticationService authenticationService,
         EmailService emailService,
         SubscriptionRepository subscriptionRepository,
-        AccountDetailService accountDetailService
+        AccountDetailService accountDetailService,
+        WebSocketPushService webSocketPushService
     ) {
         this.billingDetailRepository = billingDetailRepository;
         this.authenticationService = authenticationService;
         this.emailService = emailService;
         this.subscriptionRepository = subscriptionRepository;
         this.accountDetailService = accountDetailService;
+        this.webSocketPushService = webSocketPushService;
     }
 
     @Transactional
@@ -99,18 +102,21 @@ public class OrderService {
 
     @Transactional
     public void confirmPayment(BankTransfer b) {
+        if (b.getTransferType() == "out") {
+            return;
+        }
+
+        String code = b.getCode();
+
+        if (code == null) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Cannot find transaction code, reference code: " + b.getReferenceCode() + ", transaction code: " + b.getCode());
+        }
+
+        BillingDetail billingDetail = billingDetailRepository.getByTransactionCode(code);
+
+
         try {
-            if (b.getTransferType() == "out") {
-                return;
-            }
 
-            String code = b.getCode();
-
-            if (code == null) {
-                throw new RuntimeException("Cannot find transaction code, reference code: " + b.getReferenceCode() + ", transaction code: " + b.getCode());
-            }
-
-            BillingDetail billingDetail = billingDetailRepository.getByTransactionCode(code);
 
             if (billingDetail == null) {
                 throw new RuntimeException("Cannot find order, reference code: " + b.getReferenceCode() + ", transaction code: " + b.getCode());
@@ -125,7 +131,7 @@ public class OrderService {
             }
 
             if (billingDetail.getPaid()) {
-                System.out.println("Already paid");
+                webSocketPushService.sendToBillngQueue(billingDetail.getId(), "This order is paid already");
                 return;
             }
 
@@ -155,9 +161,12 @@ public class OrderService {
             billingDetail.setPaid(true);
             billingDetail.setPaidTime(LocalDateTime.now());
             billingDetailRepository.update(billingDetail.getId(), billingDetail);
+
+            webSocketPushService.sendToBillngQueue(billingDetail.getId(), "PAID");
         
         }
         catch (Exception e) {
+            
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }
     }
