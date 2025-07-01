@@ -79,7 +79,8 @@ public class SecurityConfiguration {
         configuration.setAllowedOrigins(List.of(
             "http://localhost:5500",
             "http://localhost:5173",
-            "https://cineflexz.netlify.app"
+            "https://cineflexz.netlify.app",
+            "http://localhost:3000"
         ));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE"));
         configuration.setAllowedHeaders(List.of("*"));

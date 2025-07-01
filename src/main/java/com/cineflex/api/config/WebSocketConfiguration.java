@@ -18,7 +18,8 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer{
             .setAllowedOrigins(            
                 "http://localhost:5500",
                 "http://localhost:5173",
-                "https://cineflexz.netlify.app"
+                "https://cineflexz.netlify.app",
+                "http://localhost:3000"
             )
             .withSockJS();
     }
