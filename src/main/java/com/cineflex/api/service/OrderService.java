@@ -42,6 +42,17 @@ public class OrderService {
         this.webSocketPushService = webSocketPushService;
     }
 
+    public Subscription getUserSubscription(UUID id) {
+        try {
+            Subscription subscription = subscriptionRepository.getActivatedByAccount(id);
+
+            return subscription;
+        }
+        catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
+
     @Transactional
     public BillingDetail createOrder (
         Double amount
@@ -50,7 +61,7 @@ public class OrderService {
         try {
             Account user = authenticationService.getAccount();
 
-            Subscription subscription = subscriptionRepository.getActivatedByAccount(user.getId());
+            Subscription subscription = getUserSubscription(user.getId());
 
             BillingDetail billingDetail;
 

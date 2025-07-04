@@ -22,6 +22,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 
 @RestController
@@ -179,5 +181,24 @@ public class AuthenticationAPI {
         }
     }
     
+    
+    @GetMapping("/role")
+    public ResponseEntity<Integer> getUserRole() {
+        try {
+            Account a = authenticationService.getAccount();
+
+            if (a == null) {
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Request did not authenticate");
+            }
+
+            return new ResponseEntity<>(a.getRole(), HttpStatus.OK);
+        }
+        catch (ResponseStatusException e) {
+            return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
+                e.getStatusCode(),
+                e.getReason()
+            )).build();
+        }
+    }
     
 }

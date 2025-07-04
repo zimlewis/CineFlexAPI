@@ -39,3 +39,4 @@ test/
 
 ### Enviroment variables ###
 .env
+run.sh

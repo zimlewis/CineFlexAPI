@@ -17,11 +17,11 @@ public class Role {
 
         Role moderator = new Role();
         moderator.setName("ROLE_MODERATOR");
-        moderator.setAuthorities(new String[] {"DELETE_COMMENT", "ADD_CONTENT", "EDIT_CONTENT"});
+        moderator.setAuthorities(new String[] {"MODERATE_COMMENT"});
 
         Role admin = new Role();
         admin.setName("ROLE_ADMIN");
-        admin.setAuthorities(new String[] {"DELETE_COMMENT", "ADD_CONTENT", "EDIT_CONTENT", "DELETE_CONTENT", "UPGRADE_ROLE"});
+        admin.setAuthorities(new String[] {"MODERATE_COMMENT", "MUTATE_CONTENT"});
 
         Role[] roles = {user, moderator, admin};
 

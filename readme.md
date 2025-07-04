@@ -67,6 +67,15 @@
   - `204 NO_CONTENT` if successful
   - Error responses with appropriate status and message if token is invalid or expired
 
+### Get User Role
+- **GET** `/api/authentication/role`
+- **Headers:** `Authorization: Bearer <token>`
+- **Response:**
+  ```json
+  0
+  ```
+  (or another integer representing the user's role)
+
 ---
 
 ## Users
@@ -84,12 +93,44 @@
   }
   ```
 
+### Get Current User Subscription
+- **GET** `/api/users/subscription`
+- **Headers:** `Authorization: Bearer <token>`
+- **Response:**
+  ```json
+  {
+    "id": "uuid",
+    "account": "uuid",
+    "subscriptionType": "string",
+    "startDate": "YYYY-MM-DDTHH:MM:SSZ",
+    "endDate": "YYYY-MM-DDTHH:MM:SSZ",
+    "active": true
+  }
+  ```
+  - Returns `204 NO_CONTENT` if the user has no subscription.
+
 ---
 
 ## Orders
 
 ### Create Order
 - **POST** `/api/orders`
+- **Headers:** `Authorization: Bearer <token>`
+- **Response:**
+  ```json
+  {
+    "id": "uuid",
+    "account": "uuid",
+    "subscription": "uuid",
+    "amount": 10000.0,
+    "createdTime": "YYYY-MM-DDTHH:MM:SSZ",
+    "paidTime": null,
+    "paid": false
+  }
+  ```
+
+### Get Order by ID
+- **GET** `/api/orders/{id}`
 - **Headers:** `Authorization: Bearer <token>`
 - **Response:**
   ```json
@@ -539,4 +580,6 @@
 ---
 
 > For all endpoints requiring authentication, include the `Authorization: Bearer <token>` header.
+> 
+> **Note:** `/api/orders/confirm` is for payment provider webhook callbacks only. Do **not** call this directly from the client.
 

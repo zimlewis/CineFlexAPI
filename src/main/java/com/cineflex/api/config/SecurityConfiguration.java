@@ -50,22 +50,24 @@ public class SecurityConfiguration {
             .requestMatchers("/api/authentication/verify/*").permitAll()
             .requestMatchers("/api/authentication/verify").permitAll()
 
-            .requestMatchers(HttpMethod.PUT, "/api/episodes/*").hasAuthority("EDIT_CONTENT")
-            .requestMatchers(HttpMethod.DELETE, "/api/episodes/*").hasAuthority("DELETE_CONTENT")
+            .requestMatchers(HttpMethod.PUT, "/api/episodes/*").hasAuthority("MUTATE_CONTENT")
+            .requestMatchers(HttpMethod.DELETE, "/api/episodes/*").hasAuthority("MUTATE_CONTENT")
 
-            .requestMatchers(HttpMethod.POST, "/api/genre").hasAuthority("ADD_CONTENT")
+            .requestMatchers(HttpMethod.POST, "/api/genre").hasAuthority("MUTATE_CONTENT")
 
-            .requestMatchers(HttpMethod.PUT, "/api/seasons/*").hasAuthority("EDIT_CONTENT")
-            .requestMatchers(HttpMethod.DELETE, "/api/seasons/*").hasAuthority("DELETE_CONTENT")
-            .requestMatchers(HttpMethod.POST, "/api/seasons/*/episodes").hasAuthority("ADD_CONTENT")
+            .requestMatchers(HttpMethod.PUT, "/api/seasons/*").hasAuthority("MUTATE_CONTENT")
+            .requestMatchers(HttpMethod.DELETE, "/api/seasons/*").hasAuthority("MUTATE_CONTENT")
+            .requestMatchers(HttpMethod.POST, "/api/seasons/*/episodes").hasAuthority("MUTATE_CONTENT")
 
-            .requestMatchers(HttpMethod.POST, "/api/shows").hasAuthority("ADD_CONTENT")
-            .requestMatchers(HttpMethod.PUT, "/api/shows/*").hasAuthority("EDIT_CONTENT")
-            .requestMatchers(HttpMethod.DELETE, "/api/shows/*").hasAuthority("DELETE_CONTENT")
-            .requestMatchers(HttpMethod.POST, "/api/shows/*/seasons").hasAuthority("ADD_CONTENT")
-            .requestMatchers(HttpMethod.POST, "/api/shows/*/genres").hasAuthority("EDIT_CONTENT")
+            .requestMatchers(HttpMethod.POST, "/api/shows").hasAuthority("MUTATE_CONTENT")
+            .requestMatchers(HttpMethod.PUT, "/api/shows/*").hasAuthority("MUTATE_CONTENT")
+            .requestMatchers(HttpMethod.DELETE, "/api/shows/*").hasAuthority("MUTATE_CONTENT")
+            .requestMatchers(HttpMethod.POST, "/api/shows/*/seasons").hasAuthority("MUTATE_CONTENT")
+            .requestMatchers(HttpMethod.POST, "/api/shows/*/genres").hasAuthority("MUTATE_CONTENT")
 
             .requestMatchers(HttpMethod.POST, "/api/comments/*").authenticated()
+
+            .requestMatchers(HttpMethod.GET, "/api/users/subscription").authenticated()
 
             .anyRequest().permitAll()
         );
