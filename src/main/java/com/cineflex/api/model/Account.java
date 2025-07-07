@@ -3,11 +3,13 @@ package com.cineflex.api.model;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 
 @Data
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PUBLIC)
+
 public class Account {
     UUID id;
     String username;
