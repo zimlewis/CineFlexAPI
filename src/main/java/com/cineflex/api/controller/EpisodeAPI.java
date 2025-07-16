@@ -117,7 +117,7 @@ public class EpisodeAPI {
     @GetMapping("/{id}/comments")
     public ResponseEntity<List<Comment>> getComments(@PathVariable String id) {
         try {
-            List<Comment> comments = commentService.getAllCommentsFromEpisode(UUID.fromString(id));
+            List<Comment> comments = commentService.getAllCommentsFromEpisode(0, 5, UUID.fromString(id));
 
             return new ResponseEntity<>(comments, HttpStatus.OK);
         }

@@ -11,6 +11,8 @@ public interface RepositoryInterface<T> {
 
     public List<T> readAll();
 
+    public List<T> readAll(Integer page, Integer size);
+
     public void update(UUID id, T t);
 
     public void delete(UUID... ids);

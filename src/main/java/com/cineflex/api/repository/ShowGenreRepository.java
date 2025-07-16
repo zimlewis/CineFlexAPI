@@ -37,10 +37,11 @@ public class ShowGenreRepository implements RepositoryInterface<ShowGenre> {
     }
 
     @Override
-    public List<ShowGenre> readAll() {
-        String sql = "SELECT * FROM [dbo].[ShowGenre]";
+    public List<ShowGenre> readAll(Integer page, Integer size) {
+        String sql = "SELECT * FROM [dbo].[ShowGenre] LIMIT ? OFFSET ?";
 
         List<ShowGenre> showGenres = jdbcClient.sql(sql)
+            .params(size, page * size)
             .query(ShowGenre.class)
             .list();
         
@@ -65,6 +66,12 @@ public class ShowGenreRepository implements RepositoryInterface<ShowGenre> {
         String sql = "DELETE FROM [dbo].[ShowGenre] WHERE [Show] IN (" + placeholders + ")";
         
         jdbcClient.sql(sql).params(Arrays.asList(shows)).update();
+    }
+
+
+    @Override
+    public List<ShowGenre> readAll() {
+        return readAll(0, 5);
     }
 
 }

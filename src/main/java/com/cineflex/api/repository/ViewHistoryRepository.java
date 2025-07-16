@@ -41,10 +41,15 @@ public class ViewHistoryRepository implements RepositoryInterface<ViewHistory>{
     }
 
     @Override
-    public List<ViewHistory> readAll() {
-        String sql = "SELECT * FROM [dbo].[ViewHistory] WHERE [IsDeleted] = 0";
+    public List<ViewHistory> readAll(Integer page, Integer size) {
+        String sql = "SELECT * FROM [dbo].[ViewHistory] WHERE [IsDeleted] = 0 LIMIT ? OFFSET ?";
 
-        List<ViewHistory> viewHistories = jdbcClient.sql(sql).query(ViewHistory.class).list();
+        List<ViewHistory> viewHistories = jdbcClient
+            .sql(sql)
+            .params(size, page * size)
+            .query(ViewHistory.class)
+            .list();
+        
         return viewHistories;
     }
 
@@ -54,6 +59,12 @@ public class ViewHistoryRepository implements RepositoryInterface<ViewHistory>{
 
     @Override
     public void delete(UUID... ids) {
+    }
+
+
+    @Override
+    public List<ViewHistory> readAll() {
+        return readAll(0, 5);
     }
     
 }

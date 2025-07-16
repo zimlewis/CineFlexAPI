@@ -23,5 +23,6 @@ public class Episode {
     Integer openingEnd;
     Integer view;
     UUID season;
+    UUID commetSection;
     Boolean isDeleted;
 }

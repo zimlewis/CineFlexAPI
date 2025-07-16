@@ -39,35 +39,35 @@ public class CommentAPI {
         this.commentService = commentService;
     }
     
-    @PostMapping("/{id}")
-    public ResponseEntity<Comment> postACOmment(@RequestBody JsonNode jsonNode, @PathVariable String id) {
-        try {
-            Account user = authenticationService.getAccount();
+    // @PostMapping("/{id}")
+    // public ResponseEntity<Comment> postACOmment(@RequestBody JsonNode jsonNode, @PathVariable String id) {
+    //     try {
+    //         Account user = authenticationService.getAccount();
 
-            if (user == null) {
-                return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
-                    HttpStatus.UNAUTHORIZED, 
-                    "The client did not logged in"
-                )).build();
-            }
+    //         if (user == null) {
+    //             return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
+    //                 HttpStatus.UNAUTHORIZED, 
+    //                 "The client did not logged in"
+    //             )).build();
+    //         }
 
-            Comment comment = Comment.builder()
-                .content(jsonService.getOrNull(jsonNode, "content", String.class))
-                .episode(UUID.fromString(id))
-                .account(user.getId())
-                .build();
+    //         Comment comment = Comment.builder()
+    //             .content(jsonService.getOrNull(jsonNode, "content", String.class))
+    //             .episode(UUID.fromString(id))
+    //             .account(user.getId())
+    //             .build();
             
-            Comment returnedComment = commentService.addComment(comment);
+    //         Comment returnedComment = commentService.addComment(comment);
 
-            return new ResponseEntity<>(returnedComment, HttpStatus.CREATED);
-        }
-        catch (ResponseStatusException e) {
-            return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
-                HttpStatus.INTERNAL_SERVER_ERROR,
-                e.getReason()
-            )).build();
-        }
-    }
+    //         return new ResponseEntity<>(returnedComment, HttpStatus.CREATED);
+    //     }
+    //     catch (ResponseStatusException e) {
+    //         return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
+    //             HttpStatus.INTERNAL_SERVER_ERROR,
+    //             e.getReason()
+    //         )).build();
+    //     }
+    // }
     
 
 }

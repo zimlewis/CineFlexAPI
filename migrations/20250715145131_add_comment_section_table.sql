@@ -1,7 +1,7 @@
 -- +goose Up
 -- +goose StatementBegin
 CREATE TABLE [dbo].[CommentSection] (
-    [Id] UNIQUEIDENTIFIER NOT NULL PRIMARY KEY
+    [Id] UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_CommentSection PRIMARY KEY
 );
 -- +goose StatementEnd
 

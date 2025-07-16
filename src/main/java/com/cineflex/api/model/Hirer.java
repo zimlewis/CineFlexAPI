@@ -3,17 +3,16 @@ package com.cineflex.api.model;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import lombok.Data;
 import lombok.Builder;
+import lombok.Data;
 
 @Data
 @Builder
-public class Comment {
+public class Hirer {
     UUID id;
-    String content;
+    String alias;
+    String email;
+    String phone;
     LocalDateTime createdTime;
     LocalDateTime updatedTime;
-    UUID account;
-    UUID section;
-    Boolean isDeleted;
 }

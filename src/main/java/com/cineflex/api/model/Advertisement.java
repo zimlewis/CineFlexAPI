@@ -6,14 +6,16 @@ import java.util.UUID;
 import lombok.Data;
 import lombok.Builder;
 
+
 @Data
 @Builder
-public class Comment {
+public class Advertisement {
     UUID id;
-    String content;
+    String link;
+    String image;
+    Boolean enabled;
+    Integer type;
     LocalDateTime createdTime;
     LocalDateTime updatedTime;
-    UUID account;
-    UUID section;
-    Boolean isDeleted;
+    UUID hirer;
 }

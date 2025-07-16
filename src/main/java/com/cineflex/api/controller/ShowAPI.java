@@ -89,7 +89,7 @@ public class ShowAPI {
                 shows = showService.findShowByGenre(genres.toArray(new String[0]));
             }
             else {
-                shows = showService.findAllShows();
+                shows = showService.findAllShows(0, 5);
             }
 
             return ResponseEntity.ok(shows);
@@ -179,7 +179,7 @@ public class ShowAPI {
 
     @GetMapping("/{id}/seasons")
     public ResponseEntity<List<Season>> getSeasonsOfAShow(@PathVariable String id) {
-        return ResponseEntity.ok().body(showService.findSeaonsByShows(UUID.fromString(id)));
+        return ResponseEntity.ok().body(showService.findSeaonsByShows(0, 5, UUID.fromString(id)));
     }
     
     @PostMapping("/{id}/seasons")
@@ -221,7 +221,7 @@ public class ShowAPI {
     
 
     @PostMapping("/{id}/genres")
-    public ResponseEntity<List<Genre>> postMethodName(@PathVariable String id, @RequestBody JsonNode jsonNode) {
+    public ResponseEntity<List<Genre>> addGernesToShow(@PathVariable String id, @RequestBody JsonNode jsonNode) {
         try {
             UUID showId = UUID.fromString(id);
             JsonNode genreIdsNode = jsonNode.get("genres");
@@ -246,7 +246,7 @@ public class ShowAPI {
         }
         catch (ResponseStatusException e) {
             return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
-                e.getStatusCode(), e.getLocalizedMessage()
+                e.getStatusCode(), e.getReason()
             )).build();
         }
         catch (Exception e) {

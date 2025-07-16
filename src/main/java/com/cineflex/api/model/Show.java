@@ -21,4 +21,5 @@ public class Show {
     Boolean isSeries;
     String ageRating;
     Boolean isDeleted;
+    UUID commentSection;
 }

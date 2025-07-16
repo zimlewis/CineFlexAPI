@@ -49,13 +49,14 @@ public class AccountRepository implements RepositoryInterface<Account>{
         return account;
     }
 
-    public List<Account> readAll() {
+    public List<Account> readAll(Integer page, Integer size) {
         List<Account> accounts = new ArrayList<Account>();
 
-        String sql = "SELECT * FROM [dbo].[Account] WHERE [Activate] = 1";
+        String sql = "SELECT * FROM [dbo].[Account] WHERE [Activate] = 1 LIMIT ? OFFSET ?";
 
         accounts = jdbcClient
             .sql(sql)
+            .params(size, page * size)
             .query(Account.class)
             .list();
 
@@ -113,5 +114,10 @@ public class AccountRepository implements RepositoryInterface<Account>{
             .orElse(null);
 
         return account;
+    }
+
+    @Override
+    public List<Account> readAll() {
+        return readAll(0, 10);
     }
 }

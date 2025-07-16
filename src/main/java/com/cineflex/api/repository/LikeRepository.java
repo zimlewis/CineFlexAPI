@@ -35,11 +35,12 @@ public class LikeRepository implements RepositoryInterface<Like>{
     }
 
     @Override
-    public List<Like> readAll() {
-        String sql = "SELECT * FROM [dbo].[Like]";
+    public List<Like> readAll(Integer page, Integer size) {
+        String sql = "SELECT * FROM [dbo].[Like] LIMIT ? OFFSET ?";
         
         List<Like> likes = jdbcClient
             .sql(sql)
+            .params(size, page * size)
             .query(Like.class)
             .list();
         
@@ -52,6 +53,11 @@ public class LikeRepository implements RepositoryInterface<Like>{
 
     @Override
     public void delete(UUID... ids) {
+    }
+
+    @Override
+    public List<Like> readAll() {
+        return readAll(0, 5);
     }
     
 

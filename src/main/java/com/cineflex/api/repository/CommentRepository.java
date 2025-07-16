@@ -22,7 +22,7 @@ public class CommentRepository implements RepositoryInterface<Comment>{
 
     @Override
     public void create(Comment comment) {
-        String sql = "INSERT INTO [dbo].[Comment] ([Id], [Content], [CreatedTime], [UpdatedTime], [Account], [Episode]) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO [dbo].[Comment] ([Id], [Content], [CreatedTime], [UpdatedTime], [Account], [Section]) VALUES (?, ?, ?, ?, ?, ?)";
 
         jdbcClient.sql(sql).params(
             comment.getId(),
@@ -30,7 +30,7 @@ public class CommentRepository implements RepositoryInterface<Comment>{
             comment.getCreatedTime(),
             comment.getUpdatedTime(),
             comment.getAccount(),
-            comment.getEpisode()
+            comment.getSection()
         ).update();
     }
 
@@ -48,11 +48,12 @@ public class CommentRepository implements RepositoryInterface<Comment>{
     }
 
     @Override
-    public List<Comment> readAll() {
-        String sql = "SELECT * FROM [dbo].[Comment] WHERE [IsDeleted] = 0";
+    public List<Comment> readAll(Integer page, Integer size) {
+        String sql = "SELECT * FROM [dbo].[Comment] WHERE [IsDeleted] = 0 LIMIT ? OFFSET ?";
         
         List<Comment> comments = jdbcClient
             .sql(sql)
+            .params(size, page * size)
             .query(Comment.class)
             .list(); 
 
@@ -61,14 +62,14 @@ public class CommentRepository implements RepositoryInterface<Comment>{
 
     @Override
     public void update(UUID id, Comment t) {
-        String sql = "UPDATE [dbo].[Comment] SET [Content] = ?, [CreatedTime] = ?, [UpdatedTime] = ?, [Account] = ?, [Episode] = ? WHERE [Id] = ? AND [IsDeleted] = 0";
+        String sql = "UPDATE [dbo].[Comment] SET [Content] = ?, [CreatedTime] = ?, [UpdatedTime] = ?, [Account] = ?, [Section] = ? WHERE [Id] = ? AND [IsDeleted] = 0";
         
         jdbcClient.sql(sql).params(
             t.getContent(),
             t.getCreatedTime(),
             t.getUpdatedTime(),
             t.getAccount(),
-            t.getEpisode(),
+            t.getSection(),
             id
         ).update();
 
@@ -88,6 +89,10 @@ public class CommentRepository implements RepositoryInterface<Comment>{
     }
 
     public List<Comment> getCommentsByEpisode(UUID ...ids) {
+        return getCommentsByEpisode(0, 5, ids);
+    }
+
+    public List<Comment> getCommentsByEpisode(Integer page, Integer size, UUID ...ids) {
         String placeholders = Arrays.stream(ids)
             .map((_) -> "?")
             .collect(Collectors.joining(", "));
@@ -96,10 +101,15 @@ public class CommentRepository implements RepositoryInterface<Comment>{
             return List.of();
         }
 
-        String sql = "SELECT * FROM [dbo].[Comment] WHERE [Episode] IN (" + placeholders + ") AND [IsDeleted] = 0";
+        String sql = "SELECT * FROM [dbo].[Comment] WHERE [Episode] IN (" + placeholders + ") AND [IsDeleted] = 0 LIMIT ? OFFSET ?";
 
-        List<Comment> comments = jdbcClient.sql(sql).params(Arrays.asList(ids)).query(Comment.class).list();
+        List<Comment> comments = jdbcClient.sql(sql).params(Arrays.asList(ids), size, page * size).query(Comment.class).list();
 
         return comments;
+    }
+
+    @Override
+    public List<Comment> readAll() {
+        return readAll(0, 5);
     }
 }

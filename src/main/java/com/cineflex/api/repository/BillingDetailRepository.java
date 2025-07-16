@@ -51,10 +51,13 @@ public class BillingDetailRepository implements RepositoryInterface<BillingDetai
     }
 
     @Override
-    public List<BillingDetail> readAll() {
-        String sql = "SELECT * FROM [dbo].[BillingDetail]";
+    public List<BillingDetail> readAll(Integer page, Integer size) {
+        String sql = "SELECT * FROM [dbo].[BillingDetail] LIMIT ? OFFSET ?";
 
-        List<BillingDetail> billingDetails = jdbcClient.sql(sql).query(BillingDetail.class).list();
+        List<BillingDetail> billingDetails = jdbcClient
+            .sql(sql)
+            .params(size, page * size)
+            .query(BillingDetail.class).list();
 
         return billingDetails;
     }
@@ -103,6 +106,11 @@ public class BillingDetailRepository implements RepositoryInterface<BillingDetai
             .orElse(null);
 
         return b;
+    }
+
+    @Override
+    public List<BillingDetail> readAll() {
+        return readAll(0, 5);
     }
     
 }

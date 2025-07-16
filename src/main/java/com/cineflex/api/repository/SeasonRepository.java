@@ -51,11 +51,12 @@ public class SeasonRepository implements RepositoryInterface<Season> {
     }
 
     @Override
-    public List<Season> readAll() {
-        String sql = "SELECT * FROM [dbo].[Season] WHERE [IsDeleted] = 0";
+    public List<Season> readAll(Integer page, Integer size) {
+        String sql = "SELECT * FROM [dbo].[Season] WHERE [IsDeleted] = 0 LIMIT ? OFFSET ?";
 
         List<Season> seasons = jdbcClient
             .sql(sql)
+            .params(size, page * size)
             .query(Season.class)
             .list();
         
@@ -92,21 +93,30 @@ public class SeasonRepository implements RepositoryInterface<Season> {
     }
 
     public List<Season> getByShow(UUID... ids) {
+        return getByShow(0, 5, ids);
+    }
+
+    public List<Season> getByShow(Integer page, Integer size, UUID... ids) {
         if (ids.length == 0) return List.of(); // avoid syntax error
 
         String placeholders = Arrays.stream(ids)
             .map(_ -> "?")
             .collect(Collectors.joining(", "));
 
-        String sql = "SELECT * FROM [dbo].[Season] WHERE [Show] IN (" + placeholders + ") AND [IsDeleted] = 0";
+        String sql = "SELECT * FROM [dbo].[Season] WHERE [Show] IN (" + placeholders + ") AND [IsDeleted] = 0 LIMIT ? OFFSET ?";
 
         List<Season> seasons = jdbcClient
             .sql(sql)
-            .params(Arrays.asList(ids))
+            .params(Arrays.asList(ids), size, page * size)
             .query(Season.class)
             .list();
 
         return seasons;
+    }
+
+    @Override
+    public List<Season> readAll() {
+        return readAll(0, 5);
     }
 
 }

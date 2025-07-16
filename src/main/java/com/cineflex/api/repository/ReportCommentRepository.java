@@ -50,11 +50,12 @@ public class ReportCommentRepository implements RepositoryInterface<ReportCommen
     }
 
     @Override
-    public List<ReportComment> readAll() {
-        String sql = "SELECT * FROM [dbo].[ReportComment]";
+    public List<ReportComment> readAll(Integer page, Integer size) {
+        String sql = "SELECT * FROM [dbo].[ReportComment] LIMIT ? OFFSET ?";
 
         List<ReportComment> reportComments = jdbcClient
             .sql(sql)
+            .params(size, page * size)
             .query(ReportComment.class)
             .list();
         
@@ -91,6 +92,11 @@ public class ReportCommentRepository implements RepositoryInterface<ReportCommen
         if (row == 0) {
             throw new RuntimeException("Cannot update this report to database");
         }
+    }
+
+    @Override
+    public List<ReportComment> readAll() {
+        return readAll(0, 5);
     }
     
 }

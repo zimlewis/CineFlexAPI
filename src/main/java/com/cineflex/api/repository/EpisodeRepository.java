@@ -58,11 +58,12 @@ public class EpisodeRepository implements RepositoryInterface<Episode>{
     }
 
     @Override
-    public List<Episode> readAll() {
-        String sql = "SELECT * FROM [dbo].[Episode] WHERE [IsDeleted] = 0";
+    public List<Episode> readAll(Integer page, Integer size) {
+        String sql = "SELECT * FROM [dbo].[Episode] WHERE [IsDeleted] = 0 LIMIT ? OFFSET ?";
         
         List<Episode> episodes = jdbcClient
             .sql(sql)
+            .params(size, page * size)
             .query(Episode.class)
             .list();
 
@@ -106,22 +107,31 @@ public class EpisodeRepository implements RepositoryInterface<Episode>{
 
     }
 
-    public List<Episode> getBySeason(UUID... ids) {
+    public List<Episode> getBySeason(UUID ...ids) {
+        return getBySeason(0, 5, ids);
+    }
+
+    public List<Episode> getBySeason(Integer page, Integer size, UUID... ids) {
         if (ids.length == 0) return List.of(); // avoid syntax error
 
         String placeholders = Arrays.stream(ids)
             .map(_ -> "?")
             .collect(Collectors.joining(", "));
 
-        String sql = "SELECT * FROM [dbo].[Episode] WHERE [Season] IN (" + placeholders + ") AND [IsDeleted] = 0";
+        String sql = "SELECT * FROM [dbo].[Episode] WHERE [Season] IN (" + placeholders + ") AND [IsDeleted] = 0 LIMIT ? OFFSET ?";
         
         List<Episode> episodes = jdbcClient
             .sql(sql)
-            .params(Arrays.asList(ids))
+            .params(Arrays.asList(ids), size, page * size)
             .query(Episode.class)
             .list();
 
         return episodes;
+    }
+
+    @Override
+    public List<Episode> readAll() {
+        return readAll(0, 5);
     }
 
     // public void deleteBySeason(UUID id) {

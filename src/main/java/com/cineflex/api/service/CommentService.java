@@ -40,9 +40,9 @@ public class CommentService {
         }
     }
 
-    public List<Comment> getAllCommentsFromEpisode(UUID id) {
+    public List<Comment> getAllCommentsFromEpisode(Integer page, Integer size, UUID id) {
         try {
-            List<Comment> comments = commentRepository.getCommentsByEpisode(id);
+            List<Comment> comments = commentRepository.getCommentsByEpisode(page, size, id);
 
             comments.sort((c1, c2) -> c1.getCreatedTime().compareTo(c2.getCreatedTime()));
 

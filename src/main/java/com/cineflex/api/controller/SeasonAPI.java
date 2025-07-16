@@ -109,7 +109,7 @@ public class SeasonAPI {
 
     @GetMapping("/{id}/episodes")
     public ResponseEntity<List<Episode>> getAllEpisodesFromSeason(@PathVariable String id) {
-        List<Episode> episodes = showService.findEpisodesBySeasons(UUID.fromString(id));
+        List<Episode> episodes = showService.findEpisodesBySeasons(0, 5, UUID.fromString(id));
         return new ResponseEntity<>(episodes, HttpStatus.OK);
     }
     

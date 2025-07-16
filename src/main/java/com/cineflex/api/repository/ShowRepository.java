@@ -56,11 +56,12 @@ public class ShowRepository implements RepositoryInterface<Show> {
     }
 
     @Override
-    public List<Show> readAll() {
-        String sql = "SELECT * FROM [dbo].[Show] WHERE [IsDeleted] = 0";
+    public List<Show> readAll(Integer page, Integer size) {
+        String sql = "SELECT * FROM [dbo].[Show] WHERE [IsDeleted] = 0 LIMIT ? OFFSET ?";
 
         List<Show> shows = jdbcClient
             .sql(sql)
+            .params(size, page * size)
             .query(Show.class)
             .list();
 
@@ -185,6 +186,11 @@ public class ShowRepository implements RepositoryInterface<Show> {
         List<Show> shows = jdbcClient.sql(sql).params(Arrays.asList(genres)).param(genres.length).query(Show.class).list();
 
         return shows;
+    }
+
+    @Override
+    public List<Show> readAll() {
+        return readAll(0, 5);
     }
 
 }

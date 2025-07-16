@@ -51,10 +51,11 @@ public class VerificationTokenRepository implements RepositoryInterface<Verifica
     }
 
     @Override
-    public List<VerificationToken> readAll() {
-        String sql = "SELECT * FROM [dbo].[VerificationToken]";
+    public List<VerificationToken> readAll(Integer page, Integer size) {
+        String sql = "SELECT * FROM [dbo].[VerificationToken] LIMIT ? OFFSET ?";
 
         List<VerificationToken> verificationTokens = jdbcClient.sql(sql)
+            .params(size, page * size)
             .query(VerificationToken.class)
             .list();
         
@@ -103,15 +104,24 @@ public class VerificationTokenRepository implements RepositoryInterface<Verifica
     }
 
     public List<VerificationToken> readByAccount(UUID id) {
-        String sql = "SELECT * FROM [dbo].[VerificationToken] WHERE [Account] = ?";
+        return readByAccount(0, 5, id);
+    }
+
+    public List<VerificationToken> readByAccount(Integer page, Integer size, UUID id) {
+        String sql = "SELECT * FROM [dbo].[VerificationToken] WHERE [Account] = ? LIMIT ? OFFSET ?";
 
         List<VerificationToken> verificationTokens = jdbcClient
             .sql(sql)
-            .params(id)
+            .params(id, size, page * size)
             .query(VerificationToken.class)
             .list();
         
         return verificationTokens;
+    }
+
+    @Override
+    public List<VerificationToken> readAll() {
+        return readAll(0, 5);
     }
     
 }

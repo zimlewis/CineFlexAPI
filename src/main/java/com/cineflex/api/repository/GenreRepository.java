@@ -47,10 +47,14 @@ public class GenreRepository implements RepositoryInterface<Genre>{
     }
 
     @Override
-    public List<Genre> readAll() {
-        String sql = "SELECT * FROM [dbo].[Genre] WHERE [IsDeleted] = 0";
+    public List<Genre> readAll(Integer page, Integer size) {
+        String sql = "SELECT * FROM [dbo].[Genre] WHERE [IsDeleted] = 0 LIMIT ? OFFSET ?";
 
-        List<Genre> genres = jdbcClient.sql(sql).query(Genre.class).list();
+        List<Genre> genres = jdbcClient
+            .sql(sql)
+            .params(size, page * size)
+            .query(Genre.class)
+            .list();
 
         return genres;
     }
@@ -79,16 +83,20 @@ public class GenreRepository implements RepositoryInterface<Genre>{
 
     }
 
-    public List<Genre> readMultipleGenres(UUID... ids) {
+    public List<Genre> readMultipleGenres(UUID ...ids) {
+        return readMultipleGenres(0, 5, ids);
+    }
+
+    public List<Genre> readMultipleGenres(Integer page, Integer size, UUID... ids) {
         if (ids.length == 0) return List.of(); // avoid syntax error
 
         String placeholders = Arrays.stream(ids)
             .map(_ -> "?")
             .collect(Collectors.joining(", "));
         
-        String sql = "SELECT * FROM [dbo].[Genre] WHERE [Id] IN (" + placeholders + ") AND [IsDeleted] = 0";
+        String sql = "SELECT * FROM [dbo].[Genre] WHERE [Id] IN (" + placeholders + ") AND [IsDeleted] = 0 LIMIT ? OFFSET ?";
 
-        List<Genre> genres = jdbcClient.sql(sql).params(Arrays.asList(ids)).query(Genre.class).list();
+        List<Genre> genres = jdbcClient.sql(sql).params(Arrays.asList(ids), size, page * size).query(Genre.class).list();
 
         return genres;
     }
@@ -121,6 +129,12 @@ public class GenreRepository implements RepositoryInterface<Genre>{
         List<UUID> ids = jdbcClient.sql(sql).params(Arrays.asList(names)).query(UUID.class).list();
         
         return ids;
+    }
+
+
+    @Override
+    public List<Genre> readAll() {
+        return readAll(0, 5);
     }
 
     

@@ -1,11 +1,12 @@
 -- +goose Up
 -- +goose StatementBegin
 CREATE TABLE [dbo].[ShowGenre] (
-    [Show] UNIQUEIDENTIFIER NOT NULL FOREIGN KEY REFERENCES [dbo].[Show]([Id]),
-    [Genre] UNIQUEIDENTIFIER NOT NULL FOREIGN KEY REFERENCES [dbo].[Genre]([Id]),
-    PRIMARY KEY ([Show], [Genre])
+    [Show]  UNIQUEIDENTIFIER NOT NULL CONSTRAINT FK_ShowGenre_Show  FOREIGN KEY REFERENCES [dbo].[Show]([Id]),
+    [Genre] UNIQUEIDENTIFIER NOT NULL CONSTRAINT FK_ShowGenre_Genre FOREIGN KEY REFERENCES [dbo].[Genre]([Id]),
+    CONSTRAINT PK_ShowGenre PRIMARY KEY ([Show], [Genre])
 );
 -- +goose StatementEnd
+
 
 -- +goose Down
 -- +goose StatementBegin

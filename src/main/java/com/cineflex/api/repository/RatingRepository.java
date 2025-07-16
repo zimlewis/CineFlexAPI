@@ -37,11 +37,12 @@ public class RatingRepository implements RepositoryInterface<Rating>{
     }
 
     @Override
-    public List<Rating> readAll() {
-        String sql = "SELECT * FROM [dbo].[Rating]";
+    public List<Rating> readAll(Integer page, Integer size) {
+        String sql = "SELECT * FROM [dbo].[Rating] LIMIT ? OFFSET ?";
 
         List<Rating> ratings = jdbcClient
             .sql(sql)
+            .params(size, page * size)
             .query(Rating.class)
             .list();
         
@@ -54,6 +55,12 @@ public class RatingRepository implements RepositoryInterface<Rating>{
 
     @Override
     public void delete(UUID... ids) {
+    }
+
+
+    @Override
+    public List<Rating> readAll() {
+        return readAll(0, 5);
     }
     
 }
