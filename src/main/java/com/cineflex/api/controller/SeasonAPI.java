@@ -1,6 +1,7 @@
 package com.cineflex.api.controller;
 
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -14,9 +15,11 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.server.reactive.HttpHeadResponseDecorator;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -108,9 +111,25 @@ public class SeasonAPI {
     }
 
     @GetMapping("/{id}/episodes")
-    public ResponseEntity<List<Episode>> getAllEpisodesFromSeason(@PathVariable String id) {
-        List<Episode> episodes = showService.findEpisodesBySeasons(0, 5, UUID.fromString(id));
-        return new ResponseEntity<>(episodes, HttpStatus.OK);
+    public ResponseEntity<List<Episode>> getAllEpisodesFromSeason(
+        @RequestParam(required = false, defaultValue = "0") Integer page, 
+        @RequestParam(required = false, defaultValue = "100") Integer size, 
+        @PathVariable String id
+    ) {
+        try {
+            List<Episode> episodes = showService.findEpisodesBySeasons(page, size, UUID.fromString(id));
+            
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("X-Total-Page", showService.getEpisodesBySeasonsPageCount(size, UUID.fromString(id)).toString());
+
+            return new ResponseEntity<>(episodes, headers, HttpStatus.OK);
+        }
+        catch (ResponseStatusException e) {
+            return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
+                e.getStatusCode(),
+                e.getReason()
+            )).build();
+        }
     }
     
 

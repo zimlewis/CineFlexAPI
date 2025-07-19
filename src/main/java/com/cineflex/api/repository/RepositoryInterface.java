@@ -17,4 +17,5 @@ public interface RepositoryInterface<T> {
 
     public void delete(UUID... ids);
 
+    public Integer getPageCount(Integer size);
 }

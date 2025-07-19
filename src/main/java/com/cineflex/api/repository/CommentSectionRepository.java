@@ -47,11 +47,11 @@ public class CommentSectionRepository implements RepositoryInterface<CommentSect
 
     @Override
     public List<CommentSection> readAll(Integer page, Integer size) {
-        String sql= "SELECT * FROM [dbo].[CommentSection] LIMIT ? OFFSET ?";
+        String sql= "SELECT * FROM [dbo].[CommentSection] ORDER BY [Id] OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
 
         List<CommentSection> commentSection = jdbcClient
             .sql(sql)
-            .params(size, page * size)
+            .params(page * size, size)
             .query(CommentSection.class)
             .list();
         
@@ -71,7 +71,43 @@ public class CommentSectionRepository implements RepositoryInterface<CommentSect
     public void delete(UUID... ids) {
     }
 
+    @Override
+    public Integer getPageCount(Integer size) {
+        String sql = "SELECT COUNT([Id])/? FROM [dbo].[CommentSection]";
 
+        Integer pageCount = jdbcClient
+            .sql(sql)
+            .params(size)
+            .query(Integer.class).optional().orElse(-1);
+        
+        return pageCount;
+    }
+
+    public CommentSection getCommentSectionOfEpisode(UUID episode) {
+        String sql = "SELECT * FROM [dbo].[CommentSection] WHERE [Id] = (SELECT [CommentSection] FROM [dbo].[Episode] WHERE [Id] = ?)";
+
+        CommentSection commentSection = jdbcClient
+            .sql(sql)
+            .param(episode)
+            .query(CommentSection.class)
+            .optional()
+            .orElse(null);
+
+        return commentSection;
+    }
+
+    public CommentSection getCommentSectionOfShow(UUID show) {
+        String sql = "SELECT * FROM [dbo].[CommentSection] WHERE [Id] = (SELECT [CommentSection] FROM [dbo].[Show] WHERE [Id] = ?)";
+
+        CommentSection commentSection = jdbcClient
+            .sql(sql)
+            .param(show)
+            .query(CommentSection.class)
+            .optional()
+            .orElse(null);
+
+        return commentSection;
+    }
 
     
 }

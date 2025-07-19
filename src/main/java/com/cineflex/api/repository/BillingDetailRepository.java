@@ -52,14 +52,25 @@ public class BillingDetailRepository implements RepositoryInterface<BillingDetai
 
     @Override
     public List<BillingDetail> readAll(Integer page, Integer size) {
-        String sql = "SELECT * FROM [dbo].[BillingDetail] LIMIT ? OFFSET ?";
+        String sql = "SELECT * FROM [dbo].[BillingDetail] ORDER BY [CreatedTime] DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
 
         List<BillingDetail> billingDetails = jdbcClient
             .sql(sql)
-            .params(size, page * size)
+            .params(page * size, size)
             .query(BillingDetail.class).list();
 
         return billingDetails;
+    }
+
+    public Integer getPageCount(Integer size) {
+        String sql = "SELECT COUNT([Id])/? FROM [dbo].[BillingDetail]";
+
+        Integer pageCount = jdbcClient
+            .sql(sql)
+            .params(size)
+            .query(Integer.class).optional().orElse(-1);
+        
+        return pageCount;
     }
 
     @Override

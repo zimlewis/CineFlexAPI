@@ -52,10 +52,10 @@ public class VerificationTokenRepository implements RepositoryInterface<Verifica
 
     @Override
     public List<VerificationToken> readAll(Integer page, Integer size) {
-        String sql = "SELECT * FROM [dbo].[VerificationToken] LIMIT ? OFFSET ?";
+        String sql = "SELECT * FROM [dbo].[VerificationToken] ORDER BY [CreatedTime] DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
 
         List<VerificationToken> verificationTokens = jdbcClient.sql(sql)
-            .params(size, page * size)
+            .params(page * size, size)
             .query(VerificationToken.class)
             .list();
         
@@ -108,11 +108,11 @@ public class VerificationTokenRepository implements RepositoryInterface<Verifica
     }
 
     public List<VerificationToken> readByAccount(Integer page, Integer size, UUID id) {
-        String sql = "SELECT * FROM [dbo].[VerificationToken] WHERE [Account] = ? LIMIT ? OFFSET ?";
+        String sql = "SELECT * FROM [dbo].[VerificationToken] WHERE [Account] = ? ORDER BY [CreatedTime] DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
 
         List<VerificationToken> verificationTokens = jdbcClient
             .sql(sql)
-            .params(id, size, page * size)
+            .params(id, page * size, size)
             .query(VerificationToken.class)
             .list();
         
@@ -122,6 +122,29 @@ public class VerificationTokenRepository implements RepositoryInterface<Verifica
     @Override
     public List<VerificationToken> readAll() {
         return readAll(0, 5);
+    }
+
+    @Override
+    public Integer getPageCount(Integer size) {
+        String sql = "SELECT COUNT([Id])/? FROM [dbo].[VerificationToken]";
+
+        Integer pageCount = jdbcClient
+            .sql(sql)
+            .params(size)
+            .query(Integer.class).optional().orElse(-1);
+        
+        return pageCount;
+    }
+
+    public Integer getPageCountByAccount(Integer size, UUID account) {
+        String sql = "SELECT COUNT([Id])/? FROM [dbo].[VerificationToken] WHERE [Account] = ?";
+
+        Integer pageCount = jdbcClient
+            .sql(sql)
+            .params(size, account)
+            .query(Integer.class).optional().orElse(-1);
+        
+        return pageCount;
     }
     
 }

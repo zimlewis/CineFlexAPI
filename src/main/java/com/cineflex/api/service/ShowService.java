@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.cineflex.api.model.CommentSection;
 import com.cineflex.api.model.Episode;
 import com.cineflex.api.model.Genre;
 import com.cineflex.api.model.Season;
@@ -61,6 +62,11 @@ public class ShowService {
             show.setCreatedTime(LocalDateTime.now());
             show.setUpdatedTime(LocalDateTime.now());
 
+            CommentSection commentSection = commentService.createCommentSection();
+            System.out.println(commentSection);
+            show.setCommentSection(commentSection.getId());
+
+            
             showRepository.create(show); // Add show
 
             return showRepository.read(id);
@@ -92,6 +98,9 @@ public class ShowService {
             episode.setId(id);
             episode.setCreatedTime(LocalDateTime.now());
             episode.setUpdatedTime(LocalDateTime.now());
+
+            CommentSection commentSection = commentService.createCommentSection();
+            episode.setCommentSection(commentSection.getId());
 
             episodeRepository.create(episode);
 
@@ -260,6 +269,15 @@ public class ShowService {
 
     }
 
+    public Integer getAllShowsPageCount(Integer size) {
+        try {
+            return showRepository.getPageCount(size);
+        }
+        catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
+
     public List<Season> findAllSeasons(Integer page, Integer size) {
         try {
             return seasonRepository.readAll(page, size);
@@ -294,12 +312,20 @@ public class ShowService {
         }
 
     }
+    
+    public Integer getSeasonsByShowsPageCount(Integer size, UUID ...ids) {
+        try {
+            return seasonRepository.getPageCountByShow(size, ids);
+        }
+        catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
 
     // find the episodes using given id season
     public List<Episode> findEpisodesBySeasons(Integer page, Integer size, UUID... ids) {
         try {
             List<Episode> episodes = episodeRepository.getBySeason(page, size, ids);
-            episodes.sort((e1, e2) -> e1.getReleaseDate().compareTo(e2.getReleaseDate()));
 
             return episodes;
         }
@@ -307,6 +333,15 @@ public class ShowService {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }
 
+    }
+
+    public Integer getEpisodesBySeasonsPageCount(Integer size, UUID ...ids) {
+        try {
+            return episodeRepository.getPageCountBySeason(size, ids);
+        }
+        catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
     }
 
     public List<Genre> getShowGenres(UUID showId) {

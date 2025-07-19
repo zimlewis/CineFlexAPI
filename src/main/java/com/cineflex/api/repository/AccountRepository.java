@@ -52,11 +52,11 @@ public class AccountRepository implements RepositoryInterface<Account>{
     public List<Account> readAll(Integer page, Integer size) {
         List<Account> accounts = new ArrayList<Account>();
 
-        String sql = "SELECT * FROM [dbo].[Account] WHERE [Activate] = 1 LIMIT ? OFFSET ?";
+        String sql = "SELECT * FROM [dbo].[Account] WHERE [Activate] = 1 ORDER BY [CreatedTime] OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
 
         accounts = jdbcClient
             .sql(sql)
-            .params(size, page * size)
+            .params(page * size, size)
             .query(Account.class)
             .list();
 
@@ -119,5 +119,17 @@ public class AccountRepository implements RepositoryInterface<Account>{
     @Override
     public List<Account> readAll() {
         return readAll(0, 10);
+    }
+
+    @Override
+    public Integer getPageCount(Integer size) {
+        String sql = "SELECT COUNT([Id])/? FROM [dbo].[Account]";
+
+        Integer pageCount = jdbcClient
+            .sql(sql)
+            .params(size)
+            .query(Integer.class).optional().orElse(0);
+        
+        return pageCount;
     }
 }

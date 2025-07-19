@@ -36,11 +36,11 @@ public class LikeRepository implements RepositoryInterface<Like>{
 
     @Override
     public List<Like> readAll(Integer page, Integer size) {
-        String sql = "SELECT * FROM [dbo].[Like] LIMIT ? OFFSET ?";
+        String sql = "SELECT * FROM [dbo].[Like] ORDER BY [CreatedTime] DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
         
         List<Like> likes = jdbcClient
             .sql(sql)
-            .params(size, page * size)
+            .params(page * size, size)
             .query(Like.class)
             .list();
         
@@ -58,6 +58,18 @@ public class LikeRepository implements RepositoryInterface<Like>{
     @Override
     public List<Like> readAll() {
         return readAll(0, 5);
+    }
+
+    @Override
+    public Integer getPageCount(Integer size) {
+        String sql = "SELECT COUNT([Id])/? FROM [dbo].[Like]";
+
+        Integer pageCount = jdbcClient
+            .sql(sql)
+            .params(size)
+            .query(Integer.class).optional().orElse(-1);
+        
+        return pageCount;
     }
     
 

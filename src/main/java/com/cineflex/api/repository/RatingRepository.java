@@ -38,11 +38,11 @@ public class RatingRepository implements RepositoryInterface<Rating>{
 
     @Override
     public List<Rating> readAll(Integer page, Integer size) {
-        String sql = "SELECT * FROM [dbo].[Rating] LIMIT ? OFFSET ?";
+        String sql = "SELECT * FROM [dbo].[Rating] ORDER BY [CreatedTime] DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
 
         List<Rating> ratings = jdbcClient
             .sql(sql)
-            .params(size, page * size)
+            .params(page * size, size)
             .query(Rating.class)
             .list();
         
@@ -61,6 +61,19 @@ public class RatingRepository implements RepositoryInterface<Rating>{
     @Override
     public List<Rating> readAll() {
         return readAll(0, 5);
+    }
+
+
+    @Override
+    public Integer getPageCount(Integer size) {
+        String sql = "SELECT COUNT([Id])/? FROM [dbo].[Rating]";
+
+        Integer pageCount = jdbcClient
+            .sql(sql)
+            .params(size)
+            .query(Integer.class).optional().orElse(-1);
+        
+        return pageCount;
     }
     
 }
