@@ -1,0 +1,1 @@
+GET http://localhost:8080/api/episodes/f30f48b7-c365-4ed2-b9e4-eeb54bd3a040 HTTP/1.1

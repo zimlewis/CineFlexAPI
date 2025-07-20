@@ -1,0 +1,1 @@
+GET http://localhost:8080/api/shows/7B0938D8-EB08-452D-AC11-C44B334BF3F8/genres HTTP/1.1

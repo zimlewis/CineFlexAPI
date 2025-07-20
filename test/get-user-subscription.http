@@ -1,0 +1,2 @@
+GET http://localhost:8080/api/users/subscription HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJLS0siLCJpYXQiOjE3NTE1NTQ3NjUsImV4cCI6MTc1MjE1OTU2NX0.o4NuM9IEDnHmVedDowrx2M3Uv7GbFdjsm6KDxFckIdvTZ-YzuSpTJwDVFgTo4io5nnohPXvfglqbUYHhCLWD0w

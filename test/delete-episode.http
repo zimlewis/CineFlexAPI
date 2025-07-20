@@ -1,0 +1,2 @@
+DELETE https://cineflex-api.onrender.com/api/episodes/F2B46E62-7AA7-4C0D-B79C-F8F0AC1E4E4F HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJaaW1sZXdpcyIsImlhdCI6MTc1MDc3OTg2MiwiZXhwIjoxNzUxMzg0NjYyfQ.HjSiv_iLYJT-bTLvCygT2jVDvK6njUqyk9LT0R-_FNflUvccWDbhSX0gkXvZ7EAuXvaQz2VS1TjSFUkPbtDc6Q
