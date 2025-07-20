@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.cineflex.api.model.CommentSection;
 import com.cineflex.api.model.Episode;
 import com.cineflex.api.model.Genre;
 import com.cineflex.api.model.Season;
@@ -61,6 +62,11 @@ public class ShowService {
             show.setCreatedTime(LocalDateTime.now());
             show.setUpdatedTime(LocalDateTime.now());
 
+            CommentSection commentSection = commentService.createCommentSection();
+            System.out.println(commentSection);
+            show.setCommentSection(commentSection.getId());
+
+            
             showRepository.create(show); // Add show
 
             return showRepository.read(id);
@@ -92,6 +98,9 @@ public class ShowService {
             episode.setId(id);
             episode.setCreatedTime(LocalDateTime.now());
             episode.setUpdatedTime(LocalDateTime.now());
+
+            CommentSection commentSection = commentService.createCommentSection();
+            episode.setCommentSection(commentSection.getId());
 
             episodeRepository.create(episode);
 
@@ -183,7 +192,7 @@ public class ShowService {
     @Transactional
     public void deleteShow(UUID... ids) {
         try {
-            List<UUID> seasons = seasonRepository.getByShow(ids).stream().map(s -> s.getId()).toList(); // get all seasons id related to shows
+            List<UUID> seasons = seasonRepository.getByShow(0, Integer.MAX_VALUE, ids).stream().map(s -> s.getId()).toList(); // get all seasons id related to shows
             deleteSeason(seasons.toArray(new UUID[0])); // delete the seasons
             showGenreRepository.deleteByShow(ids);
             showRepository.delete(ids); // Delete with repository using given information
@@ -197,7 +206,7 @@ public class ShowService {
     @Transactional
     public void deleteSeason(UUID... ids) {
         try {
-            List<UUID> episodes = episodeRepository.getBySeason(ids).stream().map(e -> e.getId()).toList(); // get all episodes id related to seasons
+            List<UUID> episodes = episodeRepository.getBySeason(0, Integer.MAX_VALUE, ids).stream().map(e -> e.getId()).toList(); // get all episodes id related to seasons
             deleteEpisode(episodes.toArray(new UUID[0])); // delete all the episodes
             seasonRepository.delete(ids);
         }
@@ -210,7 +219,7 @@ public class ShowService {
     @Transactional
     public void deleteEpisode(UUID... ids) {
         try {
-            List<UUID> commentIds = commentRepository.getCommentsByEpisode(ids).stream().map((comment) -> comment.getId()).toList();
+            List<UUID> commentIds = commentRepository.getCommentsByEpisode(0, Integer.MAX_VALUE, ids).stream().map((comment) -> comment.getId()).toList();
             commentService.deleteComments(commentIds.toArray(new UUID[0]));
             episodeRepository.delete(ids);
         }
@@ -250,9 +259,9 @@ public class ShowService {
     }
 
     // Find all
-    public List<Show> findAllShows() {
+    public List<Show> findAllShows(Integer page, Integer size) {
         try {
-            return showRepository.readAll();
+            return showRepository.readAll(page, size);
         }
         catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
@@ -260,9 +269,18 @@ public class ShowService {
 
     }
 
-    public List<Season> findAllSeasons() {
+    public Integer getAllShowsPageCount(Integer size) {
         try {
-            return seasonRepository.readAll();
+            return showRepository.getPageCount(size);
+        }
+        catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
+
+    public List<Season> findAllSeasons(Integer page, Integer size) {
+        try {
+            return seasonRepository.readAll(page, size);
         }
         catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
@@ -270,9 +288,9 @@ public class ShowService {
 
     }
 
-    public List<Episode> findAllEpisodes() {
+    public List<Episode> findAllEpisodes(Integer page, Integer size) {
         try {
-            return episodeRepository.readAll();
+            return episodeRepository.readAll(page, size);
         }
         catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
@@ -281,9 +299,9 @@ public class ShowService {
     }
 
     // find the season using the given id show, this could be multiple id
-    public List<Season> findSeaonsByShows(UUID... ids) {
+    public List<Season> findSeaonsByShows(Integer page, Integer size, UUID... ids) {
         try {
-            List<Season> seasons = seasonRepository.getByShow(ids);
+            List<Season> seasons = seasonRepository.getByShow(page, size, ids);
 
             seasons.sort((s1, s2) -> s1.getReleaseDate().compareTo(s2.getReleaseDate()));
 
@@ -294,12 +312,20 @@ public class ShowService {
         }
 
     }
+    
+    public Integer getSeasonsByShowsPageCount(Integer size, UUID ...ids) {
+        try {
+            return seasonRepository.getPageCountByShow(size, ids);
+        }
+        catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
 
     // find the episodes using given id season
-    public List<Episode> findEpisodesBySeasons(UUID... ids) {
+    public List<Episode> findEpisodesBySeasons(Integer page, Integer size, UUID... ids) {
         try {
-            List<Episode> episodes = episodeRepository.getBySeason(ids);
-            episodes.sort((e1, e2) -> e1.getReleaseDate().compareTo(e2.getReleaseDate()));
+            List<Episode> episodes = episodeRepository.getBySeason(page, size, ids);
 
             return episodes;
         }
@@ -307,6 +333,15 @@ public class ShowService {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }
 
+    }
+
+    public Integer getEpisodesBySeasonsPageCount(Integer size, UUID ...ids) {
+        try {
+            return episodeRepository.getPageCountBySeason(size, ids);
+        }
+        catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
     }
 
     public List<Genre> getShowGenres(UUID showId) {

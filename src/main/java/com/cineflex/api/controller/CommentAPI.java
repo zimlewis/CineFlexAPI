@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-
 @RestController
 @RequestMapping("/api/comments")
 public class CommentAPI {
@@ -29,45 +28,16 @@ public class CommentAPI {
     private final AuthenticationService authenticationService;
     private final CommentService commentService;
 
-    public CommentAPI (
-        JsonService jsonService,
-        AuthenticationService authenticationService,
-        CommentService commentService
-    ) {
+    public CommentAPI(
+            JsonService jsonService,
+            AuthenticationService authenticationService,
+            CommentService commentService
+        ) {
         this.jsonService = jsonService;
         this.authenticationService = authenticationService;
         this.commentService = commentService;
     }
-    
-    @PostMapping("/{id}")
-    public ResponseEntity<Comment> postACOmment(@RequestBody JsonNode jsonNode, @PathVariable String id) {
-        try {
-            Account user = authenticationService.getAccount();
 
-            if (user == null) {
-                return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
-                    HttpStatus.UNAUTHORIZED, 
-                    "The client did not logged in"
-                )).build();
-            }
 
-            Comment comment = Comment.builder()
-                .content(jsonService.getOrNull(jsonNode, "content", String.class))
-                .episode(UUID.fromString(id))
-                .account(user.getId())
-                .build();
-            
-            Comment returnedComment = commentService.addComment(comment);
-
-            return new ResponseEntity<>(returnedComment, HttpStatus.CREATED);
-        }
-        catch (ResponseStatusException e) {
-            return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
-                HttpStatus.INTERNAL_SERVER_ERROR,
-                e.getReason()
-            )).build();
-        }
-    }
-    
 
 }

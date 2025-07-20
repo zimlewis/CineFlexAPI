@@ -36,9 +36,13 @@ public class FavoriteRepository implements RepositoryInterface<Favorite>{
     }
 
     @Override
-    public List<Favorite> readAll() {
-        String sql = "SELECT * FROM [dbo].[Favorite]";
-        List<Favorite> favorites = jdbcClient.sql(sql).query(Favorite.class).list();
+    public List<Favorite> readAll(Integer page, Integer size) {
+        String sql = "SELECT * FROM [dbo].[Favorite] ORDER BY [CreatedTime] DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+        List<Favorite> favorites = jdbcClient
+            .sql(sql)
+            .params(page * size, size)
+            .query(Favorite.class)
+            .list();
 
         return favorites;
     }
@@ -50,6 +54,23 @@ public class FavoriteRepository implements RepositoryInterface<Favorite>{
     @Override
     public void delete(UUID... ids) {
 
+    }
+
+    @Override
+    public List<Favorite> readAll() {
+        return readAll(0, 5);
+    }
+
+    @Override
+    public Integer getPageCount(Integer size) {
+        String sql = "SELECT COUNT([Id])/? FROM [dbo].[Favorite]";
+
+        Integer pageCount = jdbcClient
+            .sql(sql)
+            .params(size)
+            .query(Integer.class).optional().orElse(-1);
+        
+        return pageCount;
     }
     
 }

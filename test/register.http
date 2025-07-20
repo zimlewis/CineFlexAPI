@@ -1,0 +1,8 @@
+POST http://localhost:8080/api/authentication/register
+Content-Type: application/json
+
+{
+    "username": "KKK",
+    "password": "Daylazim123",
+    "email": "hoangnhungnolaclone123@gmail.com"
+}

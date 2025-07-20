@@ -37,10 +37,11 @@ public class ShowGenreRepository implements RepositoryInterface<ShowGenre> {
     }
 
     @Override
-    public List<ShowGenre> readAll() {
-        String sql = "SELECT * FROM [dbo].[ShowGenre]";
+    public List<ShowGenre> readAll(Integer page, Integer size) {
+        String sql = "SELECT * FROM [dbo].[ShowGenre] ORDER BY [Show] OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
 
         List<ShowGenre> showGenres = jdbcClient.sql(sql)
+            .params(page * size, size)
             .query(ShowGenre.class)
             .list();
         
@@ -65,6 +66,25 @@ public class ShowGenreRepository implements RepositoryInterface<ShowGenre> {
         String sql = "DELETE FROM [dbo].[ShowGenre] WHERE [Show] IN (" + placeholders + ")";
         
         jdbcClient.sql(sql).params(Arrays.asList(shows)).update();
+    }
+
+
+    @Override
+    public List<ShowGenre> readAll() {
+        return readAll(0, 5);
+    }
+
+
+    @Override
+    public Integer getPageCount(Integer size) {
+        String sql = "SELECT COUNT([Id])/? FROM [dbo].[ShowGenre]";
+
+        Integer pageCount = jdbcClient
+            .sql(sql)
+            .params(size)
+            .query(Integer.class).optional().orElse(-1);
+        
+        return pageCount;
     }
 
 }

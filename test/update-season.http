@@ -1,0 +1,8 @@
+PUT http://localhost:8080/api/seasons/55c5782d-5ef3-45b5-909b-7bd374f2c4ad HTTP/1.1
+Content-Type: application/json
+
+{
+    "title": "Me may beo",
+    "releaseDate": "2000-06-09",
+    "description": "poiuytrewq"
+}

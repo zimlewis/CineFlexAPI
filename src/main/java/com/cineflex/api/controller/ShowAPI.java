@@ -3,19 +3,26 @@ package com.cineflex.api.controller;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.cineflex.api.model.Account;
+import com.cineflex.api.model.Comment;
 import com.cineflex.api.model.Genre;
 import com.cineflex.api.model.Season;
 import com.cineflex.api.model.Show;
+import com.cineflex.api.service.AuthenticationService;
+import com.cineflex.api.service.CommentService;
 import com.cineflex.api.service.JsonService;
 import com.cineflex.api.service.ShowService;
 import com.fasterxml.jackson.databind.JsonNode;
 
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
+import javax.swing.text.html.parser.Entity;
+
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
@@ -39,14 +46,20 @@ public class ShowAPI {
 
     private final ShowService showService;
     private final JsonService jsonService;
+    private final CommentService commentService;
+    private final AuthenticationService authenticationService;
 
     // Inject show service
     public ShowAPI (
         ShowService showService,
-        JsonService jsonService
+        JsonService jsonService,
+        CommentService commentService,
+        AuthenticationService authenticationService
     ) {
         this.showService = showService;
         this.jsonService = jsonService;
+        this.commentService = commentService;
+        this.authenticationService = authenticationService;
     }
     
     // Get single show database
@@ -76,23 +89,53 @@ public class ShowAPI {
         }
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<List<Show>> search() {
+        try {
+            List<Show> shows;
+
+            shows = showService.findAllShows(0, 5);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("X-Total-Page", showService.getAllShowsPageCount(5).toString()); 
+
+            ResponseEntity<List<Show>> responseEntity = new ResponseEntity<List<Show>>(shows, headers, HttpStatus.OK);
+
+            return responseEntity;
+        }
+        catch (ResponseStatusException e) {
+            return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
+                e.getStatusCode(), 
+                e.getReason()
+            )).build();
+        }
+    }
+
     // Get all show
     @GetMapping("")
-    public ResponseEntity<List<Show>> find(@RequestParam(required = false) List<String> genres) {
+    public ResponseEntity<List<Show>> find(
+        @RequestParam(required = false, defaultValue = "0") Integer page, 
+        @RequestParam(required = false, defaultValue = "5") Integer size
+    ) {
 
         try {
             List<Show> shows;
 
-            
-            
-            if (genres != null) {
-                shows = showService.findShowByGenre(genres.toArray(new String[0]));
-            }
-            else {
-                shows = showService.findAllShows();
-            }
+            shows = showService.findAllShows(page, size);
 
-            return ResponseEntity.ok(shows);
+            
+            // if (genres != null) {
+            //     shows = showService.findShowByGenre(genres.toArray(new String[0]));
+            // }
+            // else {
+            //     shows = showService.findAllShows(0, 5);
+            // }
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("X-Total-Page", showService.getAllShowsPageCount(size).toString()); 
+
+            ResponseEntity<List<Show>> responseEntity = new ResponseEntity<List<Show>>(shows, headers, HttpStatus.OK);
+
+            return responseEntity;
         }
         catch (ResponseStatusException e) {
             return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
@@ -178,8 +221,31 @@ public class ShowAPI {
     }
 
     @GetMapping("/{id}/seasons")
-    public ResponseEntity<List<Season>> getSeasonsOfAShow(@PathVariable String id) {
-        return ResponseEntity.ok().body(showService.findSeaonsByShows(UUID.fromString(id)));
+    public ResponseEntity<List<Season>> getSeasonsOfAShow(@RequestParam(required = false, defaultValue = "0") Integer page, @RequestParam(required = false, defaultValue = "100") Integer size, @PathVariable String id) {
+        try {
+            List<Season> seasons = showService.findSeaonsByShows(page, size, UUID.fromString(id));
+
+
+            
+            // if (genres != null) {
+            //     shows = showService.findShowByGenre(genres.toArray(new String[0]));
+            // }
+            // else {
+            //     shows = showService.findAllShows(0, 5);
+            // }
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("X-Total-Page", showService.getSeasonsByShowsPageCount(size).toString()); 
+
+            ResponseEntity<List<Season>> responseEntity = new ResponseEntity<List<Season>>(seasons, headers, HttpStatus.OK);
+
+            return responseEntity;
+        }
+        catch (ResponseStatusException e) {
+            return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
+                e.getStatusCode(), 
+                e.getReason()
+            )).build();
+        }
     }
     
     @PostMapping("/{id}/seasons")
@@ -221,7 +287,7 @@ public class ShowAPI {
     
 
     @PostMapping("/{id}/genres")
-    public ResponseEntity<List<Genre>> postMethodName(@PathVariable String id, @RequestBody JsonNode jsonNode) {
+    public ResponseEntity<List<Genre>> addGernesToShow(@PathVariable String id, @RequestBody JsonNode jsonNode) {
         try {
             UUID showId = UUID.fromString(id);
             JsonNode genreIdsNode = jsonNode.get("genres");
@@ -246,7 +312,7 @@ public class ShowAPI {
         }
         catch (ResponseStatusException e) {
             return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
-                e.getStatusCode(), e.getLocalizedMessage()
+                e.getStatusCode(), e.getReason()
             )).build();
         }
         catch (Exception e) {
@@ -257,6 +323,63 @@ public class ShowAPI {
     }
     
     
-    
+    @GetMapping("/{id}/comments")
+    public ResponseEntity<List<Comment>> getComments(
+        @PathVariable String id,
+        @RequestParam(required = false, defaultValue = "0") Integer page, 
+        @RequestParam(required = false, defaultValue = "12") Integer size
+    ) {
+        try {
+            List<Comment> comments = commentService.getAllCommentsFromShow(page, size, UUID.fromString(id));
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("X-Total-Page", commentService.getAllCommentsFromShowPageCount(size, UUID.fromString(id)).toString());
+
+            return new ResponseEntity<>(comments, headers, HttpStatus.OK);
+        }
+        catch (ResponseStatusException e) {
+            return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                e.getReason()
+            )).build();
+        }
+    }
+
+
+    @PostMapping("/{id}/comments")
+    public ResponseEntity<Comment> postACommentToEpisode(@RequestBody JsonNode jsonNode, @PathVariable String id) {
+        try {
+            Account user = authenticationService.getAccount();
+
+            if (user == null) {
+                return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
+                        HttpStatus.UNAUTHORIZED,
+                        "The client did not logged in")).build();
+            }
+
+
+            if (id == null) {
+                return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Did not provide show"
+                )).build();
+            }
+
+            UUID show = UUID.fromString(id);
+
+            Comment comment = Comment.builder()
+                    .content(jsonService.getOrNull(jsonNode, "content", String.class))
+                    .account(user.getId())
+                    .build();
+
+            Comment returnedComment = commentService.addToShowComment(comment, show);
+
+            return new ResponseEntity<>(returnedComment, HttpStatus.CREATED);
+        } catch (ResponseStatusException e) {
+            return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    e.getReason())).build();
+        }
+    }
 
 }

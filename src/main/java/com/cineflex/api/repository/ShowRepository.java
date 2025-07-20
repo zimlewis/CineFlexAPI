@@ -25,7 +25,7 @@ public class ShowRepository implements RepositoryInterface<Show> {
 
     @Override
     public void create(Show t) {
-        String sql = "INSERT INTO [dbo].[Show] ([Id], [Title], [Description], [ReleaseDate], [Thumbnail], [CreatedTime], [UpdatedTime], [OnGoing], [IsSeries], [AgeRating]) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO [dbo].[Show] ([Id], [Title], [Description], [ReleaseDate], [Thumbnail], [CreatedTime], [UpdatedTime], [OnGoing], [IsSeries], [AgeRating], [CommentSection]) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         jdbcClient.sql(sql).params(
             t.getId(),
@@ -37,7 +37,8 @@ public class ShowRepository implements RepositoryInterface<Show> {
             t.getUpdatedTime(),
             t.getOnGoing(),
             t.getIsSeries(),
-            t.getAgeRating()
+            t.getAgeRating(),
+            t.getCommentSection()
         ).update();
     }
 
@@ -56,11 +57,12 @@ public class ShowRepository implements RepositoryInterface<Show> {
     }
 
     @Override
-    public List<Show> readAll() {
-        String sql = "SELECT * FROM [dbo].[Show] WHERE [IsDeleted] = 0";
+    public List<Show> readAll(Integer page, Integer size) {
+        String sql = "SELECT * FROM [dbo].[Show] WHERE [IsDeleted] = 0 ORDER BY [CreatedTime] DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
 
         List<Show> shows = jdbcClient
             .sql(sql)
+            .params(page * size, size)
             .query(Show.class)
             .list();
 
@@ -171,6 +173,8 @@ public class ShowRepository implements RepositoryInterface<Show> {
 
     }
 
+    // SHIT IS GOING TO BE REPLACE
+    @Deprecated
     public List<Show> showByGenres(UUID... genres) {
         String placeHolder = Arrays.stream(genres)
             .map(_ -> "?")
@@ -185,6 +189,23 @@ public class ShowRepository implements RepositoryInterface<Show> {
         List<Show> shows = jdbcClient.sql(sql).params(Arrays.asList(genres)).param(genres.length).query(Show.class).list();
 
         return shows;
+    }
+
+    @Override
+    public List<Show> readAll() {
+        return readAll(0, 5);
+    }
+
+    @Override
+    public Integer getPageCount(Integer size) {
+        String sql = "SELECT COUNT([Id])/? FROM [dbo].[Show] WHERE [IsDeleted] = 0";
+
+        Integer pageCount = jdbcClient
+            .sql(sql)
+            .params(size)
+            .query(Integer.class).optional().orElse(-1);
+        
+        return pageCount;
     }
 
 }

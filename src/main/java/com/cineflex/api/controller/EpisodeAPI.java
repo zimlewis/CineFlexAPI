@@ -4,8 +4,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.cineflex.api.model.Account;
 import com.cineflex.api.model.Comment;
 import com.cineflex.api.model.Episode;
+import com.cineflex.api.service.AuthenticationService;
 import com.cineflex.api.service.CommentService;
 import com.cineflex.api.service.JsonService;
 import com.cineflex.api.service.ShowService;
@@ -15,12 +17,14 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -35,15 +39,18 @@ public class EpisodeAPI {
     private final ShowService showService;
     private final JsonService jsonService;
     private final CommentService commentService;
+    private final AuthenticationService authenticationService;
 
     public EpisodeAPI (
         ShowService showService,
         JsonService jsonService,
-        CommentService commentService
+        CommentService commentService,
+        AuthenticationService authenticationService
     ) {
         this.showService = showService;
         this.jsonService = jsonService;
         this.commentService = commentService;
+        this.authenticationService = authenticationService;
     }
     
     @GetMapping("/{id}")
@@ -115,17 +122,60 @@ public class EpisodeAPI {
     }
 
     @GetMapping("/{id}/comments")
-    public ResponseEntity<List<Comment>> getComments(@PathVariable String id) {
+    public ResponseEntity<List<Comment>> getComments(
+        @PathVariable String id,
+        @RequestParam(required = false, defaultValue = "0") Integer page, 
+        @RequestParam(required = false, defaultValue = "5") Integer size
+    ) {
         try {
-            List<Comment> comments = commentService.getAllCommentsFromEpisode(UUID.fromString(id));
+            List<Comment> comments = commentService.getAllCommentsFromEpisode(page, size, UUID.fromString(id));
 
-            return new ResponseEntity<>(comments, HttpStatus.OK);
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("X-Total-Page", commentService.getAllCommentsFromEpisodePageCount(size, UUID.fromString(id)).toString());
+
+            return new ResponseEntity<>(comments, headers, HttpStatus.OK);
         }
         catch (ResponseStatusException e) {
             return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
                 HttpStatus.INTERNAL_SERVER_ERROR,
                 e.getReason()
             )).build();
+        }
+    }
+
+    @PostMapping("/{id}/comments")
+    public ResponseEntity<Comment> postACommentToEpisode(@RequestBody JsonNode jsonNode, @PathVariable String id) {
+        try {
+            Account user = authenticationService.getAccount();
+
+            if (user == null) {
+                return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
+                        HttpStatus.UNAUTHORIZED,
+                        "The client did not logged in")).build();
+            }
+
+
+            if (id == null) {
+                return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Did not provide episode"
+                )).build();
+            }
+
+            UUID episode = UUID.fromString(id);
+
+            Comment comment = Comment.builder()
+                    .content(jsonService.getOrNull(jsonNode, "content", String.class))
+                    .account(user.getId())
+                    .build();
+
+            Comment returnedComment = commentService.addToEpisodeComment(comment, episode);
+
+            return new ResponseEntity<>(returnedComment, HttpStatus.CREATED);
+        } catch (ResponseStatusException e) {
+            return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    e.getReason())).build();
         }
     }
     

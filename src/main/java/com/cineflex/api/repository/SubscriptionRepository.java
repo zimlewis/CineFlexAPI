@@ -8,7 +8,6 @@ import java.util.stream.Collectors;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
 
-import com.cineflex.api.model.Account;
 import com.cineflex.api.model.Subscription;
 
 @Repository
@@ -51,11 +50,12 @@ public class SubscriptionRepository implements RepositoryInterface<Subscription>
     }
 
     @Override
-    public List<Subscription> readAll() {
-        String sql = "SELECT * FROM [dbo].[Subscription]";
+    public List<Subscription> readAll(Integer page, Integer size) {
+        String sql = "SELECT * FROM [dbo].[Subscription] ORDER BY [StartTime] DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
 
         List<Subscription> subscriptions = jdbcClient
             .sql(sql)
+            .params(page * size, size)
             .query(Subscription.class)
             .list();
         
@@ -94,6 +94,23 @@ public class SubscriptionRepository implements RepositoryInterface<Subscription>
         Subscription subscription = jdbcClient.sql(sql).params(account).query(Subscription.class).optional().orElse(null);
 
         return subscription;
+    }
+
+    @Override
+    public List<Subscription> readAll() {
+        return readAll(0, 5);
+    }
+
+    @Override
+    public Integer getPageCount(Integer size) {
+        String sql = "SELECT COUNT([Id])/? FROM [dbo].[Subscription]";
+
+        Integer pageCount = jdbcClient
+            .sql(sql)
+            .params(size)
+            .query(Integer.class).optional().orElse(-1);
+        
+        return pageCount;
     } 
 
 }

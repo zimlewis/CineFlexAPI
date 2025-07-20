@@ -1,5 +1,6 @@
 package com.cineflex.api.repository;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -22,7 +23,7 @@ public class EpisodeRepository implements RepositoryInterface<Episode>{
 
     @Override
     public void create(Episode t) {
-        String sql = "INSERT INTO [dbo].[Episode] ([Id], [Title], [Number], [Description], [Url], [ReleaseDate], [CreatedTime], [UpdatedTime], [Duration], [OpeningStart], [OpeningEnd], [View], [Season]) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO [dbo].[Episode] ([Id], [Title], [Number], [Description], [Url], [ReleaseDate], [CreatedTime], [UpdatedTime], [Duration], [OpeningStart], [OpeningEnd], [View], [Season], [CommentSection]) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         jdbcClient.sql(sql).params(
             t.getId(),
@@ -37,7 +38,8 @@ public class EpisodeRepository implements RepositoryInterface<Episode>{
             t.getOpeningStart(),
             t.getOpeningEnd(),
             t.getView(),
-            t.getSeason()
+            t.getSeason(),
+            t.getCommentSection()
         ).update();
 
     }
@@ -58,11 +60,12 @@ public class EpisodeRepository implements RepositoryInterface<Episode>{
     }
 
     @Override
-    public List<Episode> readAll() {
-        String sql = "SELECT * FROM [dbo].[Episode] WHERE [IsDeleted] = 0";
+    public List<Episode> readAll(Integer page, Integer size) {
+        String sql = "SELECT * FROM [dbo].[Episode] WHERE [IsDeleted] = 0 ORDER BY [CreatedTime] OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
         
         List<Episode> episodes = jdbcClient
             .sql(sql)
+            .params(page * size, size)
             .query(Episode.class)
             .list();
 
@@ -106,22 +109,70 @@ public class EpisodeRepository implements RepositoryInterface<Episode>{
 
     }
 
-    public List<Episode> getBySeason(UUID... ids) {
+    public List<Episode> getBySeason(UUID ...ids) {
+        return getBySeason(0, 5, ids);
+    }
+
+    public List<Episode> getBySeason(Integer page, Integer size, UUID... ids) {
         if (ids.length == 0) return List.of(); // avoid syntax error
 
         String placeholders = Arrays.stream(ids)
             .map(_ -> "?")
             .collect(Collectors.joining(", "));
 
-        String sql = "SELECT * FROM [dbo].[Episode] WHERE [Season] IN (" + placeholders + ") AND [IsDeleted] = 0";
+        String sql = "SELECT * FROM [dbo].[Episode] WHERE [Season] IN (" + placeholders + ") AND [IsDeleted] = 0 ORDER BY [ReleaseDate] DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
         
+        List<Object> params = new ArrayList<>();
+        params.addAll(Arrays.asList(ids));
+        params.add(page * size);
+        params.add(size);
+
         List<Episode> episodes = jdbcClient
             .sql(sql)
-            .params(Arrays.asList(ids))
+            .params(params)
             .query(Episode.class)
             .list();
 
         return episodes;
+    }
+
+    @Override
+    public List<Episode> readAll() {
+        return readAll(0, 5);
+    }
+
+    @Override
+    public Integer getPageCount(Integer size) {
+        String sql = "SELECT COUNT([Id])/? FROM [dbo].[Episode] WHERE [IsDeleted] = 0";
+
+        Integer pageCount = jdbcClient
+            .sql(sql)
+            .params(size)
+            .query(Integer.class).optional().orElse(-1);
+        
+        return pageCount;
+    }
+
+    public Integer getPageCountBySeason(Integer size, UUID ...ids) {
+        if (ids.length == 0) return -1; // avoid syntax error
+
+        String placeholders = Arrays.stream(ids)
+            .map(_ -> "?")
+            .collect(Collectors.joining(", "));
+
+        String sql = "SELECT COUNT([Id])/? FROM [dbo].[Episode] WHERE [Season] IN (" + placeholders + ") AND [IsDeleted] = 0"; 
+
+        List<Object> params = new ArrayList<>();
+        params.add(size);
+        params.addAll(Arrays.asList(ids));
+        
+
+        Integer pageCount = jdbcClient
+            .sql(sql)
+            .params(params)
+            .query(Integer.class).optional().orElse(-1);
+        
+        return pageCount;
     }
 
     // public void deleteBySeason(UUID id) {

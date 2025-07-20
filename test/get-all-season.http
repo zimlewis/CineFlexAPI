@@ -1,0 +1,1 @@
+GET http://localhost:8080/api/shows/090406ea-4743-4928-a697-06a7ab849523/seasons HTTP/1.1
