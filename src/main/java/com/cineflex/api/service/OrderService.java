@@ -74,8 +74,7 @@ public class OrderService {
             Random random = new Random();
             int tc = random.nextInt(99999999);
             String transactionCode = String.format("GD%08d", tc); 
-
-            System.out.println(tc);
+            System.out.println(transactionCode);
 
             billingDetail = BillingDetail.builder()
                 .id(UUID.randomUUID())
