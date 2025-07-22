@@ -34,6 +34,34 @@ public class AccountModeratingService {
         }
     }
 
+    public Account unbanAccount(UUID id) {
+        try {
+            Account account = accountRepository.read(id);
+            account.setActivate(true);
+
+            accountRepository.update(id, account);
+            
+            return accountRepository.read(id); // Return the updated show
+        }
+        catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
+
+    public Account banAccount(UUID id) {
+        try {
+            Account account = accountRepository.read(id);
+            account.setActivate(false);
+
+            accountRepository.update(id, account);
+            
+            return accountRepository.read(id); // Return the updated show
+        }
+        catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
+
     public Account updateAccount(Account account) {
         try {
             UUID id = account.getId(); // Get the id from show to update

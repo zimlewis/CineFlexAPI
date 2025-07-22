@@ -73,8 +73,8 @@ public class AccountRepository implements RepositoryInterface<Account>{
             account.getCreatedTime(), 
             account.getUpdatedTime(), 
             account.getVerify(), 
-            account.getActivate(),
             account.getRole(), 
+            account.getActivate(),
             id
         ).update();
     }

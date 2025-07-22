@@ -91,12 +91,7 @@ public class AccountAPI {
     @PutMapping("/{id}/unban")
     public ResponseEntity<?> unbanUser(@PathVariable String id) {
         try {
-            Account bodyAccount = Account.builder()
-                .id(UUID.fromString(id))
-                .activate(true)
-                .build();
-            
-            accountModeratingService.updateAccount(bodyAccount);
+            accountModeratingService.unbanAccount(UUID.fromString(id));
             return new ResponseEntity<>(HttpStatus.OK);
         }
         catch (ResponseStatusException e) {
@@ -110,12 +105,7 @@ public class AccountAPI {
     @PutMapping("/{id}/ban")
     public ResponseEntity<?> banUser(@PathVariable String id) {
         try {
-            Account bodyAccount = Account.builder()
-                .id(UUID.fromString(id))
-                .activate(false)
-                .build();
-            
-            accountModeratingService.updateAccount(bodyAccount);
+            accountModeratingService.banAccount(UUID.fromString(id));
             return new ResponseEntity<>(HttpStatus.OK);
         }
         catch (ResponseStatusException e) {
