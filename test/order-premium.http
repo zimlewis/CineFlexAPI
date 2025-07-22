@@ -1,2 +1,0 @@
-POST https://cineflex-api.onrender.com/api/orders HTTP/1.1
-Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ5bW0iLCJpYXQiOjE3NTA5MTA4NDAsImV4cCI6MTc1MTUxNTY0MH0.skU3t2J4bCJiRgmqPHWURhBcAQruqIy7hSWXwb4jL7GwR44KcC1xrfGXCex3mnMCDT-EdgBGXuXw0fJmPbKiJA

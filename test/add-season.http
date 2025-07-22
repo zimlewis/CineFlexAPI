@@ -1,9 +1,0 @@
-POST http://localhost:8080/api/shows/4fea0490-00ca-47bb-991c-54ac01138482/seasons HTTP/1.1
-Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJaaW1sZXdpcyIsImlhdCI6MTc1MTQ2NDAwNywiZXhwIjoxNzUyMDY4ODA3fQ.yuKg0PSHerT1jKIy3iDoSlL3WnNJimttEfWXJeCharGPpsSNay6AnKag0CRYYQzhw_8cIHK-pyrO4CcYmu_jfg
-
-{
-    "title": "Season 02",
-    "releaseDate": "2025-04-01",
-    "description": "asdaadfsfsdfasdfasfasdfsdf"
-}

@@ -1,7 +1,0 @@
-POST https://cineflex.mooo.com/api/authentication/login
-Content-Type: application/json
-
-{
-    "password": "Daylazim123!",
-    "email": "z1ml3w1s123@gmail.com"
-}

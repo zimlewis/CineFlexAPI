@@ -1,2 +1,0 @@
-DELETE http://localhost:8080/api/shows/E1C92A64-9E72-4030-B62C-16B959D5E91F HTTP/1.1
-Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJaaW1sZXdpcyIsImlhdCI6MTc1MDc3OTg2MiwiZXhwIjoxNzUxMzg0NjYyfQ.HjSiv_iLYJT-bTLvCygT2jVDvK6njUqyk9LT0R-_FNflUvccWDbhSX0gkXvZ7EAuXvaQz2VS1TjSFUkPbtDc6Q
