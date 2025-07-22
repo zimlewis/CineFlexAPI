@@ -118,17 +118,14 @@ public class AuthenticationAPI {
     }
     
     @GetMapping("/verify/{token}")
-    public ResponseEntity<?> verify(@PathVariable String token) {
+    public ResponseEntity<String> verify(@PathVariable String token) {
         try {
             tokenService.verifyToken(token);
 
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            return new ResponseEntity<>("Xác thực thành công vui lòng quay về trang đang nhập", HttpStatus.NO_CONTENT);
         }
         catch (ResponseStatusException e) {
-            return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
-                e.getStatusCode(),
-                e.getReason()
-            )).build();
+            return new ResponseEntity<>("Xác thực không thành công, vui lòng thử lại sau", e.getStatusCode());
         }
     }
     
