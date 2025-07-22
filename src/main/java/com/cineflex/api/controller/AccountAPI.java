@@ -9,7 +9,9 @@ import com.cineflex.api.model.Subscription;
 import com.cineflex.api.service.AccountDetailService;
 import com.cineflex.api.service.AccountModeratingService;
 import com.cineflex.api.service.AuthenticationService;
+import com.cineflex.api.service.JsonService;
 import com.cineflex.api.service.OrderService;
+import com.fasterxml.jackson.databind.JsonNode;
 
 import java.util.List;
 import java.util.UUID;
@@ -21,6 +23,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
 
 @RestController
 @RequestMapping("/api/users")
@@ -30,17 +35,21 @@ public class AccountAPI {
     private final OrderService orderService;
     private final AuthenticationService authenticationService;
     private final AccountModeratingService accountModeratingService;
+    private final JsonService jsonService;
+
 
     public AccountAPI(
         AccountDetailService accountDetailService,
         OrderService orderService,
         AuthenticationService authenticationService,
-        AccountModeratingService accountModeratingService
+        AccountModeratingService accountModeratingService,
+        JsonService jsonService
     ) {
         this.accountDetailService = accountDetailService;
         this.orderService = orderService;
         this.authenticationService = authenticationService;
         this.accountModeratingService = accountModeratingService;
+        this.jsonService = jsonService;
     }
 
     @GetMapping("/{id}")
@@ -56,6 +65,7 @@ public class AccountAPI {
         }
     }
 
+    @GetMapping("")    
     public ResponseEntity<List<Account>> getUsers(
         @RequestParam(required = false, defaultValue = "0") Integer page, 
         @RequestParam(required = false, defaultValue = "100") Integer size
@@ -76,6 +86,67 @@ public class AccountAPI {
             )).build();
         }
 
+    }
+
+    @PutMapping("/{id}/unban")
+    public ResponseEntity<?> unbanUser(@PathVariable String id) {
+        try {
+            Account bodyAccount = Account.builder()
+                .id(UUID.fromString(id))
+                .activate(true)
+                .build();
+            
+            accountModeratingService.updateAccount(bodyAccount);
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+        catch (ResponseStatusException e) {
+            return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
+                e.getStatusCode(),
+                e.getReason()
+            )).build();
+        }
+    }
+
+    @PutMapping("/{id}/ban")
+    public ResponseEntity<?> banUser(@PathVariable String id) {
+        try {
+            Account bodyAccount = Account.builder()
+                .id(UUID.fromString(id))
+                .activate(false)
+                .build();
+            
+            accountModeratingService.updateAccount(bodyAccount);
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+        catch (ResponseStatusException e) {
+            return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
+                e.getStatusCode(),
+                e.getReason()
+            )).build();
+        }
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Account> editUser(@PathVariable String id, @RequestBody JsonNode body) {
+        try {
+            Account bodyAccount = Account.builder()
+                .id(UUID.fromString(id))
+                .username(jsonService.getOrNull(body, "username", String.class))
+                .email(jsonService.getOrNull(body, "email", String.class))
+                .verify(jsonService.getOrNull(body, "verify", Boolean.class))
+                .role(jsonService.getOrNull(body, "role", Integer.class))
+                .build();
+            System.out.println(bodyAccount);
+            
+            Account updatedAccount = accountModeratingService.updateAccount(bodyAccount);
+            return new ResponseEntity<>(updatedAccount, HttpStatus.OK);
+        }
+        catch (ResponseStatusException e) {
+            return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
+                e.getStatusCode(),
+                e.getReason()
+            )).build();
+        }
     }
 
     @GetMapping("/subscription")

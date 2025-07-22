@@ -38,7 +38,7 @@ public class AccountRepository implements RepositoryInterface<Account>{
 
     public Account read(UUID id) {
         Account account = null;
-        String sql = "SELECT * FROM [dbo].[Account] WHERE [Id] = ? AND [Activate] = 1";
+        String sql = "SELECT * FROM [dbo].[Account] WHERE [Id] = ?";
 
         account = jdbcClient.sql(sql)
             .params(id)
@@ -52,7 +52,7 @@ public class AccountRepository implements RepositoryInterface<Account>{
     public List<Account> readAll(Integer page, Integer size) {
         List<Account> accounts = new ArrayList<Account>();
 
-        String sql = "SELECT * FROM [dbo].[Account] WHERE [Activate] = 1 ORDER BY [CreatedTime] OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+        String sql = "SELECT * FROM [dbo].[Account] ORDER BY [CreatedTime] OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
 
         accounts = jdbcClient
             .sql(sql)
@@ -64,7 +64,7 @@ public class AccountRepository implements RepositoryInterface<Account>{
     }
 
     public void update(UUID id, Account account) {
-        String sql = "UPDATE [dbo].[Account] SET [Username] = ?, [Email] = ?, [Password] = ?, [CreatedTime] = ?, [UpdatedTime] = ?, [Verify] = ?, [Role] = ? WHERE [Id] = ? AND [Activate] = 1";
+        String sql = "UPDATE [dbo].[Account] SET [Username] = ?, [Email] = ?, [Password] = ?, [CreatedTime] = ?, [UpdatedTime] = ?, [Verify] = ?, [Role] = ?, [Activate] = ? WHERE [Id] = ?";
         
         jdbcClient.sql(sql).params(
             account.getUsername(), 
@@ -73,6 +73,7 @@ public class AccountRepository implements RepositoryInterface<Account>{
             account.getCreatedTime(), 
             account.getUpdatedTime(), 
             account.getVerify(), 
+            account.getActivate(),
             account.getRole(), 
             id
         ).update();
