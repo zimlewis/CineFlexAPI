@@ -1,4 +1,4 @@
-POST http://localhost:8080/api/authentication/login
+POST https://cineflex.mooo.com/api/authentication/login
 Content-Type: application/json
 
 {

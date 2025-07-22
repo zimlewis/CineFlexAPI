@@ -1,2 +1,2 @@
-GET http://localhost:8080/api/users/subscription HTTP/1.1
+GET https://cineflex.mooo.com/api/users/subscription
 Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJaaW1sZXdpcyIsImlhdCI6MTc1MzA2NDY4NSwiZXhwIjoxNzUzNjY5NDg1fQ.lQUI1mrhzjkBsTZPj_dHxDxQoK4mYSoxAA-aastA66uLmxAqIAO_8UWXCbYglUYqLGuFyoOAVreJVGDc1FQXOg
