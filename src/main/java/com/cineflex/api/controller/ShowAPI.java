@@ -123,13 +123,6 @@ public class ShowAPI {
 
             shows = showService.findAllShows(page, size);
 
-            
-            // if (genres != null) {
-            //     shows = showService.findShowByGenre(genres.toArray(new String[0]));
-            // }
-            // else {
-            //     shows = showService.findAllShows(0, 5);
-            // }
             HttpHeaders headers = new HttpHeaders();
             headers.add("X-Total-Page", showService.getAllShowsPageCount(size).toString()); 
 
