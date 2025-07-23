@@ -7,7 +7,6 @@ import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
 
 import com.cineflex.api.model.Advertisement;
-import com.cineflex.api.model.Hirer;
 
 @Repository
 public class AdvertisementRepository implements RepositoryInterface<Advertisement> {
@@ -19,12 +18,30 @@ public class AdvertisementRepository implements RepositoryInterface<Advertisemen
         this.jdbcClient = jdbcClient;
     }
 
+    public Advertisement findRandomOnType(Integer type) {
+        String sql = "SELECT TOP 1 * FROM [dbo].[Advertisement] WHERE [Type] = ? AND [Enabled] = 1 ORDER BY NEWID()";
+
+        Advertisement advertisement = jdbcClient.sql(sql)
+            .params(type).query(Advertisement.class).optional().orElseGet(null);
+        
+        return advertisement;
+    }
+
     @Override
     public void create(Advertisement t) {
-        String sql = "INSERT INTO [dbo].[Advertisement] ([Id], [Link], [Image], [Enabled], [Type], [CreatedTime], [UpdatedTime]) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO [dbo].[Advertisement] ([Id], [Link], [Image], [Enabled], [Type], [CreatedTime], [UpdatedTime], [Hirer]) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         jdbcClient
             .sql(sql)
-            .params(t.getId(), t.getLink(), t.getImage(), t.getEnabled(), t.getType(), t.getCreatedTime(), t.getUpdatedTime())
+            .params(
+                t.getId(), 
+                t.getLink(), 
+                t.getImage(), 
+                t.getEnabled(), 
+                t.getType(), 
+                t.getCreatedTime(), 
+                t.getUpdatedTime(),
+                t.getHirer()
+            )
             .update();
     }
 
