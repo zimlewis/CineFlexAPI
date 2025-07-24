@@ -11,20 +11,36 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.cineflex.api.model.Comment;
 import com.cineflex.api.model.CommentSection;
+import com.cineflex.api.model.ReportComment;
 import com.cineflex.api.repository.CommentRepository;
 import com.cineflex.api.repository.CommentSectionRepository;
+import com.cineflex.api.repository.ReportCommentRepository;
 
 @Service
 public class CommentService {
     private final CommentRepository commentRepository;
     private final CommentSectionRepository commentSectionRepository;
+    private final ReportCommentRepository reportCommentRepository;
 
     public CommentService (
         CommentRepository commentRepository,
-        CommentSectionRepository commentSectionRepository
+        CommentSectionRepository commentSectionRepository,
+        ReportCommentRepository reportCommentRepository
     ) {
         this.commentRepository = commentRepository;
+        this.reportCommentRepository = reportCommentRepository;
         this.commentSectionRepository = commentSectionRepository;
+    }
+
+    public Comment getCommentById(UUID id) {
+        try {
+            Comment comment = commentRepository.read(id);
+
+            return comment;
+        }
+        catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        } 
     }
 
     public Comment addToShowComment(Comment comment, UUID show) {
@@ -67,11 +83,61 @@ public class CommentService {
         }
     }
 
+    public Comment addToSectionComment(Comment comment, UUID section) {
+        try {
+            UUID id = UUID.randomUUID();
+            comment.setId(id);
+            comment.setCreatedTime(LocalDateTime.now());
+            comment.setUpdatedTime(LocalDateTime.now());
+
+            comment.setSection(section);
+
+            commentRepository.create(comment);
+
+            Comment returnedComment = commentRepository.read(id);
+            return returnedComment;
+        }
+        catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
+
+    public Integer getAllReportCommentsPageCount(Integer size) {
+        try {
+            Integer count = reportCommentRepository.getPageCount(size);
+
+            return count;
+        }
+        catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
+
+    public List<ReportComment> getAllReportComments(Integer page, Integer size) {
+        try{
+            List<ReportComment> reportComments = reportCommentRepository.readAll(page, size);
+
+            return reportComments;
+        }
+        catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
+
+    public List<Comment> getAllCommentsFromSection(Integer page, Integer size, UUID id) {
+        try {
+            List<Comment> comments = commentRepository.getCommentsBySection(page, size, id);
+
+            return comments;
+        }
+        catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
+
     public List<Comment> getAllCommentsFromEpisode(Integer page, Integer size, UUID id) {
         try {
             List<Comment> comments = commentRepository.getCommentsByEpisode(page, size, id);
-
-            comments.sort((c1, c2) -> c1.getCreatedTime().compareTo(c2.getCreatedTime()));
 
             return comments;
         }
@@ -84,9 +150,40 @@ public class CommentService {
         try {
             List<Comment> comments = commentRepository.getCommentsByShow(page, size, id);
 
-            comments.sort((c1, c2) -> c1.getCreatedTime().compareTo(c2.getCreatedTime()));
+            return comments;
+        }
+        catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
+
+    public List<Comment> getAllComments(Integer page,Integer size) {
+        try {
+            List<Comment> comments = commentRepository.readAll(page, size);
 
             return comments;
+        }
+        catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
+
+    public Integer getAllCommentsPageCount(Integer size) {
+        try {
+            Integer pageCount = commentRepository.getPageCount(size);
+
+            return pageCount;
+        }
+        catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
+
+    public Integer getAllCommentsFromSectionPageCount(Integer size, UUID ...ids) {
+        try {
+            Integer pageCount = commentRepository.getPageCountBySection(size, ids);
+
+            return pageCount;
         }
         catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
@@ -135,6 +232,34 @@ public class CommentService {
     public void deleteComments(UUID ...ids) {
         try {
             commentRepository.delete(ids);
+        }
+        catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
+
+    public List<Comment> getAllCommentsFromSection(Integer page, Integer size, UUID ...id) {
+        try {
+            List<Comment> comments = commentRepository.getCommentsByShow(page, size, id);
+
+            return comments;
+        }
+        catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
+
+    public ReportComment reportAComment(ReportComment body) {
+        try {
+            UUID id = UUID.randomUUID();
+            body.setId(id);
+            body.setCreatedTime(LocalDateTime.now());
+            body.setUpdatedTime(LocalDateTime.now());
+            body.setStatus(0);
+
+            reportCommentRepository.create(body);
+
+            return reportCommentRepository.read(id);
         }
         catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
