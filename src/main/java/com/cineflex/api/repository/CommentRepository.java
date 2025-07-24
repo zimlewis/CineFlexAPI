@@ -48,7 +48,7 @@ public class CommentRepository implements RepositoryInterface<Comment> {
 
     @Override
     public List<Comment> readAll(Integer page, Integer size) {
-        String sql = "SELECT * FROM [dbo].[Comment] WHERE [IsDeleted] = 0 ORDER BY [CreatedTime] DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+        String sql = "SELECT * FROM [dbo].[Comment] ORDER BY [CreatedTime] DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
 
         List<Comment> comments = jdbcClient
                 .sql(sql)
@@ -81,6 +81,8 @@ public class CommentRepository implements RepositoryInterface<Comment> {
         String placeholders = Arrays.stream(ids)
                 .map(_ -> "?")
                 .collect(Collectors.joining(", "));
+        
+        System.out.println(placeholders);
 
         String sql = "UPDATE [dbo].[Comment] SET [IsDeleted] = 1 WHERE [Id] IN (" + placeholders + ")";
 
@@ -89,6 +91,36 @@ public class CommentRepository implements RepositoryInterface<Comment> {
 
     public List<Comment> getCommentsByEpisode(UUID... ids) {
         return getCommentsByEpisode(0, 5, ids);
+    }
+
+    public List<Comment> getCommentsBySection(Integer page, Integer size, UUID... ids) {
+        if (ids.length == 0) {
+            return List.of();
+        }
+
+        String placeholders = Arrays.stream(ids)
+                .map(_ -> "?")
+                .collect(Collectors.joining(", "));
+
+        String sql = """
+                    SELECT * FROM [dbo].[Comment]
+                    WHERE [Section] IN (%s) AND [IsDeleted] = 0
+                    ORDER BY [CreatedTime] DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY
+                """.formatted(placeholders);
+
+        // Build parameters: [ids..., offset, size]
+        List<Object> params = new ArrayList<>();
+        params.addAll(Arrays.asList(ids)); // assume all ids are UUID/String
+        params.add(page * size); // OFFSET
+        params.add(size); // FETCH NEXT
+
+        List<Comment> comments = jdbcClient
+                .sql(sql)
+                .params(params)
+                .query(Comment.class)
+                .list();
+
+        return comments;
     }
 
     public List<Comment> getCommentsByShow(Integer page, Integer size, UUID... ids) {
@@ -139,7 +171,33 @@ public class CommentRepository implements RepositoryInterface<Comment> {
         List<Object> params = new ArrayList<>();
 
         params.add(size);
-        params.addAll(params);
+        params.addAll(Arrays.asList(ids));
+
+        Integer pageCount = jdbcClient
+                .sql(sql)
+                .params(params)
+                .query(Integer.class).optional().orElse(0);
+
+        return pageCount;
+    }
+
+    public Integer getPageCountBySection(Integer size, UUID... ids) {
+        String placeholders = Arrays.stream(ids)
+                .map((_) -> "?")
+                .collect(Collectors.joining(", "));
+
+        if (placeholders.trim().isEmpty()) {
+            return -1;
+        }
+
+        String sql = "SELECT count(*)/? FROM [dbo].[Comment] WHERE [Section] IN (%s)".formatted(placeholders);
+
+        List<Object> params = new ArrayList<>();
+
+        params.add(size);
+        params.addAll(Arrays.asList(ids));
+
+        System.out.println(params);
 
         Integer pageCount = jdbcClient
                 .sql(sql)
@@ -181,7 +239,7 @@ public class CommentRepository implements RepositoryInterface<Comment> {
 
     @Override
     public Integer getPageCount(Integer size) {
-        String sql = "SELECT COUNT([Id])/? FROM [dbo].[Comment] AND [IsDeleted] = 0";
+        String sql = "SELECT COUNT([Id])/? FROM [dbo].[Comment]";
 
         Integer pageCount = jdbcClient
                 .sql(sql)
