@@ -1,5 +1,6 @@
 package com.cineflex.api.service;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
@@ -42,6 +43,31 @@ public class GenreService {
             Genre genre = genreRepository.read(id);
 
             return genre;
+        }
+        catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
+
+    
+    public List<Genre> getAllGenres() {
+        try {
+            List<Genre> genres = genreRepository.readAll(0, 100);
+
+            return genres;
+
+        }
+        catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
+
+    public List<Genre> searchGenres(String keyword) {
+        try {
+            List<Genre> genres = genreRepository.searchGenres(keyword);
+
+            return genres;
+
         }
         catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());

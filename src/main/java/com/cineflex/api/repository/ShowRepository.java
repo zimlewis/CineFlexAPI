@@ -115,6 +115,58 @@ public class ShowRepository implements RepositoryInterface<Show> {
         return genres;
     }
 
+    public List<Genre> updateGenres(UUID show, UUID... genres) {
+        // Validate show
+        Boolean isShowValid = read(show) != null;
+
+        if (!isShowValid) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Show not found or deleted");
+        }
+
+        ////////////////////////////////
+        String sql;
+        sql = "DELETE FROM [dbo].[ShowGenre] WHERE [Show] = ?";
+        jdbcClient.sql(sql).params(show).update();
+
+
+        //////////////////////////////
+        // Validate genres list
+        String placeholder;
+
+        placeholder = Arrays.stream(genres)
+            .map(_ -> "(?, ?)")
+            .collect(Collectors.joining(", "));
+
+        if (placeholder.trim().isEmpty()) {
+            throw new ResponseStatusException(
+              HttpStatus.NOT_ACCEPTABLE,
+              "You either added an already added genre to this show, an empty value or already deleted genres"  
+            );
+        }
+
+        List<UUID> params = new ArrayList<>();
+
+        for (UUID genre : genres) {
+            params.add(show);
+            params.add(genre);
+        }
+        sql = "INSERT INTO [dbo].[ShowGenre] ([Show], [Genre]) VALUES " + placeholder;
+
+        jdbcClient.sql(sql).params(params).update();
+
+
+        ////////////////////////////////////////////////////////////////////
+        placeholder = Arrays.stream(genres)
+            .map(_ -> "?")
+            .collect(Collectors.joining(", "));
+        
+        sql = "SELECT * FROM [dbo].[Genre] WHERE [Id] IN (" + placeholder + ")";
+
+        List<Genre> addedToShowGenre = jdbcClient.sql(sql).params(Arrays.asList(genres)).query(Genre.class).list();
+
+        return addedToShowGenre;
+    }
+
     public List<Genre> addGenres(UUID show, UUID... genres) {
         // Validate show
         Boolean isShowValid = read(show) != null;

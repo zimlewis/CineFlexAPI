@@ -355,6 +355,22 @@ public class ShowService {
         }
     }
 
+    // Update genres of a show
+    @Transactional
+    public List<Genre> updateGenresOfShow(UUID showId, UUID... genreIds) {
+        try {
+            List<Genre> genres = showRepository.updateGenres(showId, genreIds);
+
+            return genres;
+        }
+        catch (ResponseStatusException e) {
+            throw e;
+        }
+        catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getLocalizedMessage());
+        }
+    }
+
     // Add a genre to show
     @Transactional
     public List<Genre> addGenresToShow(UUID showId, UUID... genreIds) {
