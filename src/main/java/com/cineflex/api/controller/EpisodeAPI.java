@@ -143,6 +143,39 @@ public class EpisodeAPI {
         }
     }
 
+    @PostMapping("/{id}/view-history")
+    public ResponseEntity<?> updateViewHistory(
+        @PathVariable String id,
+        @RequestBody JsonNode body
+    ) {
+        try {
+            Integer duration = jsonService.getOrNull(body, "duration", Integer.class);
+
+            if (duration == null) {
+                throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "Duration field must exist");
+            }
+
+            Account account = authenticationService.getAccount();
+
+            if (account == null) {
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You did not log in");
+            }
+
+            UUID episodeId = UUID.fromString(id);
+
+            showService.addViewHistory(account.getId(), episodeId, duration);
+            return new ResponseEntity<>(HttpStatus.OK);
+
+        }
+        catch (ResponseStatusException e) {
+            return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                e.getReason()
+            )).build();
+        }
+    }
+    
+
     @PostMapping("/{id}/comments")
     public ResponseEntity<Comment> postACommentToEpisode(@RequestBody JsonNode jsonNode, @PathVariable String id) {
         try {
