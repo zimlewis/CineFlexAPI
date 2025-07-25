@@ -9,6 +9,7 @@ import com.cineflex.api.service.GenreService;
 import com.cineflex.api.service.JsonService;
 import com.fasterxml.jackson.databind.JsonNode;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
@@ -50,6 +51,40 @@ public class GenreAPI {
             )).build();
         }
     }
+
+    @GetMapping("search")
+    public ResponseEntity<List<Genre>> search (
+        @RequestParam(required = false) String keyword
+    ) {
+        try {
+            List<Genre> genres = genreService.searchGenres(keyword);
+
+            return new ResponseEntity<>(genres, HttpStatus.OK);
+        }
+        catch (ResponseStatusException e) {
+            return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
+                e.getStatusCode(), 
+                e.getReason()
+            )).build();
+        }
+    }
+
+    @GetMapping("")
+    public ResponseEntity<List<Genre>> getAllGenres() {
+        try {
+            List<Genre> genres = genreService.getAllGenres();
+
+            return new ResponseEntity<>(genres, HttpStatus.OK);
+        }
+        catch (ResponseStatusException e) {
+            return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
+                e.getStatusCode(), 
+                e.getReason()
+            )).build();
+        }
+    }
+    
+    
     
     
     @PostMapping("")

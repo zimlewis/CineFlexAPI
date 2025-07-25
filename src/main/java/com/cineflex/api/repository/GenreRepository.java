@@ -130,6 +130,18 @@ public class GenreRepository implements RepositoryInterface<Genre>{
         return missignId;
     }
 
+    public List<Genre> searchGenres(String name) {
+        String sql = "SELECT * FROM [dbo].[Genre] WHERE LOWER([Name]) LIKE ?";
+
+        List<Genre> genres = jdbcClient
+            .sql(sql)
+            .params("%" + name.toLowerCase() + "%")
+            .query(Genre.class)
+            .list();
+
+        return genres;
+    }
+
     public List<UUID> getIdsByNames(String... names) {
         if (names.length == 0) return List.of();
 

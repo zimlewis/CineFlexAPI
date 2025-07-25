@@ -279,7 +279,7 @@ public class ShowAPI {
     }
     
 
-    @PostMapping("/{id}/genres")
+    @PutMapping("/{id}/genres")
     public ResponseEntity<List<Genre>> addGernesToShow(@PathVariable String id, @RequestBody JsonNode jsonNode) {
         try {
             UUID showId = UUID.fromString(id);
@@ -299,9 +299,9 @@ public class ShowAPI {
                 genreIds.add(genreId);
             }
 
-            List<Genre> addedGenres = showService.addGenresToShow(showId, genreIds.toArray(UUID[]::new));
+            List<Genre> genres = showService.updateGenresOfShow(showId, genreIds.toArray(UUID[]::new));
 
-            return new ResponseEntity<>(addedGenres, HttpStatus.CREATED);
+            return new ResponseEntity<>(genres, HttpStatus.CREATED);
         }
         catch (ResponseStatusException e) {
             return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
