@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,12 +17,14 @@ import com.cineflex.api.model.Genre;
 import com.cineflex.api.model.Season;
 import com.cineflex.api.model.Show;
 import com.cineflex.api.model.ShowGenre;
+import com.cineflex.api.model.ViewHistory;
 import com.cineflex.api.repository.CommentRepository;
 import com.cineflex.api.repository.EpisodeRepository;
 import com.cineflex.api.repository.GenreRepository;
 import com.cineflex.api.repository.SeasonRepository;
 import com.cineflex.api.repository.ShowGenreRepository;
 import com.cineflex.api.repository.ShowRepository;
+import com.cineflex.api.repository.ViewHistoryRepository;
 
 
 // This service handle everything that is related to shows (show, episode, season,...)
@@ -34,6 +37,9 @@ public class ShowService {
     private final ShowGenreRepository showGenreRepository;
     private final CommentService commentService;
     private final CommentRepository commentRepository;
+    private final ViewHistoryRepository viewHistoryRepository;
+    private final RedisTemplate<String, Integer> redisTemplate;
+    private static final String VIEW_KEY_PREFIX = "view.count:";
 
     // Inject repository to service
     public ShowService (
@@ -43,7 +49,9 @@ public class ShowService {
         GenreRepository genreRepository,
         ShowGenreRepository showGenreRepository,
         CommentService commentService,
-        CommentRepository commentRepository
+        CommentRepository commentRepository,
+        RedisTemplate<String, Integer> redisTemplate,
+        ViewHistoryRepository viewHistoryRepository
     ) {
         this.showRepository = showRepository;
         this.seasonRepository = seasonRepository;
@@ -52,6 +60,8 @@ public class ShowService {
         this.showGenreRepository = showGenreRepository;
         this.commentService = commentService;
         this.commentRepository = commentRepository;
+        this.redisTemplate = redisTemplate;
+        this.viewHistoryRepository = viewHistoryRepository;
     }
 
     /* ---- INSERT METHOD ---- */
@@ -414,5 +424,63 @@ public class ShowService {
         }
     }
 
+    public ViewHistory getViewHistoryOfAccountAndEpisode(UUID account, UUID episode) {
+        try {
+            ViewHistory viewHistory = viewHistoryRepository.getViewHistory(account, episode);
+
+            return viewHistory;
+        }
+        catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getLocalizedMessage());
+        } 
+    }
+
+    public void addViewHistory(UUID account, UUID episode, Integer timestamp) {
+        try {
+            ViewHistory viewHistory = viewHistoryRepository.getViewHistory(account, episode);
+
+            if (viewHistory == null) {
+                viewHistory = ViewHistory.builder()
+                    .episode(episode)
+                    .account(account)
+                    .createdTime(LocalDateTime.now())
+                    .updatedTime(LocalDateTime.now())
+                    .duration(timestamp)
+                    .isDeleted(false)
+                    .build();
+                viewHistoryRepository.create(viewHistory);
+                return;
+            } 
+
+            viewHistory.setUpdatedTime(LocalDateTime.now());
+            viewHistory.setDuration(timestamp);
+
+            viewHistoryRepository.updateViewHisotry(viewHistory);
+        }
+        catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getLocalizedMessage());
+        }
+    }
+
+    public List<ViewHistory> getViewHistoryAccount(Integer page, Integer size, UUID id) {
+        try {
+            List<ViewHistory> viewHistories = viewHistoryRepository.getViewHistoriesByAccount(page, size, id);
+
+            return viewHistories;
+        }
+        catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getLocalizedMessage());
+        }
+    }
+
+    public Integer getViewHistoryAccountPageCount(Integer size, UUID id) {
+        try {
+            Integer pageCount = viewHistoryRepository.getViewHistoriesByAccountPageCount(size, id);
+            return pageCount;
+        }
+        catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getLocalizedMessage());
+        }
+    }
 
 }

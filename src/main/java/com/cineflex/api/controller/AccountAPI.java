@@ -6,11 +6,13 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.cineflex.api.model.Account;
 import com.cineflex.api.model.Subscription;
+import com.cineflex.api.model.ViewHistory;
 import com.cineflex.api.service.AccountDetailService;
 import com.cineflex.api.service.AccountModeratingService;
 import com.cineflex.api.service.AuthenticationService;
 import com.cineflex.api.service.JsonService;
 import com.cineflex.api.service.OrderService;
+import com.cineflex.api.service.ShowService;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import java.util.List;
@@ -36,6 +38,7 @@ public class AccountAPI {
     private final AuthenticationService authenticationService;
     private final AccountModeratingService accountModeratingService;
     private final JsonService jsonService;
+    private final ShowService showService;
 
 
     public AccountAPI(
@@ -43,13 +46,15 @@ public class AccountAPI {
         OrderService orderService,
         AuthenticationService authenticationService,
         AccountModeratingService accountModeratingService,
-        JsonService jsonService
+        JsonService jsonService,
+        ShowService showService
     ) {
         this.accountDetailService = accountDetailService;
         this.orderService = orderService;
         this.authenticationService = authenticationService;
         this.accountModeratingService = accountModeratingService;
         this.jsonService = jsonService;
+        this.showService = showService;
     }
 
     @GetMapping("/{id}")
@@ -64,6 +69,47 @@ public class AccountAPI {
                     e.getReason())).build();
         }
     }
+
+    @GetMapping("/view-history/{id}")
+    public ResponseEntity<ViewHistory> getViewHistoryOfEpisode(
+        @PathVariable String id
+    ) {
+        try {
+            Account a = authenticationService.getAccount();
+            ViewHistory viewHistory = showService.getViewHistoryOfAccountAndEpisode(a.getId(), UUID.fromString(id));
+
+            return new ResponseEntity<>(viewHistory, HttpStatus.OK);
+        }
+        catch (ResponseStatusException e) {
+            return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
+                    e.getStatusCode(),
+                    e.getReason())).build();
+        }
+    }
+
+    @GetMapping("/view-history")
+    public ResponseEntity<List<ViewHistory>> getViewHistory(
+        @RequestParam(required = false, defaultValue = "0") Integer page, 
+        @RequestParam(required = false, defaultValue = "6") Integer size
+    ) {
+        try {
+            Account a = authenticationService.getAccount();
+            List<ViewHistory> viewHistories = showService.getViewHistoryAccount(page, size, a.getId());
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("X-Total-Page", showService.getViewHistoryAccountPageCount(size, a.getId()).toString());
+
+            return new ResponseEntity<>(viewHistories, headers, HttpStatus.OK);
+        }
+        catch (ResponseStatusException e) {
+            return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
+                e.getStatusCode(),
+                e.getReason()
+            )).build();
+        }
+    }
+    
+    
 
     @GetMapping("")    
     public ResponseEntity<List<Account>> getUsers(
