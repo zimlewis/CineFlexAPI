@@ -1,8 +1,12 @@
 package com.cineflex.api.service;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Random;
 import java.util.UUID;
 
+import org.springframework.boot.autoconfigure.cache.CacheProperties.Redis;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -28,18 +32,91 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
     private final TokenService tokenService;
-
+    private final RedisTemplate<String, String> otpTemplate;
+    private final String OTP_PREFIX = "auth:otp:";
 
     public AuthenticationService (
         AccountRepository accountRepository,
         AuthenticationManager authenticationManager,
         JwtService jwtService,
-        TokenService tokenService
+        TokenService tokenService,
+        RedisTemplate<String, String> otpTemplate
     ) {
         this.accountRepository = accountRepository;
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
         this.tokenService = tokenService;
+        this.otpTemplate = otpTemplate;
+    }
+
+    public void resetPassword(String email, String password) {
+        try {
+            String encodedPassword = encoder.encode(password);
+            Account a = accountRepository.readByEmail(email);
+
+            if (a == null) {
+                throw new ResponseStatusException(
+                    HttpStatus.UNAUTHORIZED,
+                    "Does not exist account for this email"
+                );
+            }
+
+            a.setPassword(encodedPassword);
+
+            accountRepository.update(a.getId(), a);
+
+            String key = OTP_PREFIX + email;
+            otpTemplate.delete(key);
+        }
+        catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage());
+        }
+    }
+
+    public String createOtp(String email) {
+        try {
+            Account a = accountRepository.readByEmail(email);
+
+            if (a == null) {
+                throw new ResponseStatusException(
+                    HttpStatus.UNAUTHORIZED,
+                    "Does not exist account for this email"
+                );
+            }
+
+            String key = OTP_PREFIX + email;
+            String value = otpTemplate.opsForValue().get(key);
+
+            if (value != null) {
+                return value;
+            }
+
+            Random random = new Random();
+            int code = random.nextInt(100000, 999999);
+            value = String.format("%d", code);
+
+            otpTemplate.opsForValue().set(key, value, Duration.ofMinutes(5));
+
+            return value;
+        }
+        catch (ResponseStatusException e) {
+            throw e;
+        }
+        catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage());
+        }
+    }
+
+    public Boolean validateCode(String email, String otp) {
+        try {
+            String key = OTP_PREFIX + email;
+            String value = otpTemplate.opsForValue().get(key);
+
+            return otp.equals(value);
+        }
+        catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage());
+        }
     }
 
     public Account fromUsername(String username) {

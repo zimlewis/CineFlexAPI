@@ -22,7 +22,7 @@ public class EmailService {
     private String privateKey;
 
     public void sendActivationEmail(String token, String email, String host) {
-        sendEmail(host + "/api/authentication/verify/" + token, email, "Activation email");
+        sendEmail(host + "/api/authentication/verify/" + token, email, "Email xác thực tài khoản");
     }
 
     public void sendEmail(String content, String email, String subject) {
@@ -47,13 +47,13 @@ public class EmailService {
                     "Name": "%s"
                 }
             ],
-            "Subject": "Mail xác thực tài khoản",
+            "Subject": "%s",
             "TextPart": "%s"
         }
     ]
 }
 
-            """.formatted(email, "", content);
+            """.formatted(email, "", subject, content);
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create("https://api.mailjet.com/v3.1/send"))
                     .header("Authorization", "Basic " + auth)

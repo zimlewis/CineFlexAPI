@@ -9,4 +9,5 @@ import lombok.Data;
 @Builder
 public class CommentSection {
     UUID id;
+    String alias;
 }

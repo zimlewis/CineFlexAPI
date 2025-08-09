@@ -3,10 +3,13 @@ package com.cineflex.api.service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -29,6 +32,7 @@ import com.cineflex.api.repository.ViewHistoryRepository;
 
 // This service handle everything that is related to shows (show, episode, season,...)
 @Service
+@EnableScheduling
 public class ShowService {
     private final ShowRepository showRepository;
     private final SeasonRepository seasonRepository;
@@ -39,7 +43,7 @@ public class ShowService {
     private final CommentRepository commentRepository;
     private final ViewHistoryRepository viewHistoryRepository;
     private final RedisTemplate<String, Integer> redisTemplate;
-    private static final String VIEW_KEY_PREFIX = "view.count:";
+    private static final String VIEW_KEY_PREFIX = "episode:view.count:";
 
     // Inject repository to service
     public ShowService (
@@ -64,6 +68,62 @@ public class ShowService {
         this.viewHistoryRepository = viewHistoryRepository;
     }
 
+    public void incrementView(UUID id) {
+        try {
+            String key = VIEW_KEY_PREFIX + id.toString();
+            redisTemplate.opsForValue().increment(key, 1);            
+        }
+        catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
+
+    public Integer getActualView(UUID id) {
+        try {
+            Integer cached = getCachedView(id);
+
+            Episode episode = episodeRepository.read(id);
+
+            return episode.getView() + cached;
+        }
+        catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
+
+    public Integer getCachedView(UUID id) {
+        try {
+            String key = VIEW_KEY_PREFIX + id.toString();
+            Integer views = redisTemplate.opsForValue().get(key);
+
+            return views == null ? 0:views;
+        }
+        catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
+
+    @Scheduled(fixedRate = 300000)
+    public void syncViewCount() {
+        Set<String> keys = redisTemplate.keys(VIEW_KEY_PREFIX + "*");
+        if (keys.isEmpty()) return;
+
+
+        for (String key : keys) {
+            UUID id = UUID.fromString(key.replace(VIEW_KEY_PREFIX, ""));
+            Integer cachedViews = redisTemplate.opsForValue().get(key);
+
+            if (cachedViews != null && cachedViews > 0) {
+                Episode episode = episodeRepository.read(id);
+
+                Integer view = episode.getView() + cachedViews;
+                episode.setView(view);
+                episodeRepository.update(id, episode);
+                redisTemplate.delete(key);
+            }
+        }
+    }
+
     /* ---- INSERT METHOD ---- */
     public Show addShow(Show show) {
         try {
@@ -72,7 +132,7 @@ public class ShowService {
             show.setCreatedTime(LocalDateTime.now());
             show.setUpdatedTime(LocalDateTime.now());
 
-            CommentSection commentSection = commentService.createCommentSection();
+            CommentSection commentSection = commentService.createCommentSection("Show: " + show.getTitle());
             System.out.println(commentSection);
             show.setCommentSection(commentSection.getId());
 
@@ -109,7 +169,17 @@ public class ShowService {
             episode.setCreatedTime(LocalDateTime.now());
             episode.setUpdatedTime(LocalDateTime.now());
 
-            CommentSection commentSection = commentService.createCommentSection();
+            Season season = seasonRepository.read(episode.getSeason());
+            Show show = showRepository.read(season.getShow());
+
+            String alias = String.format(
+                "Show: %1s - Season: %2s - Episode: %3s",
+                show.getTitle(),
+                season.getTitle(),
+                episode.getTitle()
+            );
+
+            CommentSection commentSection = commentService.createCommentSection(alias);
             episode.setCommentSection(commentSection.getId());
 
             episodeRepository.create(episode);

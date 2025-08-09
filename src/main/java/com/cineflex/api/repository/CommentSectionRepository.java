@@ -21,12 +21,13 @@ public class CommentSectionRepository implements RepositoryInterface<CommentSect
 
     @Override
     public void create(CommentSection t) {
-        String sql = "INSERT INTO [dbo].[CommentSection] ([Id]) VALUES (?)";
+        String sql = "INSERT INTO [dbo].[CommentSection] ([Id], [Alias]) VALUES (?, ?)";
 
         jdbcClient
             .sql(sql)
             .params(
-                t.getId()
+                t.getId(),
+                t.getAlias()
             )
             .update();
     }
@@ -108,6 +109,7 @@ public class CommentSectionRepository implements RepositoryInterface<CommentSect
 
         return commentSection;
     }
+
 
     
 }

@@ -6,6 +6,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.cineflex.api.model.Account;
 import com.cineflex.api.model.Comment;
+import com.cineflex.api.model.CommentSection;
 import com.cineflex.api.model.ReportComment;
 import com.cineflex.api.service.AuthenticationService;
 import com.cineflex.api.service.CommentService;
@@ -82,7 +83,25 @@ public class CommentAPI {
         }
     }
 
-    @GetMapping("/section/{id}")
+    @GetMapping("/sections/{id}/information")
+    public ResponseEntity<CommentSection> getCommentSection(
+        @PathVariable String id
+    ) {
+        try {
+            CommentSection section = commentService.getCommentSection(UUID.fromString(id));
+
+            return new ResponseEntity<>(section, HttpStatus.OK);
+        }
+        catch (ResponseStatusException e) {
+            return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                e.getReason()
+            )).build();
+        }
+    }
+    
+
+    @GetMapping("/sections/{id}")
     public ResponseEntity<List<Comment>> getComments(
         @PathVariable String id,
         @RequestParam(required = false, defaultValue = "0") Integer page, 
@@ -104,7 +123,29 @@ public class CommentAPI {
         }
     }
 
-    @PostMapping("/section/{id}")
+    @GetMapping("/sections/{id}/deleted")
+    public ResponseEntity<List<Comment>> getCommentsDeleted(
+        @PathVariable String id,
+        @RequestParam(required = false, defaultValue = "0") Integer page, 
+        @RequestParam(required = false, defaultValue = "5") Integer size
+    ) {
+        try {
+            List<Comment> comments = commentService.getAllCommentsFromSectionDeleted(page, size, UUID.fromString(id));
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("X-Total-Page", commentService.getAllCommentsFromSectionDeletedPageCount(size, UUID.fromString(id)).toString());
+
+            return new ResponseEntity<>(comments, headers, HttpStatus.OK);
+        }
+        catch (ResponseStatusException e) {
+            return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                e.getReason()
+            )).build();
+        }
+    }
+
+    @PostMapping("/sections/{id}")
     public ResponseEntity<Comment> postACommentToSection(@RequestBody JsonNode jsonNode, @PathVariable String id) {
         try {
             Account user = authenticationService.getAccount();
@@ -181,6 +222,62 @@ public class CommentAPI {
             ReportComment responseBody = commentService.reportAComment(requestBody);
 
             return new ResponseEntity<>(responseBody, HttpStatus.OK);
+        }
+        catch (ResponseStatusException e) {
+            return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
+                e.getStatusCode(),
+                e.getReason()
+            )).build();
+        }
+    }
+
+    @PostMapping("/report/{id}/approve")
+    public ResponseEntity<?> approveReport(
+        @PathVariable String id
+    ) {
+        try {
+            commentService.approveReport(UUID.fromString(id));
+
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+        catch (ResponseStatusException e) {
+            return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
+                e.getStatusCode(),
+                e.getReason()
+            )).build();
+        }
+    }
+    
+
+    @PostMapping("/report/{id}/ignore")
+    public ResponseEntity<?> ignoreReport(
+        @PathVariable String id
+    ) {
+        try {
+            commentService.ignoreReport(UUID.fromString(id));
+
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+        catch (ResponseStatusException e) {
+            return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
+                e.getStatusCode(),
+                e.getReason()
+            )).build();
+        }
+    }
+    
+    @GetMapping("/sections")
+    public ResponseEntity<List<CommentSection>> getAllCommentSectionPaginated(
+        @RequestParam(required = false, defaultValue = "0") Integer page, 
+        @RequestParam(required = false, defaultValue = "100") Integer size
+    ) {
+        try {
+            List<CommentSection> commentSections = commentService.getCommentSections(page, size);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("X-Total-Page", commentService.getCommentSectionsPageCount(size).toString());
+
+            return new ResponseEntity<>(commentSections, headers, HttpStatus.OK);
         }
         catch (ResponseStatusException e) {
             return ResponseEntity.of(ProblemDetail.forStatusAndDetail(

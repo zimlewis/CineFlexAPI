@@ -18,6 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -107,6 +108,29 @@ public class AdvertisementAPI {
             
             System.out.println(bodyAdvertisement);
             Advertisement responseAdvertisement = advertisementService.addAdvertisement(bodyAdvertisement);
+            return new ResponseEntity<>(responseAdvertisement, HttpStatus.OK);
+        }
+        catch (ResponseStatusException e) {
+            return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
+                e.getStatusCode(),
+                e.getReason()
+            )).build();
+        }
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Advertisement> updateAdvertisement(@RequestBody JsonNode body, @PathVariable String id) {
+        try {
+            Advertisement bodyAdvertisement = Advertisement.builder()
+                .id(UUID.fromString(id))
+                .link(jsonService.getOrNull(body, "link", String.class))
+                .enabled(jsonService.getOrNull(body, "enabled", Boolean.class))
+                .image(jsonService.getOrNull(body, "image", String.class))
+                .type(jsonService.getOrNull(body, "type", Integer.class))
+                .hirer(UUID.fromString(jsonService.getOrNull(body, "hirer", String.class)))
+                .build();
+            
+            Advertisement responseAdvertisement = advertisementService.updateAdvertisement(bodyAdvertisement);
             return new ResponseEntity<>(responseAdvertisement, HttpStatus.OK);
         }
         catch (ResponseStatusException e) {

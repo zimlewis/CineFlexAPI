@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 
@@ -52,6 +53,31 @@ public class HirerAPI {
                 .build();
             
             Hirer returned = advertisementService.addHirer(hirer);
+            return new ResponseEntity<>(returned, HttpStatus.OK);
+        }
+        catch (ResponseStatusException e) {
+            return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
+                e.getStatusCode(), 
+                e.getReason()
+            )).build();
+        }
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Hirer> updateHirer(
+        @PathVariable String id,
+        @RequestBody JsonNode body
+    ) {
+        try {
+            Hirer hirer = Hirer.builder()
+                .id(UUID.fromString(id))
+                .alias(jsonService.getOrNull(body, "alias", String.class))
+                .email(jsonService.getOrNull(body, "email", String.class))
+                .phone(jsonService.getOrNull(body, "phone", String.class))
+                .build();
+            
+            
+            Hirer returned = advertisementService.updateHirer(hirer);
             return new ResponseEntity<>(returned, HttpStatus.OK);
         }
         catch (ResponseStatusException e) {

@@ -2,6 +2,7 @@ package com.cineflex.api.service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
@@ -25,6 +26,51 @@ public class AdvertisementService {
     ) {
         this.hirerRepository = hirerRepository;
         this.advertisementRepository = advertisementRepository;
+    }
+
+    public Advertisement updateAdvertisement(Advertisement advertisement) {
+        try {
+            UUID id = advertisement.getId();
+            Advertisement oldAdvertisement = advertisementRepository.read(id);
+
+            advertisement.setLink(Objects.requireNonNullElse(advertisement.getLink(), oldAdvertisement.getLink()));
+            advertisement.setImage(Objects.requireNonNullElse(advertisement.getImage(), oldAdvertisement.getImage()));
+            advertisement.setEnabled(Objects.requireNonNullElse(advertisement.getEnabled(), oldAdvertisement.getEnabled()));
+            advertisement.setType(Objects.requireNonNullElse(advertisement.getType(), oldAdvertisement.getType()));
+            advertisement.setCreatedTime(oldAdvertisement.getCreatedTime());
+            advertisement.setUpdatedTime(LocalDateTime.now());
+            advertisement.setHirer(oldAdvertisement.getHirer());
+
+            advertisementRepository.update(id, advertisement);
+
+            return advertisementRepository.read(id);
+        }
+        catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        } 
+    }
+
+    public Hirer updateHirer(Hirer hirer) {
+        try {
+            UUID id = hirer.getId();
+            Hirer oldHirer = hirerRepository.read(id);
+
+            hirer.setAlias(Objects.requireNonNullElse(hirer.getAlias(), oldHirer.getAlias()));
+            hirer.setEmail(Objects.requireNonNullElse(hirer.getEmail(), oldHirer.getEmail()));
+            hirer.setPhone(Objects.requireNonNullElse(hirer.getPhone(), oldHirer.getPhone()));
+            hirer.setCreatedTime(oldHirer.getCreatedTime());
+            hirer.setUpdatedTime(LocalDateTime.now());
+
+
+            hirerRepository.update(id, hirer);
+
+            hirer = hirerRepository.read(id);
+
+            return hirer;
+        }
+        catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        } 
     }
 
     public List<Hirer> getPaginatedHirer(Integer page, Integer size) {

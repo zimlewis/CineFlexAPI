@@ -177,6 +177,61 @@ public class AuthenticationAPI {
             )).build();
         }
     }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> verifyOtp(@RequestBody JsonNode body) {
+        try {
+            String email = jsonService.getOrNull(body, "email", String.class);
+            String otp = jsonService.getOrNull(body, "otp", String.class);
+            String newPassword = jsonService.getOrNull(body, "password", String.class);
+
+            if (!authenticationService.validateCode(email, otp)) {
+                throw new ResponseStatusException(
+                    HttpStatus.UNAUTHORIZED,
+                    "Wrong otp"
+                );
+            }
+
+            authenticationService.resetPassword(email, newPassword);
+
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+        catch (ResponseStatusException e) {
+            return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
+                e.getStatusCode(),
+                e.getReason()
+            )).build();
+        }
+    }
+    
+
+    @PostMapping("/send-otp")
+    public ResponseEntity<?> requestPasswordReset(@RequestBody JsonNode body) {
+        try {
+            String email = jsonService.getOrNull(body, "email", String.class);
+
+            if (email == null) {
+                throw new ResponseStatusException(
+                    HttpStatus.UNAUTHORIZED,
+                    "You did not provide email"
+                );
+            }
+
+
+            String code = authenticationService.createOtp(email);
+
+            emailService.sendEmail("Mã OTP của bạn là: " + code, email, "OTP code");
+
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+        catch (ResponseStatusException e) {
+            return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
+                e.getStatusCode(),
+                e.getReason()
+            )).build();
+        }
+    }
+    
     
     
     @GetMapping("/role")
