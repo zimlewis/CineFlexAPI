@@ -174,6 +174,45 @@ public class EpisodeAPI {
             )).build();
         }
     }
+
+    @GetMapping("/{episode}/views") 
+    public ResponseEntity<Integer> getViewsCount (
+        @PathVariable String episode
+    ) {
+        try {
+            UUID id = UUID.fromString(episode);
+            Integer views = showService.getActualView(id);
+
+            return new ResponseEntity<>(views, HttpStatus.OK);
+        }
+        catch (ResponseStatusException e) {
+            return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                e.getReason()
+            )).build();
+        }
+    }
+
+    @PostMapping("/{episode}/views")
+    public ResponseEntity<Integer> addViewsCount (
+        @PathVariable String episode
+    ) {
+        try {
+            UUID id = UUID.fromString(episode);
+
+            showService.incrementView(id);
+            Integer views = showService.getActualView(id);
+
+            return new ResponseEntity<>(views, HttpStatus.OK);
+        }
+        catch (ResponseStatusException e) {
+            return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                e.getReason()
+            )).build();
+        }
+    }
+    
     
 
     @PostMapping("/{id}/comments")

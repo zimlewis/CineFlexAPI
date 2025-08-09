@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.cineflex.api.model.Account;
+import com.cineflex.api.model.BillingDetail;
 import com.cineflex.api.model.Subscription;
 import com.cineflex.api.model.ViewHistory;
 import com.cineflex.api.service.AccountDetailService;
@@ -57,6 +58,30 @@ public class AccountAPI {
         this.showService = showService;
     }
 
+    @GetMapping("/premium")
+    public ResponseEntity<List<Account>> getPremiumUser(
+        @RequestParam(required = false, defaultValue = "0") Integer page, 
+        @RequestParam(required = false, defaultValue = "6") Integer size
+    ) {
+        try {
+            System.out.println(page);
+            System.out.println(size);
+            List<Account> accounts = accountModeratingService.getPremiumAccounts(page, size);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("X-Total-Page", accountModeratingService.getPremiumAccountsPageCount(size).toString());
+
+            return new ResponseEntity<>(accounts, headers, HttpStatus.OK);
+        }
+        catch (ResponseStatusException e) {
+            return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
+                e.getStatusCode(),
+                e.getReason()
+            )).build();
+        }
+    }
+    
+
     @GetMapping("/{id}")
     public ResponseEntity<Account> getUser(@PathVariable String id) {
         try {
@@ -69,6 +94,26 @@ public class AccountAPI {
                     e.getReason())).build();
         }
     }
+
+    @GetMapping("/{id}/subscription")
+    public ResponseEntity<Subscription> getSubscriptionOfUserWithId(
+        @PathVariable String id
+    ) {
+        try {
+            Subscription subscription = orderService.getUserSubscription(UUID.fromString(id));
+
+            if (subscription == null) {
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            }
+
+            return new ResponseEntity<>(subscription, HttpStatus.OK);
+        } catch (ResponseStatusException e) {
+            return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
+                    e.getStatusCode(),
+                    e.getReason())).build();
+        }
+    }
+    
 
     @GetMapping("/view-history/{id}")
     public ResponseEntity<ViewHistory> getViewHistoryOfEpisode(
@@ -84,6 +129,28 @@ public class AccountAPI {
             return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
                     e.getStatusCode(),
                     e.getReason())).build();
+        }
+    }
+
+    @GetMapping("/{id}/bills")
+    public ResponseEntity<List<BillingDetail>> getAccountBillingDetail(
+        @RequestParam(required = false, defaultValue = "0") Integer page, 
+        @RequestParam(required = false, defaultValue = "6") Integer size,
+        @PathVariable String id
+    ){
+        try {
+            List<BillingDetail> billingDetails = accountModeratingService.getBillingDetailsOfAccount(page, size, UUID.fromString(id));
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("X-Total-Page", accountModeratingService.getBillingDetailsOfAccountPageCount(size, UUID.fromString(id)).toString());
+
+            return new ResponseEntity<>(billingDetails, headers, HttpStatus.OK);
+        }
+        catch (ResponseStatusException e) {
+            return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
+                e.getStatusCode(),
+                e.getReason()
+            )).build();
         }
     }
 

@@ -67,16 +67,16 @@ public class HirerRepository implements RepositoryInterface<Hirer>{
 
     @Override
     public void update(UUID id, Hirer t) {
-        String sql = "INSERT INTO [dbo].[Hirer] ([Id], [Alias], [Email], [Phone], [CreatedTime], [UpdatedTime]) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "UPDATE [dbo].[Hirer] SET [Alias] = ?, [Email] = ?, [Phone] = ?, [CreatedTime] = ?, [UpdatedTime] = ? WHERE [Id] = ?";
         jdbcClient
             .sql(sql)
             .params(
-                t.getId(),
                 t.getAlias(),
                 t.getEmail(),
                 t.getPhone(),
                 t.getCreatedTime(),
-                t.getUpdatedTime()
+                t.getUpdatedTime(),
+                t.getId()
             )
             .update();
     }

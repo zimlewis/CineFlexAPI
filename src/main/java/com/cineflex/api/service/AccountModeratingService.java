@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.cineflex.api.model.Account;
+import com.cineflex.api.model.BillingDetail;
 import com.cineflex.api.repository.AccountRepository;
 
 @Service
@@ -89,6 +90,47 @@ public class AccountModeratingService {
     public Integer getAccountsPageCount(Integer size) {
         try {
             return accountRepository.getPageCount(size);
+        }
+        catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
+
+    public Integer getPremiumAccountsPageCount(Integer size){
+        try {
+            return accountRepository.getPremiumAccountsPageCount(size);
+        }
+        catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
+
+    public Integer getBillingDetailsOfAccountPageCount(Integer size, UUID account){
+        try {
+            return accountRepository.getBillingDetailsOfAccountPageCount(size, account);
+        }
+        catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
+
+    public List<Account> getPremiumAccounts(Integer page, Integer size) {
+        try {
+            List<Account> accounts = accountRepository.getPremiumAccounts(page, size);
+            System.out.println(accounts);
+
+            return accounts;
+        }
+        catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
+
+    public List<BillingDetail> getBillingDetailsOfAccount(Integer page, Integer size, UUID account) {
+        try {
+            List<BillingDetail> billingDetails = accountRepository.getBillingDetailsOfAccount(page, size, account);
+
+            return billingDetails;
         }
         catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());

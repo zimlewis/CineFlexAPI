@@ -7,6 +7,7 @@ import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.cineflex.api.model.Comment;
@@ -135,6 +136,17 @@ public class CommentService {
         }
     }
 
+    public List<Comment> getAllCommentsFromSectionDeleted(Integer page, Integer size, UUID id) {
+        try {
+            List<Comment> comments = commentRepository.getCommentsBySectionDeleted(page, size, id);
+
+            return comments;
+        }
+        catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
+
     public List<Comment> getAllCommentsFromEpisode(Integer page, Integer size, UUID id) {
         try {
             List<Comment> comments = commentRepository.getCommentsByEpisode(page, size, id);
@@ -190,6 +202,17 @@ public class CommentService {
         }
     }
 
+    public Integer getAllCommentsFromSectionDeletedPageCount(Integer size, UUID ...ids) {
+        try {
+            Integer pageCount = commentRepository.getPageCountBySection(size, ids);
+
+            return pageCount;
+        }
+        catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
+
     public Integer getAllCommentsFromEpisodePageCount(Integer size, UUID ...ids) {
         try {
             Integer pageCount = commentRepository.getPageCountByEpisode(size, ids);
@@ -212,11 +235,12 @@ public class CommentService {
         }
     }
 
-    public CommentSection createCommentSection() {
+    public CommentSection createCommentSection(String alias) {
         try {
             UUID id = UUID.randomUUID();
             CommentSection commentSection = CommentSection.builder()
                 .id(id)
+                .alias(alias)
                 .build();
 
             commentSectionRepository.create(commentSection);
@@ -249,6 +273,43 @@ public class CommentService {
         }
     }
 
+    public CommentSection getCommentSection(UUID id) {
+        try {
+            return commentSectionRepository.read(id);
+        }
+        catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
+
+    @Transactional
+    public void approveReport(UUID id) {
+        try {
+            ReportComment reportComment = reportCommentRepository.read(id);
+
+            commentRepository.delete(reportComment.getComment());
+            reportComment.setStatus(1);
+
+            reportCommentRepository.update(id, reportComment);
+        }
+        catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
+
+    @Transactional
+    public void ignoreReport(UUID id) {
+        try {
+            ReportComment reportComment = reportCommentRepository.read(id);
+            reportComment.setStatus(1);
+
+            reportCommentRepository.update(id, reportComment);
+        }
+        catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
+
     public ReportComment reportAComment(ReportComment body) {
         try {
             UUID id = UUID.randomUUID();
@@ -260,6 +321,28 @@ public class CommentService {
             reportCommentRepository.create(body);
 
             return reportCommentRepository.read(id);
+        }
+        catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
+
+    public Integer getCommentSectionsPageCount(Integer size) {
+        try {
+            Integer pageCount = commentSectionRepository.getPageCount(size);
+
+            return pageCount;
+        }
+        catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
+
+    public List<CommentSection> getCommentSections(Integer page, Integer size) {
+        try {
+            List<CommentSection> commentSections = commentSectionRepository.readAll(page, size);
+
+            return commentSections;
         }
         catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());

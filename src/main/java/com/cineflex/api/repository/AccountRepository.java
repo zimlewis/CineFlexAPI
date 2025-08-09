@@ -4,12 +4,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.Flow.Subscription;
 import java.util.stream.Collectors;
 
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
 
 import com.cineflex.api.model.Account;
+import com.cineflex.api.model.BillingDetail;
 
 @Repository
 public class AccountRepository implements RepositoryInterface<Account>{
@@ -125,6 +127,56 @@ public class AccountRepository implements RepositoryInterface<Account>{
     @Override
     public Integer getPageCount(Integer size) {
         String sql = "SELECT COUNT([Id])/? FROM [dbo].[Account]";
+
+        Integer pageCount = jdbcClient
+            .sql(sql)
+            .params(size)
+            .query(Integer.class).optional().orElse(0);
+        
+        return pageCount;
+    }
+
+    public Integer getBillingDetailsOfAccountPageCount(Integer size, UUID account) {
+        String sql = "SELECT COUNT([Id])/? FROM [dbo].[BillingDetail] WHERE [Account] = ?";
+
+        Integer pageCount = jdbcClient
+            .sql(sql)
+            .params(size, account)
+            .query(Integer.class).optional().orElse(0);
+        
+        return pageCount;
+    }
+
+    public List<BillingDetail> getBillingDetailsOfAccount(Integer page, Integer size, UUID account) {
+        List<BillingDetail> billingDetails = new ArrayList<>();
+
+        String sql = "SELECT * FROM [dbo].[BillingDetail] WHERE [Account] = ? ORDER BY [CreatedTime] OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+
+        billingDetails = jdbcClient
+            .sql(sql)
+            .params(account, page * size, size)
+            .query(BillingDetail.class)
+            .list();
+
+        return billingDetails;
+    }
+
+    public List<Account> getPremiumAccounts(Integer page, Integer size){
+        List<Account> accounts = new ArrayList<Account>();
+
+        String sql = "SELECT * FROM [dbo].[Account] WHERE [Id] IN (SELECT [Account] FROM [dbo].[Subscription] WHERE [EndTime] > GETDATE()) ORDER BY [Username] OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+
+        accounts = jdbcClient
+            .sql(sql)
+            .params(page * size, size)
+            .query(Account.class)
+            .list();
+
+        return accounts;
+    }
+
+    public Integer getPremiumAccountsPageCount(Integer size){
+        String sql = "SELECT COUNT([Id])/? FROM [dbo].[Account] WHERE [Id] IN (SELECT [Account] FROM [dbo].[Subscription] WHERE [EndTime] > GETDATE())";
 
         Integer pageCount = jdbcClient
             .sql(sql)
