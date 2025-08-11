@@ -62,6 +62,58 @@ public class ShowAPI {
         this.authenticationService = authenticationService;
     }
     
+    @GetMapping("/query")
+    public ResponseEntity<List<Show>> queryForShow(
+        @RequestParam(required = false) List<String> genres,
+        @RequestParam(required = false) String ageRating,
+        @RequestParam(required = false) Boolean series,
+        @RequestParam(required = false) LocalDate from,
+        @RequestParam(required = false) LocalDate to,
+        @RequestParam(required = false) String keyword,
+        @RequestParam(required = false, defaultValue = "0") Integer page, 
+        @RequestParam(required = false, defaultValue = "5") Integer size
+
+    ) {
+        try {
+            if (genres == null) {
+                genres = new ArrayList<>();
+            }
+            List<Show> shows = showService.queryShow(
+                genres,
+                ageRating,
+                series,
+                keyword,
+                from,
+                to,
+                page,
+                size
+            );
+
+            Integer pageCount = showService.queryShowSizeCount(
+                genres, 
+                ageRating, 
+                series, 
+                keyword, 
+                from, 
+                to, 
+                size
+            );
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("X-Total-Page", pageCount.toString());
+
+
+            return new ResponseEntity<>(shows, headers, HttpStatus.OK);
+        }
+        catch (ResponseStatusException e) {
+            return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
+                e.getStatusCode(), 
+                e.getReason()
+            )).build();
+        }
+    }
+    
+
     // Get single show database
     @GetMapping("/{id}")
     public ResponseEntity<Show> findShow(@PathVariable String id) {
@@ -129,6 +181,91 @@ public class ShowAPI {
             ResponseEntity<List<Show>> responseEntity = new ResponseEntity<List<Show>>(shows, headers, HttpStatus.OK);
 
             return responseEntity;
+        }
+        catch (ResponseStatusException e) {
+            return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
+                e.getStatusCode(), 
+                e.getReason()
+            )).build();
+        }
+    }
+
+    @GetMapping("/{id}/is-favorite")
+    public ResponseEntity<Boolean> isFavorite (
+        @PathVariable String id
+    ) {
+        try {
+            Account a = authenticationService.getAccount();
+
+            if (a == null) {
+                return new ResponseEntity<>(false, HttpStatus.OK);
+            }
+
+            Boolean isFavorite = showService.isFavorited(UUID.fromString(id), a.getId());
+
+            return new ResponseEntity<>(isFavorite, HttpStatus.OK);
+        }
+        catch (ResponseStatusException e) {
+            return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
+                e.getStatusCode(), 
+                e.getReason()
+            )).build();
+        }
+    }
+
+    @GetMapping("/{id}/favorite")
+    public ResponseEntity<Integer> getFavoriteCount (
+        @PathVariable String id
+    ) {
+        try {
+            UUID show = UUID.fromString(id);
+
+            Integer favoriteCount = showService.getFavoriteCount(show);
+
+            return new ResponseEntity<>(favoriteCount, HttpStatus.OK);
+        }
+        catch (ResponseStatusException e) {
+            return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
+                e.getStatusCode(), 
+                e.getReason()
+            )).build();
+        }
+    }
+    
+
+    @PostMapping("/{id}/unfavorite")
+    public ResponseEntity<?> unfavoriteShow(
+        @PathVariable String id
+    ) {
+        try {
+            Account a = authenticationService.getAccount();
+            UUID account = a.getId();
+            UUID show = UUID.fromString(id);
+
+            showService.unfavoriteAShow(show, account);
+
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+        catch (ResponseStatusException e) {
+            return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
+                e.getStatusCode(), 
+                e.getReason()
+            )).build();
+        }
+    }    
+    
+    @PostMapping("/{id}/favorite")
+    public ResponseEntity<?> favoriteShow(
+        @PathVariable String id
+    ) {
+        try {
+            Account a = authenticationService.getAccount();
+            UUID account = a.getId();
+            UUID show = UUID.fromString(id);
+
+            showService.favoriteAShow(show, account);
+
+            return new ResponseEntity<>(HttpStatus.OK);
         }
         catch (ResponseStatusException e) {
             return ResponseEntity.of(ProblemDetail.forStatusAndDetail(

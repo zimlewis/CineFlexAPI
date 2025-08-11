@@ -1,5 +1,6 @@
 package com.cineflex.api.repository;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -239,6 +240,195 @@ public class ShowRepository implements RepositoryInterface<Show> {
         String sql = "SELECT * FROM [dbo].[Show] WHERE [Id] IN (SELECT [Show] FROM [dbo].[ShowGenre] WHERE [Genre] IN ("+ placeHolder +") AND [Show] IN (SELECT [Id] FROM [dbo].[Show] WHERE [IsDeleted] = 0) AND [Genre] IN (SELECT [Id] FROM [dbo].[Genre] WHERE [IsDeleted] = 0) GROUP BY [Show] HAVING COUNT(DISTINCT [Genre]) = ?) AND [IsDeleted] = 0";
     
         List<Show> shows = jdbcClient.sql(sql).params(Arrays.asList(genres)).param(genres.length).query(Show.class).list();
+
+        return shows;
+    }
+
+    public Integer filterShowPageCount(Boolean isSeries, String ageRating, LocalDate fromDate, LocalDate toDate, List<String> genres, String keyword, Integer size) {
+        String genresQuery = """
+        DECLARE @FilteredShowWithGenre TABLE (
+            [Id]            UNIQUEIDENTIFIER NOT NULL,
+            [Title]         NVARCHAR(100)    NOT NULL,
+            [Description]   NVARCHAR(1000)   NOT NULL,
+            [ReleaseDate]   DATE             NOT NULL,
+            [Thumbnail]     VARCHAR(MAX),
+            [CreatedTime]   DATETIME         NOT NULL,
+            [UpdatedTime]   DATETIME         NOT NULL,
+            [OnGoing]       BIT              NOT NULL,
+            [AgeRating]     VARCHAR(50)      NOT NULL,
+            [IsSeries]      BIT              NOT NULL,
+            [IsDeleted]     BIT              NOT NULL,
+            [CommentSection]UNIQUEIDENTIFIER NOT NULL
+        );
+        
+        INSERT INTO @FilteredShowWithGenre
+        SELECT * FROM [dbo].[Show] WHERE [Id] IN (
+            SELECT s.[Id]
+            FROM [dbo].[ShowGenre] sg
+            JOIN [Genre] g ON sg.[Genre] = g.Id
+            JOIN @FilteredShow s ON sg.[Show] = s.Id
+            WHERE g.Name IN (
+                %s
+            ) 
+            GROUP BY s.[Id]
+            HAVING COUNT(DISTINCT sg.[Genre]) = ?
+        );
+
+        SELECT COUNT([Id])/? FROM @FilteredShowWithGenre WHERE [IsDeleted] = 0;
+
+        """;
+
+        String nonGenreQuery = "SELECT COUNT([Id])/? FROM @FilteredShow WHERE [IsDeleted] = 0;";
+
+        String prefixSql = """
+        DECLARE @FilteredShow TABLE (
+            [Id]            UNIQUEIDENTIFIER NOT NULL,
+            [Title]         NVARCHAR(100)    NOT NULL,
+            [Description]   NVARCHAR(1000)   NOT NULL,
+            [ReleaseDate]   DATE             NOT NULL,
+            [Thumbnail]     VARCHAR(MAX),
+            [CreatedTime]   DATETIME         NOT NULL,
+            [UpdatedTime]   DATETIME         NOT NULL,
+            [OnGoing]       BIT              NOT NULL,
+            [AgeRating]     VARCHAR(50)      NOT NULL,
+            [IsSeries]      BIT              NOT NULL,
+            [IsDeleted]     BIT              NOT NULL,
+            [CommentSection]UNIQUEIDENTIFIER NOT NULL
+        );
+
+        INSERT INTO @FilteredShow
+        EXEC FilterShow 
+            @AgeRating = ?, 
+            @IsSeries = ?,
+            @FromDate = ?,
+            @ToDate = ?,
+            @Keyword = ?
+        """;
+
+        String sql;
+        List<Object> params = new ArrayList<>();
+        params.add(ageRating);
+        params.add(isSeries);
+        params.add(fromDate);
+        params.add(toDate);
+        params.add(keyword);
+
+        if (genres.isEmpty()) {
+            sql = prefixSql + nonGenreQuery;
+
+        }
+        else {
+            String placeholders = genres.stream()
+                .map(_ -> "?")
+                .collect(Collectors.joining(", "));
+            
+            sql = prefixSql + String.format(genresQuery, placeholders);
+            params.addAll(genres);
+            params.add(genres.size());
+        }
+
+        params.add(size);
+
+        Integer pageCount = jdbcClient
+            .sql(sql)
+            .params(params)
+            .query(Integer.class).optional().orElse(-1);
+        
+        return pageCount;
+    } 
+
+    public List<Show> filterShow(Boolean isSeries, String ageRating, LocalDate fromDate, LocalDate toDate, List<String> genres, String keyword, Integer page, Integer size) {
+        List<Show> shows = new ArrayList<>();
+
+        String genresQuery = """
+        DECLARE @FilteredShowWithGenre TABLE (
+            [Id]            UNIQUEIDENTIFIER NOT NULL,
+            [Title]         NVARCHAR(100)    NOT NULL,
+            [Description]   NVARCHAR(1000)   NOT NULL,
+            [ReleaseDate]   DATE             NOT NULL,
+            [Thumbnail]     VARCHAR(MAX),
+            [CreatedTime]   DATETIME         NOT NULL,
+            [UpdatedTime]   DATETIME         NOT NULL,
+            [OnGoing]       BIT              NOT NULL,
+            [AgeRating]     VARCHAR(50)      NOT NULL,
+            [IsSeries]      BIT              NOT NULL,
+            [IsDeleted]     BIT              NOT NULL,
+            [CommentSection]UNIQUEIDENTIFIER NOT NULL
+        );
+        
+        INSERT INTO @FilteredShowWithGenre
+        SELECT * FROM [dbo].[Show] WHERE [Id] IN (
+            SELECT s.[Id]
+            FROM [dbo].[ShowGenre] sg
+            JOIN [Genre] g ON sg.[Genre] = g.Id
+            JOIN @FilteredShow s ON sg.[Show] = s.Id
+            WHERE g.Name IN (
+                %s
+            ) 
+            GROUP BY s.[Id]
+            HAVING COUNT(DISTINCT sg.[Genre]) = ?
+        );
+
+        SELECT * FROM @FilteredShowWithGenre WHERE [IsDeleted] = 0 ORDER BY [CreatedTime] DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY;
+
+        """;
+
+        String nonGenreQuery = "SELECT * FROM @FilteredShow WHERE [IsDeleted] = 0 ORDER BY [CreatedTime] DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY;";
+
+        String prefixSql = """
+        DECLARE @FilteredShow TABLE (
+            [Id]            UNIQUEIDENTIFIER NOT NULL,
+            [Title]         NVARCHAR(100)    NOT NULL,
+            [Description]   NVARCHAR(1000)   NOT NULL,
+            [ReleaseDate]   DATE             NOT NULL,
+            [Thumbnail]     VARCHAR(MAX),
+            [CreatedTime]   DATETIME         NOT NULL,
+            [UpdatedTime]   DATETIME         NOT NULL,
+            [OnGoing]       BIT              NOT NULL,
+            [AgeRating]     VARCHAR(50)      NOT NULL,
+            [IsSeries]      BIT              NOT NULL,
+            [IsDeleted]     BIT              NOT NULL,
+            [CommentSection]UNIQUEIDENTIFIER NOT NULL
+        );
+
+        INSERT INTO @FilteredShow
+        EXEC FilterShow 
+            @AgeRating = ?, 
+            @IsSeries = ?,
+            @FromDate = ?,
+            @ToDate = ?,
+            @Keyword = ?
+        """;
+
+        String sql;
+        List<Object> params = new ArrayList<>();
+        params.add(ageRating);
+        params.add(isSeries);
+        params.add(fromDate);
+        params.add(toDate);
+        params.add(keyword);
+
+        if (genres.isEmpty()) {
+            sql = prefixSql + nonGenreQuery;
+        }
+        else {
+            String placeholders = genres.stream()
+                .map(_ -> "?")
+                .collect(Collectors.joining(", "));
+            
+            sql = prefixSql + String.format(genresQuery, placeholders);
+            params.addAll(genres);
+            params.add(genres.size());
+        }
+
+        params.add(page * size);
+        params.add(size);
+
+        shows = jdbcClient
+            .sql(sql)
+            .params(params)
+            .query(Show.class)
+            .list();
 
         return shows;
     }

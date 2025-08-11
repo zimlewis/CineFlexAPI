@@ -1,5 +1,6 @@
 package com.cineflex.api.service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -12,18 +13,24 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.cineflex.api.model.CommentSection;
 import com.cineflex.api.model.Episode;
+import com.cineflex.api.model.Favorite;
 import com.cineflex.api.model.Genre;
+import com.cineflex.api.model.Like;
 import com.cineflex.api.model.Season;
 import com.cineflex.api.model.Show;
 import com.cineflex.api.model.ShowGenre;
 import com.cineflex.api.model.ViewHistory;
 import com.cineflex.api.repository.CommentRepository;
 import com.cineflex.api.repository.EpisodeRepository;
+import com.cineflex.api.repository.FavoriteRepository;
 import com.cineflex.api.repository.GenreRepository;
+import com.cineflex.api.repository.LikeRepository;
+import com.cineflex.api.repository.RatingRepository;
 import com.cineflex.api.repository.SeasonRepository;
 import com.cineflex.api.repository.ShowGenreRepository;
 import com.cineflex.api.repository.ShowRepository;
@@ -42,6 +49,9 @@ public class ShowService {
     private final CommentService commentService;
     private final CommentRepository commentRepository;
     private final ViewHistoryRepository viewHistoryRepository;
+    private final LikeRepository likeRepository;
+    private final FavoriteRepository favoriteRepository;
+    private final RatingRepository ratingRepository;
     private final RedisTemplate<String, Integer> redisTemplate;
     private static final String VIEW_KEY_PREFIX = "episode:view.count:";
 
@@ -55,7 +65,10 @@ public class ShowService {
         CommentService commentService,
         CommentRepository commentRepository,
         RedisTemplate<String, Integer> redisTemplate,
-        ViewHistoryRepository viewHistoryRepository
+        ViewHistoryRepository viewHistoryRepository,
+        LikeRepository likeRepository,
+        FavoriteRepository favoriteRepository,
+        RatingRepository ratingRepository
     ) {
         this.showRepository = showRepository;
         this.seasonRepository = seasonRepository;
@@ -66,6 +79,144 @@ public class ShowService {
         this.commentRepository = commentRepository;
         this.redisTemplate = redisTemplate;
         this.viewHistoryRepository = viewHistoryRepository;
+        this.likeRepository = likeRepository;
+        this.favoriteRepository = favoriteRepository;
+        this.ratingRepository = ratingRepository;
+    }
+
+    public Integer queryShowSizeCount (
+        List<String> genres,
+        String ageRating,
+        Boolean series,
+        String keyword,
+        LocalDate from,
+        LocalDate to,
+        Integer size
+    ) {
+        try {
+            return showRepository.filterShowPageCount(series, ageRating, from, to, genres, keyword, size);
+        }
+        catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
+
+    public List<Show> queryShow (
+        List<String> genres,
+        String ageRating,
+        Boolean series,
+        String keyword,
+        LocalDate from,
+        LocalDate to,
+        Integer page,
+        Integer size
+    ) {
+        try {
+            return showRepository.filterShow(series, ageRating, from, to, genres, keyword, page, size);
+        }
+        catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
+
+    public boolean isLiked(UUID episode, UUID account) {
+        try {
+            return likeRepository.getLike(account, episode) != null;
+        }
+        catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
+
+    public void unlikeAEpisode(UUID episode, UUID account) {
+        try {
+            if (!isLiked(episode, account)) {
+                return;
+            }
+
+            likeRepository.removeLike(account, episode);
+        }
+        catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
+
+    public Integer getLikeCount(UUID episode) {
+        try {
+            return likeRepository.getLikeCount(episode);
+        }
+        catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
+
+    public void likeAEpisode(UUID episode, UUID account) {
+        try {
+            if (isLiked(episode, account)) {
+                return;
+            }
+            
+            Like like = Like.builder()
+                .episode(episode)
+                .account(account)
+                .createdTime(LocalDateTime.now())
+                .build();
+
+            likeRepository.create(like);
+        }
+        catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
+
+    public boolean isFavorited(UUID show, UUID account) {
+        try {
+            return favoriteRepository.getFavorite(account, show) != null;
+        }
+        catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
+
+    public void unfavoriteAShow(UUID show, UUID account) {
+        try {
+            if (!isFavorited(show, account)) {
+                return;
+            }
+
+            favoriteRepository.removeFavorite(account, show);
+        }
+        catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
+
+    public Integer getFavoriteCount(UUID show) {
+        try {
+            return favoriteRepository.getFavoriteCount(show);
+        }
+        catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
+
+    public void favoriteAShow(UUID show, UUID account) {
+        try {
+            if (isFavorited(show, account)) {
+                return;
+            }
+            
+            Favorite fav = Favorite.builder()
+                .show(show)
+                .account(account)
+                .createdTime(LocalDateTime.now())
+                .build();
+
+            favoriteRepository.create(fav);
+        }
+        catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
     }
 
     public void incrementView(UUID id) {

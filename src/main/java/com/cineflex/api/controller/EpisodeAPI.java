@@ -52,6 +52,93 @@ public class EpisodeAPI {
         this.commentService = commentService;
         this.authenticationService = authenticationService;
     }
+
+
+    @GetMapping("/{id}/is-liked")
+    public ResponseEntity<Boolean> isLike (
+        @PathVariable String id
+    ) {
+        try {
+            Account a = authenticationService.getAccount();
+
+            if (a == null) {
+                return new ResponseEntity<>(false, HttpStatus.OK);
+            }
+
+            Boolean isLiked = showService.isLiked(UUID.fromString(id), a.getId());
+
+            return new ResponseEntity<>(isLiked, HttpStatus.OK);
+        }
+        catch (ResponseStatusException e) {
+            return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
+                e.getStatusCode(), 
+                e.getReason()
+            )).build();
+        }
+    }
+
+    @GetMapping("/{id}/like")
+    public ResponseEntity<Integer> getLikeCount (
+        @PathVariable String id
+    ) {
+        try {
+            UUID episode = UUID.fromString(id);
+
+            Integer likeCount = showService.getLikeCount(episode);
+
+            return new ResponseEntity<>(likeCount, HttpStatus.OK);
+        }
+        catch (ResponseStatusException e) {
+            return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
+                e.getStatusCode(), 
+                e.getReason()
+            )).build();
+        }
+    }
+    
+
+    @PostMapping("/{id}/unlike")
+    public ResponseEntity<?> unlikeEpisode(
+        @PathVariable String id
+    ) {
+        try {
+            Account a = authenticationService.getAccount();
+            UUID account = a.getId();
+            UUID episode = UUID.fromString(id);
+
+            showService.unlikeAEpisode(episode, account);
+
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+        catch (ResponseStatusException e) {
+            return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
+                e.getStatusCode(), 
+                e.getReason()
+            )).build();
+        }
+    }    
+    
+    @PostMapping("/{id}/like")
+    public ResponseEntity<?> likeEpisode (
+        @PathVariable String id
+    ) {
+        try {
+            Account a = authenticationService.getAccount();
+            UUID account = a.getId();
+            UUID episode = UUID.fromString(id);
+
+            showService.likeAEpisode(episode, account);
+
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+        catch (ResponseStatusException e) {
+            return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
+                e.getStatusCode(), 
+                e.getReason()
+            )).build();
+        }
+    }
+    
     
     @GetMapping("/{id}")
     public ResponseEntity<Episode> getEpisodeById(@PathVariable String id) {

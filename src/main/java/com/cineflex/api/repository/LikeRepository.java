@@ -6,6 +6,7 @@ import java.util.UUID;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
 
+import com.cineflex.api.model.Favorite;
 import com.cineflex.api.model.Like;
 
 
@@ -70,6 +71,41 @@ public class LikeRepository implements RepositoryInterface<Like>{
             .query(Integer.class).optional().orElse(-1);
         
         return pageCount;
+    }
+
+    public Integer getLikeCount(UUID episode) {
+        String sql = "SELECT COUNT(*) FROM [dbo].[Like] WHERE [Episode] = ?";
+
+        Integer count = jdbcClient
+            .sql(sql)
+            .params(episode)
+            .query(Integer.class).optional().orElse(0);
+
+        return count;
+    }
+
+    public void removeLike(UUID account, UUID episode) {
+        String sql = "DELETE FROM [dbo].[Like] WHERE [Episode] = ? AND [Account] = ?";
+
+        jdbcClient.sql(sql).params(
+            episode,
+            account
+        ).update();
+    }
+
+    public Like getLike(UUID account, UUID episode) {
+        String sql = "SELECT * FROM [dbo].[Like] WHERE [Episode] = ? AND [Account] = ?";
+
+        Like like = jdbcClient
+            .sql(sql)
+            .params(
+                episode,
+                account
+            ).query(Like.class)
+            .optional()
+            .orElse(null);
+        
+        return like;
     }
     
 

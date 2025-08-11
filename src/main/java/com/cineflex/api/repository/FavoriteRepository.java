@@ -72,5 +72,40 @@ public class FavoriteRepository implements RepositoryInterface<Favorite>{
         
         return pageCount;
     }
+
+    public Integer getFavoriteCount(UUID show) {
+        String sql = "SELECT COUNT(*) FROM [dbo].[Favorite] WHERE [Show] = ?";
+
+        Integer count = jdbcClient
+            .sql(sql)
+            .params(show)
+            .query(Integer.class).optional().orElse(0);
+
+        return count;
+    }
+
+    public void removeFavorite(UUID account, UUID show) {
+        String sql = "DELETE FROM [dbo].[Favorite] WHERE [show] = ? AND [Account] = ?";
+
+        jdbcClient.sql(sql).params(
+            show,
+            account
+        ).update();
+    }
+
+    public Favorite getFavorite(UUID account, UUID show) {
+        String sql = "SELECT * FROM [dbo].[Favorite] WHERE [Show] = ? AND [Account] = ?";
+
+        Favorite favorite = jdbcClient
+            .sql(sql)
+            .params(
+                show,
+                account
+            ).query(Favorite.class)
+            .optional()
+            .orElse(null);
+        
+        return favorite;
+    }
     
 }
