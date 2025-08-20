@@ -8,8 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.cineflex.api.dto.FavoriteShow;
 import com.cineflex.api.model.Favorite;
+import com.cineflex.api.model.Show;
 import com.cineflex.api.repository.FavoriteRepository;
 
 @Service
@@ -44,8 +44,8 @@ public class FavoriteService {
         favoriteRepository.removeFavorite(account, show);
     }
 
-    public List<FavoriteShow> getFavorites(UUID account, int page, int size) {
-        return favoriteRepository.getFavoritesByAccount(account, page, size);
+    public List<Show> getFavoriteShows(UUID account, int page, int size) {
+        return favoriteRepository.getFavoriteShowsByAccount(account, page, size);
     }
 
     public Integer getFavoritesPageCount(UUID account, int size) {

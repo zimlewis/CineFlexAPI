@@ -3,7 +3,7 @@ package com.cineflex.api.repository;
 import java.util.List;
 import java.util.UUID;
 
-import com.cineflex.api.dto.FavoriteShow;
+import com.cineflex.api.model.Show;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
 
@@ -23,10 +23,10 @@ public class FavoriteRepository implements RepositoryInterface<Favorite>{
     @Override
     public void create(Favorite t) {
         String sql = "INSERT INTO [dbo].[Favorite] ([Account], [Show], [CreatedTime]) VALUES (?, ?, ?)";
-        
+
         jdbcClient.sql(sql).params(
-            t.getAccount(), 
-            t.getShow(), 
+            t.getAccount(),
+            t.getShow(),
             t.getCreatedTime()
         ).update();
     }
@@ -70,7 +70,7 @@ public class FavoriteRepository implements RepositoryInterface<Favorite>{
             .sql(sql)
             .params(size)
             .query(Integer.class).optional().orElse(-1);
-        
+
         return pageCount;
     }
 
@@ -105,22 +105,13 @@ public class FavoriteRepository implements RepositoryInterface<Favorite>{
             ).query(Favorite.class)
             .optional()
             .orElse(null);
-        
+
         return favorite;
     }
 
-    public List<FavoriteShow> getFavoritesByAccount(UUID account, int page, int size) {
+    public List<Show> getFavoriteShowsByAccount(UUID account, int page, int size) {
         String sql = """
-            SELECT f.[Account] AS account,
-                   f.[Show] AS showId,
-                   s.[Title] AS title,
-                   s.[Description] AS description,
-                   s.[ReleaseDate] AS releaseDate,
-                   s.[Thumbnail] AS thumbnail,
-                   s.[OnGoing] AS onGoing,
-                   s.[IsSeries] AS isSeries,
-                   s.[AgeRating] AS ageRating,
-                   f.[CreatedTime] AS createdTime
+            SELECT s.*
             FROM [dbo].[Favorite] f
             JOIN [dbo].[Show] s ON f.[Show] = s.[Id]
             WHERE f.[Account] = ?
@@ -130,18 +121,17 @@ public class FavoriteRepository implements RepositoryInterface<Favorite>{
 
         return jdbcClient.sql(sql)
                 .params(account, page * size, size)
-                .query(FavoriteShow.class)
+                .query(Show.class)
                 .list();
     }
 
     public Integer getFavoritesPageCount(UUID account, int size) {
-        String sql = "SELECT COUNT(*)/? FROM [dbo].[Favorite] WHERE [Account] = ?";
+        String sql = "SELECT CEILING(COUNT(*) * 1.0 / ?) FROM [dbo].[Favorite] WHERE [Account] = ?";
         return jdbcClient.sql(sql)
                 .params(size, account)
                 .query(Integer.class)
                 .optional()
                 .orElse(0);
-    }
-}
+    }}
 
 
