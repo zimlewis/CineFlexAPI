@@ -55,4 +55,11 @@ public class FavoriteService {
     public Integer getFavoriteCount(UUID show) {
         return favoriteRepository.getFavoriteCount(show);
     }
+        public List<Show> getMostFavoritedShows(int page, int size) {
+        return favoriteRepository.getMostFavoritedShows(page, size);
+    }
+
+    public Integer getMostFavoritedShowsPageCount(int size) {
+        return favoriteRepository.getMostFavoritedShowsPageCount(size);
+    }
 }

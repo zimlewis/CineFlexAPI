@@ -132,6 +132,33 @@ public class FavoriteRepository implements RepositoryInterface<Favorite>{
                 .query(Integer.class)
                 .optional()
                 .orElse(0);
-    }}
+    }
+        public List<Show> getMostFavoritedShows(int page, int size) {
+            String sql = """
+                SELECT s.*
+                FROM [dbo].[Favorite] f
+                JOIN [dbo].[Show] s ON f.[Show] = s.[Id]
+                GROUP BY s.[Id], s.[Title], s.[Description], s.[ReleaseDate], 
+                        s.[Thumbnail], s.[OnGoing], s.[IsSeries], s.[AgeRating]
+                ORDER BY COUNT(f.[Id]) DESC
+                OFFSET ? ROWS FETCH NEXT ? ROWS ONLY
+                """;
+
+            return jdbcClient.sql(sql)
+                    .params(page * size, size)
+                    .query(Show.class)
+                    .list();
+        }
+
+        public Integer getMostFavoritedShowsPageCount(int size) {
+            String sql = "SELECT CEILING(COUNT(DISTINCT [Show]) * 1.0 / ?) FROM [dbo].[Favorite]";
+            return jdbcClient.sql(sql)
+                    .params(size)
+                    .query(Integer.class)
+                    .optional()
+                    .orElse(0);
+        }
+    }
+
 
 

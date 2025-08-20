@@ -53,6 +53,25 @@ public class FavoriteAPI {
             ).build();
         }
     }
+    @GetMapping("/top")
+    public ResponseEntity<List<Show>> getTopFavoritedShows(
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "6") Integer size
+    ) {
+        try {
+            List<Show> topShows = favoriteService.getMostFavoritedShows(page, size);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("X-Total-Page", favoriteService.getMostFavoritedShowsPageCount(size).toString());
+
+            return new ResponseEntity<>(topShows, headers, HttpStatus.OK);
+        } catch (ResponseStatusException e) {
+            return ResponseEntity.of(
+                    ProblemDetail.forStatusAndDetail(e.getStatusCode(), e.getReason())
+            ).build();
+        }
+    }
+
 
     @GetMapping("")
     public ResponseEntity<List<Show>> getFavorites(
