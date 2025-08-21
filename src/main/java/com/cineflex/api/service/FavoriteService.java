@@ -21,42 +21,19 @@ public class FavoriteService {
         this.favoriteRepository = favoriteRepository;
     }
 
-    public void addFavorite(UUID account, UUID show) {
-        Favorite existing = favoriteRepository.getFavorite(account, show);
-        if (existing != null) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "User already favorited this show");
-        }
-
-        Favorite f = Favorite.builder()
-                .account(account)
-                .show(show)
-                .createdTime(LocalDateTime.now())
-                .build();
-
-        favoriteRepository.create(f);
-    }
-
-    public void removeFavorite(UUID account, UUID show) {
-        Favorite existing = favoriteRepository.getFavorite(account, show);
-        if (existing == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Favorite not found");
-        }
-        favoriteRepository.removeFavorite(account, show);
-    }
-
     public List<Show> getFavoriteShows(UUID account, int page, int size) {
-    if (account == null) {
-        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Account ID cannot be null");
-    }
-    if (page < 0 || size <= 0) {
-        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid pagination parameters");
-    }
+        if (account == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Account ID cannot be null");
+        }
+        if (page < 0 || size <= 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid pagination parameters");
+        }
 
-    List<Show> shows = favoriteRepository.getFavoriteShowsByAccount(account, page, size);
-    if (shows == null || shows.isEmpty()) {
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No favorite shows found for this account");
-    }
-    return shows;
+        List<Show> shows = favoriteRepository.getFavoriteShowsByAccount(account, page, size);
+        if (shows == null || shows.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No favorite shows found for this account");
+        }
+        return shows;
     }
 
     public Integer getFavoritesPageCount(UUID account, int size) {
@@ -73,6 +50,7 @@ public class FavoriteService {
         }
         return count;
     }
+
 
     public Integer getFavoriteCount(UUID show) {
         if (show == null) {
@@ -109,5 +87,4 @@ public class FavoriteService {
         }
         return count;
     }
-
 }

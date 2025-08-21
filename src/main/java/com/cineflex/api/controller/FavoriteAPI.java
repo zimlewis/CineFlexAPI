@@ -28,32 +28,6 @@ public class FavoriteAPI {
         this.authenticationService = authenticationService;
     }
 
-    @PostMapping("/{showId}")
-    public ResponseEntity<?> addFavorite(@PathVariable String showId) {
-        try {
-            Account account = authenticationService.getAccount();
-            favoriteService.addFavorite(account.getId(), UUID.fromString(showId));
-            return new ResponseEntity<>(HttpStatus.CREATED);
-        } catch (ResponseStatusException e) {
-            return ResponseEntity.of(
-                    ProblemDetail.forStatusAndDetail(e.getStatusCode(), e.getReason())
-            ).build();
-        }
-    }
-
-    @DeleteMapping("/{showId}")
-    public ResponseEntity<?> removeFavorite(@PathVariable String showId) {
-        try {
-            Account account = authenticationService.getAccount();
-            favoriteService.removeFavorite(account.getId(), UUID.fromString(showId));
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } catch (ResponseStatusException e) {
-            return ResponseEntity.of(
-                    ProblemDetail.forStatusAndDetail(e.getStatusCode(), e.getReason())
-            ).build();
-        }
-    }
-    @GetMapping("/top")
     public ResponseEntity<List<Show>> getTopFavoritedShows(
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "6") Integer size
