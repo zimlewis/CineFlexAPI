@@ -21,29 +21,6 @@ public class FavoriteService {
         this.favoriteRepository = favoriteRepository;
     }
 
-    public void addFavorite(UUID account, UUID show) {
-        Favorite existing = favoriteRepository.getFavorite(account, show);
-        if (existing != null) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "User already favorited this show");
-        }
-
-        Favorite f = Favorite.builder()
-                .account(account)
-                .show(show)
-                .createdTime(LocalDateTime.now())
-                .build();
-
-        favoriteRepository.create(f);
-    }
-
-    public void removeFavorite(UUID account, UUID show) {
-        Favorite existing = favoriteRepository.getFavorite(account, show);
-        if (existing == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Favorite not found");
-        }
-        favoriteRepository.removeFavorite(account, show);
-    }
-
     public List<Show> getFavoriteShows(UUID account, int page, int size) {
         return favoriteRepository.getFavoriteShowsByAccount(account, page, size);
     }
@@ -52,7 +29,4 @@ public class FavoriteService {
         return favoriteRepository.getFavoritesPageCount(account, size);
     }
 
-    public Integer getFavoriteCount(UUID show) {
-        return favoriteRepository.getFavoriteCount(show);
-    }
 }
