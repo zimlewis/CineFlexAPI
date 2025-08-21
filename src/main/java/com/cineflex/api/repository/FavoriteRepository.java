@@ -135,13 +135,18 @@ public class FavoriteRepository implements RepositoryInterface<Favorite>{
     }
         public List<Show> getMostFavoritedShows(int page, int size) {
             String sql = """
-                SELECT s.*
-                FROM [dbo].[Favorite] f
-                JOIN [dbo].[Show] s ON f.[Show] = s.[Id]
-                GROUP BY s.[Id], s.[Title], s.[Description], s.[ReleaseDate], 
-                        s.[Thumbnail], s.[OnGoing], s.[IsSeries], s.[AgeRating]
-                ORDER BY COUNT(f.[Id]) DESC
-                OFFSET ? ROWS FETCH NEXT ? ROWS ONLY
+            SELECT s.[Id], s.[Title], s.[Description], s.[ReleaseDate],\\s
+                   s.[Thumbnail], s.[CreatedTime], s.[UpdatedTime],
+                   s.[OnGoing], s.[IsSeries], s.[AgeRating],
+                   s.[IsDeleted], s.[CommentSection]
+            FROM [dbo].[Favorite] f
+            JOIN [dbo].[Show] s ON f.[Show] = s.[Id]
+            GROUP BY s.[Id], s.[Title], s.[Description], s.[ReleaseDate],\\s
+                     s.[Thumbnail], s.[CreatedTime], s.[UpdatedTime],
+                     s.[OnGoing], s.[IsSeries], s.[AgeRating],
+                     s.[IsDeleted], s.[CommentSection]
+            ORDER BY COUNT(*) DESC
+            OFFSET ? ROWS FETCH NEXT ? ROWS ONLY
                 """;
 
             return jdbcClient.sql(sql)

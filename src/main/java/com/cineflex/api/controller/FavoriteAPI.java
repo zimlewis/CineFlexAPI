@@ -28,6 +28,8 @@ public class FavoriteAPI {
         this.authenticationService = authenticationService;
     }
 
+
+    @GetMapping("/top")
     public ResponseEntity<List<Show>> getTopFavoritedShows(
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "6") Integer size
