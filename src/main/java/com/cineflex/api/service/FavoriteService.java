@@ -45,21 +45,69 @@ public class FavoriteService {
     }
 
     public List<Show> getFavoriteShows(UUID account, int page, int size) {
-        return favoriteRepository.getFavoriteShowsByAccount(account, page, size);
+    if (account == null) {
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Account ID cannot be null");
+    }
+    if (page < 0 || size <= 0) {
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid pagination parameters");
+    }
+
+    List<Show> shows = favoriteRepository.getFavoriteShowsByAccount(account, page, size);
+    if (shows == null || shows.isEmpty()) {
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No favorite shows found for this account");
+    }
+    return shows;
     }
 
     public Integer getFavoritesPageCount(UUID account, int size) {
-        return favoriteRepository.getFavoritesPageCount(account, size);
+        if (account == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Account ID cannot be null");
+        }
+        if (size <= 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Page size must be greater than zero");
+        }
+
+        Integer count = favoriteRepository.getFavoritesPageCount(account, size);
+        if (count == null || count == 0) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No favorite shows found for this account");
+        }
+        return count;
     }
 
     public Integer getFavoriteCount(UUID show) {
-        return favoriteRepository.getFavoriteCount(show);
+        if (show == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Show ID cannot be null");
+        }
+
+        Integer count = favoriteRepository.getFavoriteCount(show);
+        if (count == null || count == 0) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No favorites found for this show");
+        }
+        return count;
     }
-        public List<Show> getMostFavoritedShows(int page, int size) {
-        return favoriteRepository.getMostFavoritedShows(page, size);
+
+    public List<Show> getMostFavoritedShows(int page, int size) {
+        if (page < 0 || size <= 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid pagination parameters");
+        }
+
+        List<Show> shows = favoriteRepository.getMostFavoritedShows(page, size);
+        if (shows == null || shows.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No shows found");
+        }
+        return shows;
     }
 
     public Integer getMostFavoritedShowsPageCount(int size) {
-        return favoriteRepository.getMostFavoritedShowsPageCount(size);
+        if (size <= 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Page size must be greater than zero");
+        }
+
+        Integer count = favoriteRepository.getMostFavoritedShowsPageCount(size);
+        if (count == null || count == 0) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No shows found");
+        }
+        return count;
     }
+
 }
