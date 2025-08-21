@@ -14,7 +14,6 @@ import com.cineflex.api.model.Show;
 import com.cineflex.api.service.AuthenticationService;
 import com.cineflex.api.service.FavoriteService;
 
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/favorites")
@@ -28,6 +27,7 @@ public class FavoriteAPI {
         this.authenticationService = authenticationService;
     }
 
+    @GetMapping("/top")
     public ResponseEntity<List<Show>> getTopFavoritedShows(
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "6") Integer size
@@ -45,7 +45,6 @@ public class FavoriteAPI {
             ).build();
         }
     }
-
 
     @GetMapping("")
     public ResponseEntity<List<Show>> getFavorites(
