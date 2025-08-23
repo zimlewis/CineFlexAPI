@@ -185,4 +185,34 @@ public class AccountRepository implements RepositoryInterface<Account>{
         
         return pageCount;
     }
+    public long countAllUsers() {
+        String sql = "SELECT COUNT(*) FROM Account";
+        return jdbcClient.sql(sql)
+                .query(Long.class)
+                .single();
+    }
+
+    public long countFreeUsers() {
+        String sql = """
+        
+                SELECT COUNT(*) 
+        FROM Account a 
+        WHERE NOT EXISTS (
+            SELECT 1 
+            FROM Subscription s 
+            WHERE s.account = a.id 
+              AND s.endTime > GETDATE()
+        )
+        """;
+        return jdbcClient.sql(sql)
+                .query(Long.class)
+                .single();
+    }
+
+    public long countActiveSubscriptions() {
+        String sql = "SELECT COUNT(*) FROM Subscription WHERE endTime > GETDATE()";
+        return jdbcClient.sql(sql)
+                .query(Long.class)
+                .single();
+    }
 }

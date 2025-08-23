@@ -10,6 +10,7 @@ import com.cineflex.api.model.Subscription;
 import com.cineflex.api.model.ViewHistory;
 import com.cineflex.api.service.AccountDetailService;
 import com.cineflex.api.service.AccountModeratingService;
+import com.cineflex.api.service.AccountStatisticService;
 import com.cineflex.api.service.AuthenticationService;
 import com.cineflex.api.service.JsonService;
 import com.cineflex.api.service.OrderService;
@@ -35,6 +36,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 public class AccountAPI {
 
     private final AccountDetailService accountDetailService;
+    private final AccountStatisticService accountStatisticService;
     private final OrderService orderService;
     private final AuthenticationService authenticationService;
     private final AccountModeratingService accountModeratingService;
@@ -44,6 +46,7 @@ public class AccountAPI {
 
     public AccountAPI(
         AccountDetailService accountDetailService,
+        AccountStatisticService accountStatisticService,
         OrderService orderService,
         AuthenticationService authenticationService,
         AccountModeratingService accountModeratingService,
@@ -51,6 +54,7 @@ public class AccountAPI {
         ShowService showService
     ) {
         this.accountDetailService = accountDetailService;
+        this.accountStatisticService = accountStatisticService;
         this.orderService = orderService;
         this.authenticationService = authenticationService;
         this.accountModeratingService = accountModeratingService;
@@ -268,6 +272,25 @@ public class AccountAPI {
                     e.getStatusCode(),
                     e.getReason())).build();
         }
+    }
+    @GetMapping("/stats")
+    public ResponseEntity<?> getAllStats() {
+        return ResponseEntity.ok(accountStatisticService.getUserStatistics());
+    }
+
+    @GetMapping("/stats/total")
+    public long getTotalUsers() {
+        return accountStatisticService.getTotalUsers();
+    }
+
+    @GetMapping("/stats/free")
+    public long getFreeUsers() {
+        return accountStatisticService.getFreeUsers();
+    }
+
+    @GetMapping("/stats/premium")
+    public long getActiveSubscriptions() {
+        return accountStatisticService.getActiveSubscriptions();
     }
 
 }
