@@ -645,6 +645,16 @@ public class ShowService {
         }
     }
 
+    public List<Episode> getLikedEpisodes(UUID account) {
+        try {
+            return episodeRepository.getLikedEpisodeDetails(account);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
+
+
+
     public ViewHistory getViewHistoryOfAccountAndEpisode(UUID account, UUID episode) {
         try {
             ViewHistory viewHistory = viewHistoryRepository.getViewHistory(account, episode);
