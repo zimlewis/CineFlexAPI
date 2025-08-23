@@ -450,4 +450,12 @@ public class ShowRepository implements RepositoryInterface<Show> {
         return pageCount;
     }
 
+    public Double getAverageRate(UUID show) {
+        String sql = "SELECT AVG([Value]) FROM [dbo].[Rating] WHERE [Show] = ? GROUP BY [Show]";
+        
+        Double rate = jdbcClient.sql(sql).params(show).query(Double.class).optional().orElse(0.0);
+
+        return rate;
+    }
+
 }

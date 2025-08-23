@@ -9,6 +9,7 @@ import java.util.UUID;
 
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,7 @@ import com.cineflex.api.model.Episode;
 import com.cineflex.api.model.Favorite;
 import com.cineflex.api.model.Genre;
 import com.cineflex.api.model.Like;
+import com.cineflex.api.model.Rating;
 import com.cineflex.api.model.Season;
 import com.cineflex.api.model.Show;
 import com.cineflex.api.model.ShowGenre;
@@ -708,6 +710,46 @@ public class ShowService {
         try {
             Integer pageCount = viewHistoryRepository.getViewHistoriesByAccountPageCount(size, id);
             return pageCount;
+        }
+        catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getLocalizedMessage());
+        }
+    }
+
+    public Double getShowAverageRate(UUID show) {
+        try {
+            Double rate = showRepository.getAverageRate(show);
+            return rate;
+        }
+        catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getLocalizedMessage());
+        }
+    }
+
+    public Rating getShowUserRate(UUID show, UUID account) {
+        try {
+            Rating rating = ratingRepository.getRating(show, account);
+            return rating;
+        }
+        catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getLocalizedMessage());
+        }
+    }
+
+    @Transactional
+    public Rating rateShow(UUID show, UUID account, Integer value) {
+        try {
+            ratingRepository.deleteRating(show, account);
+            ratingRepository.create(Rating.builder()
+                .account(account)
+                .show(show)
+                .value(value)
+                .createdTime(LocalDateTime.now())
+                .build()
+            );
+
+            Rating rating = ratingRepository.getRating(show, account);
+            return rating;
         }
         catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getLocalizedMessage());

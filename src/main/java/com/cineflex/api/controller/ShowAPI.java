@@ -6,6 +6,7 @@ import org.springframework.web.server.ResponseStatusException;
 import com.cineflex.api.model.Account;
 import com.cineflex.api.model.Comment;
 import com.cineflex.api.model.Genre;
+import com.cineflex.api.model.Rating;
 import com.cineflex.api.model.Season;
 import com.cineflex.api.model.Show;
 import com.cineflex.api.service.AuthenticationService;
@@ -475,6 +476,88 @@ public class ShowAPI {
         }
     }
 
+    @GetMapping("/{id}/avg-rate")
+    public ResponseEntity<Double> getShowAverageRate(@PathVariable String id) {
+        try {
+            UUID show = UUID.fromString(id);
+            Double average = showService.getShowAverageRate(show);
+
+            return new ResponseEntity<>(average ,HttpStatus.OK);
+        }
+        catch (ResponseStatusException e) {
+            return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                e.getReason()
+            )).build();
+        }
+    }
+
+    @GetMapping("/{id}/rate")
+    public ResponseEntity<Rating> getShowRateByAccount(@PathVariable String id) {
+        try {
+            Account user = authenticationService.getAccount();
+
+            if (user == null) {
+                return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
+                        HttpStatus.UNAUTHORIZED,
+                        "The client did not logged in")).build();
+            }
+
+
+            if (id == null) {
+                return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Did not provide show"
+                )).build();
+            }
+
+            UUID show = UUID.fromString(id);
+
+            Rating rating = showService.getShowUserRate(show, user.getId());
+            return new ResponseEntity<>(rating, HttpStatus.OK);
+        }
+        catch (ResponseStatusException e) {
+            return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                e.getReason()
+            )).build();
+        }
+
+    }
+
+    @PostMapping("/{id}/rate")
+    public ResponseEntity<Rating> rateShow(@RequestBody JsonNode jsonNode, @PathVariable String id) {
+        try {
+
+            Account user = authenticationService.getAccount();
+            Integer value = jsonService.getOrNull(jsonNode, "value", Integer.class);
+
+            if (user == null) {
+                return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
+                        HttpStatus.UNAUTHORIZED,
+                        "The client did not logged in")).build();
+            }
+
+
+            if (id == null) {
+                return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Did not provide show"
+                )).build();
+            }
+
+            UUID show = UUID.fromString(id);
+
+            Rating rating = showService.rateShow(show, user.getId(), value);
+            return new ResponseEntity<>(rating, HttpStatus.OK);
+        }
+        catch (ResponseStatusException e) {
+            return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    e.getReason())).build();
+        }
+    }
+
 
     @PostMapping("/{id}/comments")
     public ResponseEntity<Comment> postACommentToEpisode(@RequestBody JsonNode jsonNode, @PathVariable String id) {
@@ -505,7 +588,8 @@ public class ShowAPI {
             Comment returnedComment = commentService.addToShowComment(comment, show);
 
             return new ResponseEntity<>(returnedComment, HttpStatus.CREATED);
-        } catch (ResponseStatusException e) {
+        } 
+        catch (ResponseStatusException e) {
             return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
                     HttpStatus.INTERNAL_SERVER_ERROR,
                     e.getReason())).build();
