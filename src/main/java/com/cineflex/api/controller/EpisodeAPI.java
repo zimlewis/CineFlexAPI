@@ -340,8 +340,15 @@ public class EpisodeAPI {
 
     @GetMapping("/liked")
     public ResponseEntity<?> getLikedEpisodes() {
-        Account account = authenticationService.getAccount();
-        return ResponseEntity.ok(showService.getLikedEpisodes(account.getId()));
+        try {
+            Account account = authenticationService.getAccount();
+            return ResponseEntity.ok(showService.getLikedEpisodes(account.getId()));
+        }
+        catch (ResponseStatusException e) {
+            return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    e.getReason())).build();
+        }
     }
 
 
