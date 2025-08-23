@@ -337,6 +337,19 @@ public class EpisodeAPI {
                     e.getReason())).build();
         }
     }
-    
-    
+
+    @GetMapping("/liked")
+    public ResponseEntity<?> getLikedEpisodes() {
+        try {
+            Account account = authenticationService.getAccount();
+            return ResponseEntity.ok(showService.getLikedEpisodes(account.getId()));
+        }
+        catch (ResponseStatusException e) {
+            return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    e.getReason())).build();
+        }
+    }
+
+
 }

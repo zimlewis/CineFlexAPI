@@ -187,5 +187,19 @@ public class EpisodeRepository implements RepositoryInterface<Episode>{
     //         throw new RuntimeException("Cannot delete episode(s)");
     //     }
     // }
+
+    public List<Episode> getLikedEpisodeDetails(UUID account) {
+        String sql = """
+        SELECT e.*
+        FROM [dbo].[Episode] e
+        INNER JOIN [dbo].[Like] l ON e.id = l.episode
+        WHERE l.account = ?
+    """;
+
+        return jdbcClient.sql(sql)
+                .param(account)
+                .query(Episode.class)
+                .list();
+    }
     
 }
