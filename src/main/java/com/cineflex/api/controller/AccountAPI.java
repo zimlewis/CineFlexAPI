@@ -275,22 +275,66 @@ public class AccountAPI {
     }
     @GetMapping("/stats")
     public ResponseEntity<?> getAllStats() {
-        return ResponseEntity.ok(accountStatisticService.getUserStatistics());
+        try {
+            return ResponseEntity.ok(accountStatisticService.getUserStatistics());
+        }
+        catch (ResponseStatusException e) {
+            return ResponseEntity.of(
+                    ProblemDetail.forStatusAndDetail(
+                            e.getStatusCode(),
+                            e.getReason()
+                    )
+            ).build();
+        }
     }
 
     @GetMapping("/stats/total")
-    public long getTotalUsers() {
-        return accountStatisticService.getTotalUsers();
+    public ResponseEntity<?> getTotalUsers() {
+        try {
+            long total = accountStatisticService.getTotalUsers();
+            return new ResponseEntity<>(total, HttpStatus.OK);
+        }
+        catch (ResponseStatusException e) {
+            return ResponseEntity.of(
+                    ProblemDetail.forStatusAndDetail(
+                            e.getStatusCode(),
+                            e.getReason()
+                    )
+            ).build();
+        }
     }
 
     @GetMapping("/stats/free")
-    public long getFreeUsers() {
-        return accountStatisticService.getFreeUsers();
+    public ResponseEntity<?> getFreeUsers() {
+        try {
+            long free = accountStatisticService.getFreeUsers();
+            return new ResponseEntity<>(free, HttpStatus.OK);
+        }
+        catch (ResponseStatusException e) {
+            return ResponseEntity.of(
+                    ProblemDetail.forStatusAndDetail(
+                            e.getStatusCode(),
+                            e.getReason()
+                    )
+            ).build();
+        }
     }
 
     @GetMapping("/stats/premium")
-    public long getActiveSubscriptions() {
-        return accountStatisticService.getActiveSubscriptions();
+    public ResponseEntity<?> getActiveSubscriptions() {
+        try {
+            long premium = accountStatisticService.getActiveSubscriptions();
+            return new ResponseEntity<>(premium, HttpStatus.OK);
+        }
+        catch (ResponseStatusException e) {
+            return ResponseEntity.of(
+                    ProblemDetail.forStatusAndDetail(
+                            e.getStatusCode(),
+                            e.getReason()
+                    )
+            ).build();
+        }
     }
+
 
 }

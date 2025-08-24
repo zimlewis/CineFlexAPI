@@ -94,11 +94,12 @@ public class AdvertisementAPI {
     }
 
     @GetMapping("/count")
-    public ResponseEntity<Integer> getAdvertisementCount() {
+    public ResponseEntity<?> getAdvertisementCount() {
         try {
             Integer count = advertisementService.getTotalAdvertisementCount();
             return new ResponseEntity<>(count, HttpStatus.OK);
-        } catch (ResponseStatusException e) {
+        }
+        catch (ResponseStatusException e) {
             return ResponseEntity.of(
                     ProblemDetail.forStatusAndDetail(
                             e.getStatusCode(),
@@ -107,6 +108,7 @@ public class AdvertisementAPI {
             ).build();
         }
     }
+
     
     
     
