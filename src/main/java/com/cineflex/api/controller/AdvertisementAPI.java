@@ -93,7 +93,7 @@ public class AdvertisementAPI {
 
     }
 
-    @GetMapping("/count")
+    @GetMapping("/dash/total")
     public ResponseEntity<Integer> getAdvertisementCount() {
         try {
             Integer count = advertisementService.getTotalAdvertisementCount();
