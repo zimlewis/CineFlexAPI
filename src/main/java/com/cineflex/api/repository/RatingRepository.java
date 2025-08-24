@@ -85,7 +85,7 @@ public class RatingRepository implements RepositoryInterface<Rating>{
     }
 
     public Rating getRating(UUID show, UUID account) {
-        String sql = "SELECT * FROM [dbo].[Rating] WHERE [Show] = ? AND [Account] ?";
+        String sql = "SELECT * FROM [dbo].[Rating] WHERE [Show] = ? AND [Account] = ?";
 
         Rating rating = jdbcClient.sql(sql)
             .params(show, account)
