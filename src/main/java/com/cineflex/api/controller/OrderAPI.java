@@ -47,7 +47,7 @@ public class OrderAPI {
     }
 
     @GetMapping("/revenue/total")
-    public ResponseEntity<Double> getTotalRevenue() {
+    public ResponseEntity<?> getTotalRevenue() {
         try {
             Double revenue = orderService.getTotalRevenue();
             return new ResponseEntity<>(revenue, HttpStatus.OK);

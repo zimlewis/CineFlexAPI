@@ -75,5 +75,25 @@ public class RatingRepository implements RepositoryInterface<Rating>{
         
         return pageCount;
     }
-    
+
+    public void deleteRating(UUID show, UUID account) {
+        String sql = "DELETE FROM [dbo].[Rating] WHERE [Show] = ? AND [Account] = ?";
+
+        jdbcClient.sql(sql)
+            .params(show, account)
+            .update();
+    }
+
+    public Rating getRating(UUID show, UUID account) {
+        String sql = "SELECT * FROM [dbo].[Rating] WHERE [Show] = ? AND [Account] = ?";
+
+        Rating rating = jdbcClient.sql(sql)
+            .params(show, account)
+            .query(Rating.class)
+            .optional()
+            .orElse(null);
+
+        return rating;
+
+    }
 }
