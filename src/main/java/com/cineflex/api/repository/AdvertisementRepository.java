@@ -97,5 +97,15 @@ public class AdvertisementRepository implements RepositoryInterface<Advertisemen
 
         return pageCount;
     }
+
+    public Integer getTotalCount() {
+        String sql = "SELECT COUNT([Id]) FROM [dbo].[Advertisement]";
+
+        return jdbcClient
+                .sql(sql)
+                .query(Integer.class)
+                .optional()
+                .orElse(0);
+    }
     
 }

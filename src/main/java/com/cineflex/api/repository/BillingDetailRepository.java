@@ -123,5 +123,15 @@ public class BillingDetailRepository implements RepositoryInterface<BillingDetai
     public List<BillingDetail> readAll() {
         return readAll(0, 5);
     }
-    
+
+    public Double getTotalRevenue() {
+        String sql = "SELECT COALESCE(SUM([Amount]), 0) FROM [dbo].[BillingDetail] WHERE [Paid] = 1";
+
+        return jdbcClient
+                .sql(sql)
+                .query(Double.class)
+                .optional()
+                .orElse(0.0);
+    }
+
 }

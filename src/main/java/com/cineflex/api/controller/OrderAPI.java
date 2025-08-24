@@ -45,6 +45,19 @@ public class OrderAPI {
             return ResponseEntity.of(ProblemDetail.forStatusAndDetail(e.getStatusCode(), e.getReason())).build();
         }
     }
+
+    @GetMapping("/revenue/total")
+    public ResponseEntity<Double> getTotalRevenue() {
+        try {
+            Double revenue = orderService.getTotalRevenue();
+            return new ResponseEntity<>(revenue, HttpStatus.OK);
+        } catch (ResponseStatusException e) {
+            return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    e.getReason()
+            )).build();
+        }
+    }
     
 
     @PostMapping("")
@@ -76,6 +89,7 @@ public class OrderAPI {
             )).build();
         }
     }
+
     
     
 }

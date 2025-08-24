@@ -159,4 +159,12 @@ public class AdvertisementService {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }
     }
+
+    public Integer getTotalAdvertisementCount() {
+        try {
+            return advertisementRepository.getTotalCount();
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
 }

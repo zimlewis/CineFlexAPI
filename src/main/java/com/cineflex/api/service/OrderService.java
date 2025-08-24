@@ -181,4 +181,13 @@ public class OrderService {
         }
     }
 
+    public Double getTotalRevenue() {
+        try {
+            return billingDetailRepository.getTotalRevenue();
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
+
+
 }
