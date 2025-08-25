@@ -44,30 +44,53 @@ public class SecurityConfiguration {
 
         http.addFilterAfter(this.jwtFilter, UsernamePasswordAuthenticationFilter.class);
         http.authorizeHttpRequests(auth -> auth
-            .requestMatchers("/api/authentication/login").permitAll()
-            .requestMatchers("/api/authentication/register").permitAll()
-            .requestMatchers("/api/authentication/profile").authenticated()
-            .requestMatchers("/api/authentication/verify/*").permitAll()
-            .requestMatchers("/api/authentication/verify").permitAll()
-
-            .requestMatchers(HttpMethod.PUT, "/api/episodes/*").hasAuthority("MUTATE_CONTENT")
+            .requestMatchers(HttpMethod.DELETE, "/api/comments/*").hasAuthority("MODERATE_COMMENT")
             .requestMatchers(HttpMethod.DELETE, "/api/episodes/*").hasAuthority("MUTATE_CONTENT")
-
-            .requestMatchers(HttpMethod.POST, "/api/genre").hasAuthority("MUTATE_CONTENT")
-
-            .requestMatchers(HttpMethod.PUT, "/api/seasons/*").hasAuthority("MUTATE_CONTENT")
             .requestMatchers(HttpMethod.DELETE, "/api/seasons/*").hasAuthority("MUTATE_CONTENT")
-            .requestMatchers(HttpMethod.POST, "/api/seasons/*/episodes").hasAuthority("MUTATE_CONTENT")
-
-            .requestMatchers(HttpMethod.POST, "/api/shows").hasAuthority("MUTATE_CONTENT")
-            .requestMatchers(HttpMethod.PUT, "/api/shows/*").hasAuthority("MUTATE_CONTENT")
             .requestMatchers(HttpMethod.DELETE, "/api/shows/*").hasAuthority("MUTATE_CONTENT")
-            .requestMatchers(HttpMethod.POST, "/api/shows/*/seasons").hasAuthority("MUTATE_CONTENT")
-            .requestMatchers(HttpMethod.POST, "/api/shows/*/genres").hasAuthority("MUTATE_CONTENT")
 
-            .requestMatchers(HttpMethod.POST, "/api/comments/*").authenticated()
-
+            .requestMatchers(HttpMethod.GET, "/api/authentication/profile").authenticated()
+            .requestMatchers(HttpMethod.GET, "/api/authentication/role").authenticated()
+            .requestMatchers(HttpMethod.GET, "/api/comments/sections/*/deleted").hasAuthority("MODERATE_COMMENT")
+            .requestMatchers(HttpMethod.GET, "/api/episodes/liked").authenticated()
+            .requestMatchers(HttpMethod.GET, "/api/favorites").authenticated()
+            .requestMatchers(HttpMethod.GET, "/api/hirers/*").hasAuthority("MUTATE_CONTENT")
+            .requestMatchers(HttpMethod.GET, "/api/hirers").hasAuthority("MUTATE_CONTENT")
+            .requestMatchers(HttpMethod.GET, "/api/shows/*/is-favorite").authenticated()
+            .requestMatchers(HttpMethod.GET, "/api/shows/*/rate").authenticated()
             .requestMatchers(HttpMethod.GET, "/api/users/subscription").authenticated()
+            .requestMatchers(HttpMethod.GET, "/api/users/view-history/*").authenticated()
+            .requestMatchers(HttpMethod.GET, "/api/users/view-history").authenticated()
+
+            .requestMatchers(HttpMethod.POST, "/api/advertisements").hasAuthority("MUTATE_CONTENT")
+            .requestMatchers(HttpMethod.POST, "/api/comments/report/*/approve").hasAuthority("MODERATE_COMMENT")
+            .requestMatchers(HttpMethod.POST, "/api/comments/report/*/ignore").hasAuthority("MODERATE_COMMENT")
+            .requestMatchers(HttpMethod.POST, "/api/comments/sections/*").authenticated()
+            .requestMatchers(HttpMethod.POST, "/api/comments/*/report").authenticated()
+            .requestMatchers(HttpMethod.POST, "/api/episodes/*/comments").authenticated()
+            .requestMatchers(HttpMethod.POST, "/api/episodes/*/like").authenticated()
+            .requestMatchers(HttpMethod.POST, "/api/episodes/*/unlike").authenticated()
+            .requestMatchers(HttpMethod.POST, "/api/episodes/*/view-history").authenticated()
+            .requestMatchers(HttpMethod.POST, "/api/genres").hasAuthority("MUTATE_CONTENT")
+            .requestMatchers(HttpMethod.POST, "/api/hirers").hasAuthority("MUTATE_CONTENT")
+            .requestMatchers(HttpMethod.POST, "/api/orders").authenticated()
+            .requestMatchers(HttpMethod.POST, "/api/seasons/*/episodes").hasAuthority("MUTATE_CONTENT")
+            .requestMatchers(HttpMethod.POST, "/api/shows/*/comments").authenticated()
+            .requestMatchers(HttpMethod.POST, "/api/shows/*/favorite").authenticated()
+            .requestMatchers(HttpMethod.POST, "/api/shows/*/rate").authenticated()
+            .requestMatchers(HttpMethod.POST, "/api/shows/*/seasons").hasAuthority("MUTATE_CONTENT")
+            .requestMatchers(HttpMethod.POST, "/api/shows/*/unfavorite").authenticated()
+            .requestMatchers(HttpMethod.POST, "/api/shows").hasAuthority("MUTATE_CONTENT")
+            
+            .requestMatchers(HttpMethod.PUT, "/api/advertisements/*").hasAuthority("MUTATE_CONTENT")
+            .requestMatchers(HttpMethod.PUT, "/api/episodes/*").hasAuthority("MUTATE_CONTENT")
+            .requestMatchers(HttpMethod.PUT, "/api/hirers/*").hasAuthority("MUTATE_CONTENT")
+            .requestMatchers(HttpMethod.PUT, "/api/seasons/*").hasAuthority("MUTATE_CONTENT")
+            .requestMatchers(HttpMethod.PUT, "/api/shows/*").hasAuthority("MUTATE_CONTENT")
+            .requestMatchers(HttpMethod.PUT, "/api/shows/*/genres").hasAuthority("MUTATE_CONTENT")
+            .requestMatchers(HttpMethod.PUT, "/api/users/*/ban").hasAuthority("MUTATE_CONTENT")
+            .requestMatchers(HttpMethod.PUT, "/api/users/*/unban").hasAuthority("MUTATE_CONTENT")
+            .requestMatchers(HttpMethod.PUT, "/api/users/*").hasAuthority("MUTATE_CONTENT")
 
             .anyRequest().permitAll()
         );
