@@ -9,6 +9,8 @@ import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
 
 import com.cineflex.api.model.ShowGenre;
+import com.cineflex.api.dto.MovieCompare;
+import java.util.ArrayList;
 
 @Repository
 public class ShowGenreRepository implements RepositoryInterface<ShowGenre> {
@@ -86,5 +88,32 @@ public class ShowGenreRepository implements RepositoryInterface<ShowGenre> {
         
         return pageCount;
     }
+
+    public Integer countAnimeShows() {
+        String sql = "SELECT COUNT(DISTINCT sg.[Show])\n" +
+                "        FROM [dbo].[ShowGenre] sg\n" +
+                "        JOIN [dbo].[Genre] g ON sg.[Genre] = g.[Id]\n" +
+                "        WHERE LOWER(g.[Name]) = 'anime'";
+
+        return jdbcClient.sql(sql)
+                .query(Integer.class)
+                .optional()
+                .orElse(0);
+    }
+
+    public Integer countPhimShows() {
+        String sql = """
+        SELECT COUNT(DISTINCT sg.[Show])
+        FROM [dbo].[ShowGenre] sg
+        JOIN [dbo].[Genre] g ON sg.[Genre] = g.[Id]
+        WHERE LOWER(g.[Name]) LIKE '%phim%'
+    """;
+
+        return jdbcClient.sql(sql)
+                .query(Integer.class)
+                .optional()
+                .orElse(0);
+    }
+
 
 }

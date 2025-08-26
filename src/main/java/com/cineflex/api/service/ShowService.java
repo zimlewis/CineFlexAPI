@@ -756,4 +756,12 @@ public class ShowService {
         }
     }
 
+    public Integer getTotalAnimeShows() {
+        return showGenreRepository.countAnimeShows();
+    }
+
+    public Integer getTotalPhimShows() {
+        return showGenreRepository.countPhimShows();
+    }
+
 }

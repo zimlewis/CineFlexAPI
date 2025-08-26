@@ -595,5 +595,45 @@ public class ShowAPI {
                     e.getReason())).build();
         }
     }
+    @GetMapping("/anime")
+    public ResponseEntity<Integer> getAnimeCount() {
+        try {
+            Integer count = showService.getTotalAnimeShows();
+            return new ResponseEntity<>(count, HttpStatus.OK);
+        }
+        catch (ResponseStatusException e) {
+            return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
+                    e.getStatusCode(),
+                    e.getReason()
+            )).build();
+        }
+        catch (Exception e) {
+            return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    e.getLocalizedMessage()
+            )).build();
+        }
+    }
+
+    @GetMapping("/phim")
+    public ResponseEntity<Integer> getPhimCount() {
+        try {
+            Integer count = showService.getTotalPhimShows();
+            return new ResponseEntity<>(count, HttpStatus.OK);
+        }
+        catch (ResponseStatusException e) {
+            return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
+                    e.getStatusCode(),
+                    e.getReason()
+            )).build();
+        }
+        catch (Exception e) {
+            return ResponseEntity.of(ProblemDetail.forStatusAndDetail(
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    e.getLocalizedMessage()
+            )).build();
+        }
+    }
+
 
 }
