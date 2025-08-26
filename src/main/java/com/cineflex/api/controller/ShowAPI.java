@@ -595,5 +595,14 @@ public class ShowAPI {
                     e.getReason())).build();
         }
     }
+    @GetMapping("/anime")
+    public Integer getAnimeCount() {
+        return showService.getTotalAnimeShows();
+    }
+
+    @GetMapping("/phim")
+    public Integer getPhimCount() {
+        return showService.getTotalPhimShows();
+    }
 
 }
